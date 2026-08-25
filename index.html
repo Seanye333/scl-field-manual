@@ -1,0 +1,1837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A practical course in Structured Control Language (SCL) for Siemens TIA Portal — S7-1200/1500, with quizzes, exercises and a quick reference.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+<title>SCL Field Manual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@87.5,400..700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+  :root {
+    --bg: #F6F8F8;
+    --surface: #FFFFFF;
+    --ink: #17262C;
+    --muted: #5A6E74;
+    --faint: #8FA3A8;
+    --line: #D8E1E3;
+    --accent: #0B7C85;
+    --accent-soft: #E1EFF0;
+    --amber: #B26A0B;
+    --amber-soft: #F6EDDD;
+    --good: #2E7D46;
+    --bad: #B3372B;
+    --code-bg: #0F1B1F;
+    --code-line: #1E3138;
+    --code-ink: #D7E4E7;
+    --code-kw: #6FD3DA;
+    --code-type: #E0A34E;
+    --code-com: #5F7E86;
+    --code-str: #A8D48A;
+    --code-num: #DCA8DC;
+    --sidebar-w: 272px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1518;
+      --surface: #121E22;
+      --ink: #D9E4E6;
+      --muted: #8DA3A9;
+      --faint: #64797F;
+      --line: #22343A;
+      --accent: #45BAC1;
+      --accent-soft: #123338;
+      --amber: #E0A34E;
+      --amber-soft: #2B2113;
+      --good: #6FBE87;
+      --bad: #E06B5D;
+      --code-bg: #0A1114;
+      --code-line: #1B2A30;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D1518;
+    --surface: #121E22;
+    --ink: #D9E4E6;
+    --muted: #8DA3A9;
+    --faint: #64797F;
+    --line: #22343A;
+    --accent: #45BAC1;
+    --accent-soft: #123338;
+    --amber: #E0A34E;
+    --amber-soft: #2B2113;
+    --good: #6FBE87;
+    --bad: #E06B5D;
+    --code-bg: #0A1114;
+    --code-line: #1B2A30;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  /* ---------- sidebar ---------- */
+  nav.rail {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    padding: 1.5rem 0 2rem;
+  }
+  .rail .brand {
+    padding: 0 1.25rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: .9rem;
+  }
+  .rail .brand .t {
+    font-family: "Saira", "Arial Narrow", sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .rail .brand .s {
+    font-size: .78rem;
+    color: var(--muted);
+    letter-spacing: .05em;
+  }
+  .rail .brand .prog {
+    margin-top: .5rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .72rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .rail .brand .prog b { color: var(--good); font-weight: 500; }
+  .rail a {
+    display: flex;
+    gap: .65rem;
+    align-items: baseline;
+    padding: .32rem 1.25rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .89rem;
+    border-left: 3px solid transparent;
+  }
+  .rail a .n {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .78rem;
+    color: var(--faint);
+    min-width: 1.4em;
+    font-variant-numeric: tabular-nums;
+  }
+  .rail a:hover { color: var(--ink); background: var(--accent-soft); }
+  .rail a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .rail a.active .n { color: var(--accent); }
+  .rail a.done::after {
+    content: "✓";
+    margin-left: auto;
+    color: var(--good);
+    font-weight: 700;
+  }
+  .rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  main {
+    margin-left: var(--sidebar-w);
+    padding: 0 clamp(1.25rem, 4vw, 4rem) 6rem;
+    max-width: 62rem;
+  }
+  #mobile-toc { display: none; }
+
+  @media (max-width: 900px) {
+    nav.rail { display: none; }
+    main { margin-left: 0; }
+    #mobile-toc {
+      display: block;
+      margin: 1rem 0 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+    #mobile-toc summary {
+      cursor: pointer;
+      padding: .7rem 1rem;
+      font-family: "Saira", sans-serif;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: .85rem;
+    }
+    #mobile-toc a {
+      display: block;
+      padding: .35rem 1.25rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .92rem;
+    }
+    #mobile-toc a:hover { color: var(--accent); }
+    #mobile-toc a.done::after { content: " ✓"; color: var(--good); font-weight: 700; }
+  }
+
+  /* ---------- hero ---------- */
+  header.hero {
+    padding: clamp(2.5rem, 7vh, 5rem) 0 2.5rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 1rem;
+  }
+  .hero .eyebrow {
+    font-family: "Saira", sans-serif;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .8rem;
+  }
+  .hero h1 {
+    font-family: "Saira", "Arial Narrow", sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    line-height: 1.04;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+  }
+  .hero h1 .thin { color: var(--muted); font-weight: 400; }
+  .hero p.lede {
+    max-width: 44rem;
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0 0 1.6rem;
+  }
+  .hero .specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.75rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .78rem;
+    color: var(--faint);
+  }
+  .hero .specs b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- chapters ---------- */
+  section.ch { padding-top: 2.5rem; }
+  section.ch + section.ch { border-top: 1px solid var(--line); margin-top: 3rem; }
+  .chnum {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .82rem;
+    letter-spacing: .16em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  h2 {
+    font-family: "Saira", "Arial Narrow", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3.2vw, 2.15rem);
+    line-height: 1.12;
+    letter-spacing: .015em;
+    text-transform: uppercase;
+    margin: .25rem 0 1.1rem;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: 1.18rem;
+    letter-spacing: .02em;
+    margin: 2.2rem 0 .6rem;
+  }
+  p, ul, ol { max-width: 70ch; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: .3rem 0; }
+  li::marker { color: var(--accent); }
+  a { color: var(--accent); }
+  strong { font-weight: 600; }
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .86em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: .08em .35em;
+    border-radius: 4px;
+  }
+
+  /* ---------- code panels ---------- */
+  figure.code {
+    margin: 1.4rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--code-line);
+    max-width: 54rem;
+  }
+  figure.code figcaption {
+    background: var(--code-line);
+    color: #9FB6BC;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .74rem;
+    letter-spacing: .06em;
+    padding: .4rem .9rem;
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+  }
+  figure.code figcaption > span:first-child { flex: 1; }
+  figure.code figcaption .lang { color: #6FD3DA; }
+  figure.code .copy {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .68rem;
+    letter-spacing: .08em;
+    background: none;
+    border: 1px solid #35505A;
+    color: #9FB6BC;
+    border-radius: 4px;
+    padding: .12rem .55rem;
+    cursor: pointer;
+  }
+  figure.code .copy:hover { color: #6FD3DA; border-color: #6FD3DA; }
+  figure.code .copy:focus-visible { outline: 2px solid #6FD3DA; }
+  pre.scl {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .84rem;
+    line-height: 1.62;
+    tab-size: 4;
+  }
+  pre.scl .kw  { color: var(--code-kw); font-weight: 500; }
+  pre.scl .ty  { color: var(--code-type); }
+  pre.scl .com { color: var(--code-com); font-style: italic; }
+  pre.scl .str { color: var(--code-str); }
+  pre.scl .num { color: var(--code-num); }
+
+  /* ---------- callouts ---------- */
+  .note, .warn {
+    max-width: 54rem;
+    margin: 1.3rem 0;
+    padding: .85rem 1.1rem;
+    border-radius: 6px;
+    font-size: .96rem;
+  }
+  .note { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+  .warn { background: var(--amber-soft); border-left: 4px solid var(--amber); }
+  .note b, .warn b {
+    font-family: "Saira", sans-serif;
+    font-size: .78rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: .15rem;
+  }
+  .note b { color: var(--accent); }
+  .warn b { color: var(--amber); }
+
+  /* ---------- tables ---------- */
+  .tablewrap { overflow-x: auto; max-width: 54rem; margin: 1.3rem 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .92rem;
+  }
+  th {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .78rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--muted);
+    border-bottom: 2px solid var(--accent);
+    padding: .45rem .75rem;
+    white-space: nowrap;
+  }
+  td {
+    border-bottom: 1px solid var(--line);
+    padding: .45rem .75rem;
+    vertical-align: top;
+  }
+  td code { white-space: nowrap; }
+  td.num, th.num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- quiz ---------- */
+  .quiz {
+    max-width: 54rem;
+    margin: 2rem 0 1rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 1rem 1.2rem 1.2rem;
+  }
+  .quiz .qhead {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .3rem;
+  }
+  .quiz .q { margin: 1rem 0 0; }
+  .quiz .q > p { margin: 0 0 .55rem; font-weight: 600; }
+  .quiz .opts { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .quiz .opts button {
+    font: inherit;
+    font-size: .9rem;
+    padding: .32rem .85rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .quiz .opts button:hover { border-color: var(--accent); color: var(--accent); }
+  .quiz .opts button:focus-visible { outline: 2px solid var(--accent); }
+  .quiz .q.answered .opts button { cursor: default; opacity: .6; }
+  .quiz .q.answered .opts button:hover { border-color: var(--line); color: var(--ink); }
+  .quiz .q .opts button.right {
+    border-color: var(--good); color: var(--good);
+    font-weight: 600; opacity: 1 !important;
+  }
+  .quiz .q .opts button.wrong {
+    border-color: var(--bad); color: var(--bad); opacity: 1 !important;
+  }
+  .quiz .why { display: none; margin-top: .55rem; font-size: .92rem; color: var(--muted); }
+  .quiz .q.answered .why { display: block; }
+
+  /* ---------- progress button ---------- */
+  .donebtn {
+    display: inline-block;
+    margin-top: 2.2rem;
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .8rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .45rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .donebtn:hover { border-color: var(--accent); color: var(--accent); }
+  .donebtn:focus-visible { outline: 2px solid var(--accent); }
+  .donebtn.on { border-color: var(--good); color: var(--good); }
+
+  /* ---------- exercises ---------- */
+  details.sol {
+    max-width: 54rem;
+    margin: .8rem 0 2rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  details.sol summary {
+    cursor: pointer;
+    padding: .6rem 1rem;
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: .85rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  details.sol summary:focus-visible { outline: 2px solid var(--accent); }
+  details.sol > div { padding: 0 1rem 1rem; }
+  .ex-title {
+    font-family: "Saira", sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 2.2rem 0 .4rem;
+  }
+  .ex-title .lvl {
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-left: .6rem;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--faint);
+    font-size: .85rem;
+    max-width: 54rem;
+  }
+</style>
+</head>
+<body>
+
+<nav class="rail" aria-label="Chapters">
+  <div class="brand">
+    <div class="t">SCL Field Manual</div>
+    <div class="s">Siemens TIA Portal · S7-1200/1500</div>
+    <div class="prog" id="progline"></div>
+  </div>
+  <a href="#ch1"><span class="n">01</span>Why SCL</a>
+  <a href="#ch2"><span class="n">02</span>Your first block</a>
+  <a href="#ch3"><span class="n">03</span>OBs, FBs, FCs &amp; DBs</a>
+  <a href="#ch4"><span class="n">04</span>Data types</a>
+  <a href="#ch5"><span class="n">05</span>Variables &amp; interfaces</a>
+  <a href="#ch6"><span class="n">06</span>Operators &amp; expressions</a>
+  <a href="#ch7"><span class="n">07</span>Control flow</a>
+  <a href="#ch8"><span class="n">08</span>Timers, counters, edges</a>
+  <a href="#ch9"><span class="n">09</span>Arrays, structs &amp; UDTs</a>
+  <a href="#ch10"><span class="n">10</span>Strings &amp; conversions</a>
+  <a href="#ch11"><span class="n">11</span>State machines</a>
+  <a href="#ch12"><span class="n">12</span>Reusable FB design</a>
+  <a href="#ch13"><span class="n">13</span>Closed-loop control</a>
+  <a href="#ch14"><span class="n">14</span>Talking to the world</a>
+  <a href="#ch15"><span class="n">15</span>Pitfalls &amp; debugging</a>
+  <a href="#ch16"><span class="n">16</span>Quick reference</a>
+  <a href="#ch17"><span class="n">17</span>Exercises</a>
+  <a href="#ch18"><span class="n">18</span>Roadmap &amp; resources</a>
+</nav>
+
+<main>
+<details id="mobile-toc">
+  <summary>Contents</summary>
+  <div id="mtoc"></div>
+</details>
+
+<header class="hero">
+  <div class="eyebrow">Structured Control Language · IEC 61131-3</div>
+  <h1>SCL Field<br>Manual <span class="thin">/ TIA Portal</span></h1>
+  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Quizzes check your understanding; your progress is remembered in this browser.</p>
+  <div class="specs">
+    <span>TARGET <b>S7-1200 / S7-1500</b></span>
+    <span>IDE <b>TIA Portal V17+</b></span>
+    <span>STANDARD <b>IEC 61131-3 ST</b></span>
+    <span>PRACTICE <b>PLCSIM / PLCSIM Advanced</b></span>
+  </div>
+</header>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch1">
+  <div class="chnum">Chapter 01</div>
+  <h2>Why SCL</h2>
+  <p><strong>SCL (Structured Control Language)</strong> is Siemens' implementation of <em>Structured Text</em> from the IEC 61131-3 standard — a Pascal-like, high-level text language that compiles to the same machine code as ladder logic. Everything you can do in LAD/FBD you can do in SCL, and a large class of problems is dramatically easier in text:</p>
+  <ul>
+    <li><strong>Math and formulas</strong> — scaling, PID pre-processing, totalizers, geometry. One line of SCL replaces a page of MOVE/CALCULATE boxes.</li>
+    <li><strong>Loops over arrays</strong> — checking 32 zones, averaging 100 samples, searching a recipe table. LAD simply has no good answer to <code>FOR</code>.</li>
+    <li><strong>State machines</strong> — a <code>CASE</code> statement reads like the sequence spec itself.</li>
+    <li><strong>String and recipe handling</strong> — barcodes, telegram parsing, filenames.</li>
+    <li><strong>Version control &amp; review</strong> — text diffs cleanly; you can read a change in a pull request.</li>
+  </ul>
+  <p>Where LAD still wins: simple interlock chains that electricians and maintenance staff will troubleshoot live with power-flow highlighting. Real projects mix both — a common professional pattern is <em>LAD for the safety/interlock layer, SCL for logic, sequencing and data handling</em>. Mastering SCL doesn't mean abandoning ladder; it means never being limited by it.</p>
+  <div class="note"><b>How this manual works</b>Each chapter is short theory plus compilable code (every code panel has a copy button). Type the examples into a real project — TIA Portal + PLCSIM costs nothing extra if you have Portal, and the trial download runs 21 days. When you finish a chapter, hit <em>Mark chapter complete</em> at its end; the sidebar keeps your score. Reading SCL teaches you syntax; typing it and watching the compiler complain teaches you the language.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch2">
+  <div class="chnum">Chapter 02</div>
+  <h2>Your first block</h2>
+  <p>In TIA Portal: <em>Program blocks → Add new block → Function block (FB) → Language: SCL</em>. You get two panes: the <strong>interface</strong> (a table where you declare variables) and the <strong>code window</strong>. Here's a complete, working first block — a flashing beacon:</p>
+
+  <figure class="code"><figcaption><span>FB_Blinker — interface + code</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_Blinker"
+VAR_INPUT
+    enable    : Bool;         // run the blinker
+    onTime    : Time := T#500ms;
+    offTime   : Time := T#500ms;
+END_VAR
+VAR_OUTPUT
+    lamp      : Bool;
+END_VAR
+VAR
+    tOn       : TON;          // IEC on-delay timer (static instance)
+    tOff      : TON;
+END_VAR
+
+BEGIN
+    // Two timers chained: classic flasher
+    #tOn(IN := #enable AND NOT #tOff.Q, PT := #offTime);
+    #tOff(IN := #tOn.Q, PT := #onTime);
+
+    #lamp := #enable AND #tOn.Q;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+
+  <p>Call it from OB1 (also created as SCL) with its own <strong>instance data block</strong> — Portal offers to create one the first time you type the call:</p>
+
+  <figure class="code"><figcaption><span>OB1 — cyclic program</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// "Main" [OB1], language SCL
+"FB_Blinker_DB"(enable := "StartSwitch",     // global tag (I0.0)
+                onTime := T#1s,
+                offTime := T#1s,
+                lamp   =&gt; "BeaconLamp");     // global tag (Q0.0)</pre>
+  </figure>
+
+  <p>Three things to absorb from this tiny program:</p>
+  <ul>
+    <li><code>#name</code> is a <strong>local</strong> variable of the block; <code>"name"</code> is a <strong>global</strong> tag or block. Portal inserts the prefixes for you — read them, they tell you where data lives.</li>
+    <li><code>:=</code> assigns <em>into</em> a block; <code>=&gt;</code> reads an output <em>out of</em> a block. Plain <code>=</code> is comparison, never assignment.</li>
+    <li><strong>Every statement ends with a semicolon.</strong> Forgetting one is the #1 beginner compile error.</li>
+  </ul>
+
+  <h3>Comments and regions</h3>
+  <figure class="code"><figcaption><span>Comment syntax</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// single-line comment
+(* block comment,
+   can span lines *)
+
+REGION Alarm evaluation
+    // REGION folds in the editor — use it to structure long blocks
+END_REGION</pre>
+  </figure>
+
+  <div class="note"><b>Editor survival kit</b><code>Ctrl+Space</code> completes tags and instructions. <code>Ctrl+Shift+F</code> formats/indents. Right-click → <em>Monitor</em> shows live values inline while online. The compiler output window is your friend — double-clicking an error jumps to the line.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch3">
+  <div class="chnum">Chapter 03</div>
+  <h2>OBs, FBs, FCs &amp; DBs</h2>
+  <p>SCL is the language <em>inside</em> blocks; the block model is what makes an S7 program. Four kinds matter:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Block</th><th>What it is</th><th>Has memory?</th><th>Use for</th></tr>
+    <tr><td><strong>OB</strong> — Organization Block</td><td>Entry points the OS calls: OB1 (cyclic), OB30-38 (cyclic interrupt), OB100 (startup), OB82/86 (diagnostics), OB121/122 (errors)</td><td>Temp only</td><td>Calling your FBs/FCs; keep OBs thin</td></tr>
+    <tr><td><strong>FB</strong> — Function Block</td><td>Callable block <em>with</em> its own instance data (Static vars persist between cycles)</td><td>Yes — instance DB</td><td>Anything stateful: timers, edges, sequences, device control</td></tr>
+    <tr><td><strong>FC</strong> — Function</td><td>Callable block <em>without</em> memory; may return a value</td><td>No</td><td>Pure calculations: scaling, limits, unit conversion</td></tr>
+    <tr><td><strong>DB</strong> — Data Block</td><td>Structured data storage. Global DBs you create; instance DBs belong to an FB call</td><td>—</td><td>Recipes, setpoints, HMI interface data</td></tr>
+  </table></div>
+
+  <h3>FC with a return value</h3>
+  <figure class="code"><figcaption><span>FC_ScaleAnalog — pure function</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION "FC_ScaleAnalog" : Real
+VAR_INPUT
+    raw     : Int;            // 0..27648 from analog input
+    engMin  : Real;
+    engMax  : Real;
+END_VAR
+
+BEGIN
+    // Function name acts as the return variable
+    #FC_ScaleAnalog := INT_TO_REAL(#raw) / 27648.0
+                       * (#engMax - #engMin) + #engMin;
+END_FUNCTION
+
+// Usage anywhere:
+// #tankLevel_m := "FC_ScaleAnalog"(raw := "AI_TankLevel",
+//                                  engMin := 0.0, engMax := 3.5);</pre>
+  </figure>
+
+  <h3>Multi-instance: FBs inside FBs</h3>
+  <p>Declaring an FB (or a timer — timers are FBs too) in the <strong>Static</strong> section of another FB embeds its instance data inside the parent's DB. One motor FB with three internal timers = one DB, not four. This is how professional libraries stay tidy:</p>
+  <figure class="code"><figcaption><span>Multi-instance declaration</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR  // Static section of FB_Motor
+    tFeedback   : TON;            // timer as multi-instance
+    trigStart   : R_TRIG;         // edge detector as multi-instance
+    blink       : "FB_Blinker";   // your own FB as multi-instance
+END_VAR
+
+BEGIN
+    #blink(enable := #fault, onTime := T#250ms, offTime := T#250ms);
+    #faultLamp := #blink.lamp;</pre>
+  </figure>
+
+  <div class="warn"><b>Rule of thumb</b>Stateless math → FC. Anything with a timer, edge, counter, or remembered mode → FB. If you find yourself passing "memory" bits into an FC so it can fake state, it should have been an FB.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch4">
+  <div class="chnum">Chapter 04</div>
+  <h2>Data types</h2>
+  <p>SCL is strictly typed — the compiler checks every assignment. Learn the sizes and ranges; mismatches are where analog values silently clip and counters roll over.</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Type</th><th class="num">Bits</th><th>Range / format</th><th>Literal example</th></tr>
+    <tr><td><code>Bool</code></td><td class="num">1</td><td>TRUE / FALSE</td><td><code>TRUE</code></td></tr>
+    <tr><td><code>Byte</code>, <code>Word</code>, <code>DWord</code>, <code>LWord</code>*</td><td class="num">8–64</td><td>Bit patterns (no sign, no math intent)</td><td><code>16#00FF</code>, <code>2#1010_0011</code></td></tr>
+    <tr><td><code>SInt</code>, <code>Int</code>, <code>DInt</code>, <code>LInt</code>*</td><td class="num">8–64</td><td>Signed integers; <code>Int</code> = −32768..32767, <code>DInt</code> = ±2.1 billion</td><td><code>-1250</code></td></tr>
+    <tr><td><code>USInt</code>, <code>UInt</code>, <code>UDInt</code>, <code>ULInt</code>*</td><td class="num">8–64</td><td>Unsigned integers</td><td><code>65535</code></td></tr>
+    <tr><td><code>Real</code></td><td class="num">32</td><td>±3.4e38, ~7 significant digits</td><td><code>3.14159</code>, <code>1.0e-3</code></td></tr>
+    <tr><td><code>LReal</code></td><td class="num">64</td><td>~15 significant digits — use for accumulators</td><td><code>2.718281828</code></td></tr>
+    <tr><td><code>Time</code>, <code>LTime</code>*</td><td class="num">32/64</td><td>Duration, ms resolution (<code>LTime</code>: ns)</td><td><code>T#2s_500ms</code>, <code>T#1h_30m</code></td></tr>
+    <tr><td><code>Date</code>, <code>Time_of_Day</code>, <code>DTL</code></td><td class="num">16–96</td><td>Calendar values; <code>DTL</code> is a struct with .YEAR .MONTH … .NANOSECOND</td><td><code>D#2026-08-24</code>, <code>TOD#14:30:00</code></td></tr>
+    <tr><td><code>Char</code>, <code>String[n]</code></td><td class="num">8·(n+2)</td><td>ASCII text, default max 254 chars</td><td><code>'Batch 42'</code></td></tr>
+    <tr><td><code>WChar</code>, <code>WString</code></td><td class="num">16-bit</td><td>Unicode text (Asian languages, special symbols)</td><td><code>WSTRING#'温度'</code></td></tr>
+    <tr><td><code>Variant</code>, <code>REF_TO</code>*, <code>DB_ANY</code></td><td class="num">—</td><td>Type-flexible references for generic library blocks</td><td>advanced — Ch. 12</td></tr>
+  </table></div>
+  <p style="font-size:.85rem;color:var(--muted)">* 64-bit types (<code>LWord</code>, <code>LInt</code>, <code>ULInt</code>, <code>LTime</code>) and <code>REF_TO</code> are <strong>S7-1500 only</strong>. S7-1200 stops at 32-bit.</p>
+
+  <h3>Typed literals</h3>
+  <p>When a bare literal is ambiguous, qualify it with the type and <code>#</code>:</p>
+  <figure class="code"><figcaption><span>Literal notation</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#delay     := T#4s_200ms;        // Time
+#threshold := REAL#1.5;          // explicitly a Real
+#mask      := WORD#16#00F0;      // hex Word
+#bits      := 2#0000_1111;       // binary, underscores allowed
+#bigCount  := DINT#100_000;      // underscores group digits</pre>
+  </figure>
+
+  <h3>Conversions: implicit vs explicit</h3>
+  <p>Widening conversions that cannot lose data (<code>Int → DInt</code>, <code>Int → Real</code>) happen implicitly. Anything that can lose information demands an explicit conversion function, named <code>SOURCE_TO_TARGET</code>:</p>
+  <figure class="code"><figcaption><span>Explicit conversions</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#speedInt  := REAL_TO_INT(#speedReal);        // rounds to nearest
+#truncated := REAL_TO_DINT(TRUNC(#x));        // TRUNC chops decimals
+#asWord    := INT_TO_WORD(#rawValue);         // reinterpret for comms
+#pct       := INT_TO_REAL(#raw) / 276.48;     // classic analog-to-%
+
+// ROUND / TRUNC / CEIL / FLOOR control the rounding mode explicitly</pre>
+  </figure>
+  <div class="warn"><b>Watch out</b><code>REAL_TO_INT</code> on a value outside −32768..32767 produces an invalid result and (depending on settings) a CPU error event. Range-check first with <code>LIMIT</code> when the source is unbounded, e.g. an HMI entry field.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>What does the expression <code>7 / 2</code> evaluate to?</p>
+      <div class="opts"><button>3.5</button><button data-ok>3</button><button>4</button><button>Compile error</button></div>
+      <div class="why">Both operands are integers, so the division is integer division — the result truncates to 3. Convert first (<code>7.0 / 2.0</code>) for 3.5.</div>
+    </div>
+    <div class="q"><p>Best type for a flow totalizer that adds a tiny increment every 100 ms for months?</p>
+      <div class="opts"><button>Real</button><button data-ok>LReal</button><button>DInt</button><button>Word</button></div>
+      <div class="why">A 32-bit Real has ~7 significant digits — once the total is large, small increments vanish into rounding. LReal's ~15 digits keep the additions meaningful.</div>
+    </div>
+    <div class="q"><p>Which is a valid <code>Time</code> literal?</p>
+      <div class="opts"><button data-ok>T#2s_500ms</button><button>2s500ms</button><button>D#2s</button><button>TOD#2.5</button></div>
+      <div class="why"><code>T#</code> introduces a duration; <code>D#</code> is a calendar date and <code>TOD#</code> a time of day — different types entirely.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch5">
+  <div class="chnum">Chapter 05</div>
+  <h2>Variables &amp; interfaces</h2>
+  <p>Every block's interface has fixed sections. Where you declare a variable decides its lifetime and who can see it:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Section</th><th>Direction</th><th>Persists between cycles?</th><th>Notes</th></tr>
+    <tr><td><code>Input</code></td><td>Caller → block</td><td>FB: yes (in instance DB)</td><td>Read-only inside the block (by convention)</td></tr>
+    <tr><td><code>Output</code></td><td>Block → caller</td><td>FB: yes</td><td>Write from inside, read by caller with <code>=&gt;</code></td></tr>
+    <tr><td><code>InOut</code></td><td>Both ways</td><td>Reference to caller's data</td><td><strong>Required</strong> for passing STRING, ARRAY, STRUCT/UDT to FCs — passed by reference, no copy</td></tr>
+    <tr><td><code>Static</code></td><td>internal</td><td><strong>Yes</strong> — this is FB memory</td><td>Timers, edge memory, step numbers, multi-instances. FBs only</td></tr>
+    <tr><td><code>Temp</code></td><td>internal</td><td><strong>No — garbage each call</strong></td><td>Scratch variables. Write before you read, every single call</td></tr>
+    <tr><td><code>Constant</code></td><td>—</td><td>compile-time</td><td>Named numbers: <code>MAX_ZONES : Int := 16</code></td></tr>
+  </table></div>
+
+  <div class="warn"><b>The Temp trap</b>Temp variables are <em>not</em> initialized. Reading one before writing it in the same call gives you whatever was left on the stack — logic that works in simulation and fails randomly on hardware. If a value must survive to the next cycle, it belongs in Static.</div>
+
+  <h3>Optimized block access</h3>
+  <p>New blocks default to <strong>optimized access</strong>: the compiler arranges variables for speed, and you address everything symbolically — there are no fixed byte offsets, no <code>DB10.DBW4</code>. Keep it on. You only switch a DB to standard (non-optimized) access when an external system needs absolute addresses — some HMI/SCADA drivers, open TCP telegrams via <code>TRCV</code>, or legacy migration. Even in optimized blocks you can still reach individual bits of a word with <strong>slice access</strong>:</p>
+  <figure class="code"><figcaption><span>Slice access</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#statusWord.%X0  := #running;      // bit 0 of a Word
+#statusWord.%X1  := #fault;
+#lowByte         := #myWord.%B0;   // byte slice
+IF #alarmWord.%X12 THEN ...        // read a single bit</pre>
+  </figure>
+
+  <h3>Default values and retentivity</h3>
+  <figure class="code"><figcaption><span>Interface declarations</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_INPUT
+    setpoint   : Real := 55.0;          // start value
+    mode       : Int  := 1;
+END_VAR
+VAR RETAIN
+    runHours   : Real;                  // survives power loss
+END_VAR
+VAR CONSTANT
+    N_ZONES    : Int := 8;              // use instead of magic numbers
+END_VAR</pre>
+  </figure>
+  <p>Mark Static data <code>RETAIN</code> when it must survive a power cycle (totalizers, service counters, selected recipe). Everything else should re-initialize cleanly — a machine that "remembers" it was mid-sequence through a power cut is a hazard unless you designed for it.</p>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch6">
+  <div class="chnum">Chapter 06</div>
+  <h2>Operators &amp; expressions</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Category</th><th>Operators</th><th>Notes</th></tr>
+    <tr><td>Assignment</td><td><code>:=</code></td><td><code>=</code> alone never assigns</td></tr>
+    <tr><td>Arithmetic</td><td><code>+  -  *  /  MOD  **</code></td><td><code>MOD</code> = remainder (integers); <code>**</code> = power</td></tr>
+    <tr><td>Comparison</td><td><code>=  &lt;&gt;  &lt;  &lt;=  &gt;  &gt;=</code></td><td>Result is Bool; <code>&lt;&gt;</code> means "not equal"</td></tr>
+    <tr><td>Logic (Bool)</td><td><code>AND  OR  XOR  NOT</code></td><td>Also work bitwise on Byte/Word/DWord</td></tr>
+    <tr><td>Precedence</td><td><code>( )</code></td><td>NOT binds before AND before OR — <strong>when mixing, use parentheses anyway</strong></td></tr>
+  </table></div>
+
+  <figure class="code"><figcaption><span>Expressions in practice</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// Start permission: readable at a glance
+#startOK := #safetyOK
+        AND #airPressureOK
+        AND NOT #fault
+        AND (#modeAuto OR #modeJog);
+
+// Hysteresis without an FB: set/reset in two lines
+IF #temp &gt; #setpoint + 2.0 THEN  #cooling := TRUE;  END_IF;
+IF #temp &lt; #setpoint - 2.0 THEN  #cooling := FALSE; END_IF;
+
+// Integer division truncates — order matters
+#pct  := #done * 100 / #total;     // OK: multiply first
+#bad  := #done / #total * 100;     // 0 for any partial progress!
+
+// MOD for cyclic indices
+#ringIndex := (#ringIndex + 1) MOD #BUF_SIZE;
+
+// Bitwise on words
+#alarmsMasked := #alarmWord AND NOT #maskWord;</pre>
+  </figure>
+
+  <div class="note"><b>Integer vs Real division</b><code>7 / 2</code> is <code>3</code> (integer math). <code>7.0 / 2.0</code> is <code>3.5</code>. The compiler picks the math by operand type, not by what you meant — convert <em>before</em> dividing when you need fractions.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch7">
+  <div class="chnum">Chapter 07</div>
+  <h2>Control flow</h2>
+
+  <h3>IF / ELSIF / ELSE</h3>
+  <figure class="code"><figcaption><span>Branching</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">IF #level &gt; #HIGH_ALARM THEN
+    #pumpCmd   := FALSE;
+    #alarmHigh := TRUE;
+ELSIF #level &gt; #HIGH_WARN THEN
+    #warnHigh  := TRUE;
+ELSE
+    #alarmHigh := FALSE;
+    #warnHigh  := FALSE;
+END_IF;</pre>
+  </figure>
+
+  <h3>CASE — the workhorse</h3>
+  <figure class="code"><figcaption><span>CASE with single values, lists, ranges</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">CASE #recipeNo OF
+    1:        #tempSet := 60.0;  #timeSet := T#10m;
+    2, 3:     #tempSet := 72.5;  #timeSet := T#8m;
+    10..19:   #tempSet := 85.0;  #timeSet := T#5m;   // range
+    ELSE
+        #tempSet := 0.0;
+        #recipeFault := TRUE;
+END_CASE;</pre>
+  </figure>
+  <p><code>CASE</code> selects on an integer expression. Always write the <code>ELSE</code> branch — an unexpected value should do something deliberate, not silently nothing.</p>
+
+  <h3>Loops</h3>
+  <figure class="code"><figcaption><span>FOR, WHILE, REPEAT</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// FOR: known iteration count — 95% of PLC loops
+FOR #i := 1 TO #N_ZONES DO
+    #zoneAlarm[#i] := #zoneTemp[#i] &gt; #zoneLimit[#i];
+END_FOR;
+
+// FOR counting down, step -2
+FOR #i := 10 TO 2 BY -2 DO ... END_FOR;
+
+// WHILE: condition checked first (may run zero times)
+WHILE #idx &lt;= #last AND NOT #found DO
+    #found := #buffer[#idx] = #searchVal;
+    #idx   := #idx + 1;
+END_WHILE;
+
+// REPEAT: body runs at least once, condition at the end
+REPEAT
+    #attempts := #attempts + 1;
+UNTIL #ackReceived OR #attempts &gt;= 3
+END_REPEAT;
+
+// CONTINUE skips to next iteration; EXIT leaves the loop;
+// RETURN leaves the whole block immediately.</pre>
+  </figure>
+
+  <div class="warn"><b>Loops run inside one scan</b>A PLC loop does not wait — the entire <code>FOR</code> completes within the current cycle. A <code>WHILE</code> whose condition never becomes false doesn't "run forever in the background"; it stalls the scan until the cycle-time watchdog stops the CPU. Never make a loop wait for an input to change — that's what state machines (Ch. 11) are for.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A <code>WHILE</code> loop waits for a proximity sensor to turn TRUE. The sensor is currently FALSE. What happens?</p>
+      <div class="opts"><button>The loop pauses; other logic keeps running</button><button data-ok>The scan stalls until the cycle watchdog trips the CPU</button><button>The loop exits after one pass</button></div>
+      <div class="why">Inputs are read once per scan — inside the loop the sensor value never changes, so the loop can never end. Cross-cycle waiting is a state machine's job.</div>
+    </div>
+    <div class="q"><p><code>CASE #x OF</code> has branches for 1, 2, 3 and no <code>ELSE</code>. <code>#x</code> is 99. What runs?</p>
+      <div class="opts"><button>The first branch</button><button>CPU error event</button><button data-ok>Nothing — it falls through silently</button></div>
+      <div class="why">Legal, silent, and usually a bug: whatever the branches were supposed to maintain simply doesn't happen. Always write the ELSE.</div>
+    </div>
+    <div class="q"><p><code>FOR #i := 1 TO 10 DO</code> — how many iterations?</p>
+      <div class="opts"><button>9</button><button data-ok>10</button><button>11</button></div>
+      <div class="why">Both bounds are inclusive: 1 through 10.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch8">
+  <div class="chnum">Chapter 08</div>
+  <h2>Timers, counters &amp; edges</h2>
+  <p>IEC timers and counters are system FBs — you declare an instance (Static or multi-instance) and call it like any FB. The call must execute <strong>every cycle</strong> for the timer to update.</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Block</th><th>Behavior</th><th>Typical use</th></tr>
+    <tr><td><code>TON</code></td><td>On-delay: Q true after IN held true for PT</td><td>Debounce, feedback supervision, "still running after 5 s?"</td></tr>
+    <tr><td><code>TOF</code></td><td>Off-delay: Q holds true for PT after IN drops</td><td>Fan run-on, valve hold-open</td></tr>
+    <tr><td><code>TP</code></td><td>Pulse: Q true for exactly PT once triggered</td><td>Fixed-length lubrication shot, horn pulse</td></tr>
+    <tr><td><code>TONR</code></td><td>Accumulating on-delay with reset input</td><td>Runtime totalizer</td></tr>
+    <tr><td><code>CTU / CTD / CTUD</code></td><td>Count up / down / both, with preset PV and output Q</td><td>Piece counting, batching</td></tr>
+    <tr><td><code>R_TRIG / F_TRIG</code></td><td>One-cycle pulse on rising / falling edge of CLK</td><td>Buttons, one-shot actions, counting events</td></tr>
+  </table></div>
+
+  <figure class="code"><figcaption><span>Timers, counter, edge — all patterns</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    tFeedback : TON;
+    tRunOn    : TOF;
+    counter   : CTU;
+    trigCount : R_TRIG;
+END_VAR
+
+BEGIN
+// Feedback supervision: contactor must answer within 3 s
+#tFeedback(IN := #cmdRun AND NOT #fbRunning, PT := T#3s);
+IF #tFeedback.Q THEN
+    #faultNoFeedback := TRUE;
+END_IF;
+
+// Fan run-on: keep fan alive 30 s after heater stops
+#tRunOn(IN := #heaterOn, PT := T#30s);
+#fanCmd := #tRunOn.Q;
+
+// Count product pulses from a photo eye
+#trigCount(CLK := #photoEye);
+#counter(CU := #trigCount.Q,
+         R  := #batchReset,
+         PV := #batchSize);
+#batchDone := #counter.Q;
+#piecesSoFar := #counter.CV;      // current count
+
+// Reading elapsed time is legal any time:
+#elapsed_ms := TIME_TO_DINT(#tFeedback.ET);</pre>
+  </figure>
+
+  <div class="warn"><b>Two classic timer bugs</b>① Calling a timer inside an <code>IF</code> so it stops being executed when the condition drops — the timer freezes with stale outputs. Call timers unconditionally; gate the <em>IN</em> parameter instead. ② Reusing one timer instance from two places — last caller wins, both behave erratically. One instance per purpose.</div>
+
+  <h3>Edge detection by hand</h3>
+  <p>You'll also see the manual pattern; know how to read it:</p>
+  <figure class="code"><figcaption><span>Manual rising edge</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    btnOld : Bool;   // Static! Temp would break this
+END_VAR
+
+#rise   := #btn AND NOT #btnOld;   // true for exactly one cycle
+#btnOld := #btn;                    // remember for next scan</pre>
+  </figure>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A <code>TON</code> is called inside <code>IF #run THEN … END_IF;</code> and <code>#run</code> drops to FALSE mid-timing. The timer…</p>
+      <div class="opts"><button>Resets to zero</button><button data-ok>Freezes — it stops being executed and its outputs go stale</button><button>Keeps timing in the background</button></div>
+      <div class="why">A timer only advances when its call executes. Call it every scan and gate the <code>IN</code> parameter instead.</div>
+    </div>
+    <div class="q"><p>Which timer keeps its output TRUE for PT <em>after</em> the input drops?</p>
+      <div class="opts"><button>TON</button><button data-ok>TOF</button><button>TP</button></div>
+      <div class="why">TOF = off-delay: the classic fan run-on. TON delays turning on; TP produces a fixed pulse.</div>
+    </div>
+    <div class="q"><p>How long does <code>R_TRIG.Q</code> stay TRUE after a rising edge?</p>
+      <div class="opts"><button>Until CLK drops</button><button data-ok>Exactly one scan cycle</button><button>100 ms</button></div>
+      <div class="why">One cycle — that's the whole point: it turns a level into a single event.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch9">
+  <div class="chnum">Chapter 09</div>
+  <h2>Arrays, structs &amp; UDTs</h2>
+
+  <h3>Arrays</h3>
+  <figure class="code"><figcaption><span>Array declaration and use</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    zoneTemp   : Array[1..16] of Real;
+    grid       : Array[0..9, 0..9] of Int;    // two-dimensional
+    samples    : Array[0..99] of Real;
+    sampleIdx  : Int;
+END_VAR
+
+BEGIN
+// Ring buffer of the last 100 samples
+#samples[#sampleIdx] := #newSample;
+#sampleIdx := (#sampleIdx + 1) MOD 100;
+
+// Average them
+#sum := 0.0;
+FOR #i := 0 TO 99 DO
+    #sum := #sum + #samples[#i];
+END_FOR;
+#average := #sum / 100.0;
+
+// Find max and where it is
+#max := #zoneTemp[1];  #maxAt := 1;
+FOR #i := 2 TO 16 DO
+    IF #zoneTemp[#i] &gt; #max THEN
+        #max := #zoneTemp[#i];  #maxAt := #i;
+    END_IF;
+END_FOR;</pre>
+  </figure>
+  <div class="warn"><b>Index bounds</b>An out-of-range index (e.g. <code>#zoneTemp[17]</code> computed at runtime) triggers a programming-error event — with no OB121 present, an S7-300-style CPU stops; S7-1200/1500 log it and substitute, but your data is wrong either way. When an index comes from an HMI or calculation, clamp it: <code>#i := LIMIT(MN := 1, IN := #i, MX := 16);</code></div>
+
+  <h3>PLC data types (UDTs)</h3>
+  <p>A <strong>PLC data type</strong> (UDT) is a named struct you define once under <em>PLC data types</em> and reuse everywhere — the single most important tool for scaling a project up. Model each real thing once:</p>
+  <figure class="code"><figcaption><span>UDT_Motor — define once, use everywhere</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">TYPE "UDT_Motor"
+STRUCT
+    cmdRun      : Bool;
+    cmdReset    : Bool;
+    fbRunning   : Bool;      // contactor feedback
+    fbTripped   : Bool;      // overload
+    running     : Bool;
+    fault       : Bool;
+    current_A   : Real;
+    runHours    : Real;
+END_STRUCT
+END_TYPE
+
+// In a global DB:            motors : Array[1..12] of "UDT_Motor";
+// Dot access reads like English:
+"DB_Plant".motors[3].cmdRun := #conveyorStart;
+IF "DB_Plant".motors[3].fault THEN ...
+
+// Loop over all twelve:
+FOR #i := 1 TO 12 DO
+    IF "DB_Plant".motors[#i].fault THEN
+        #anyFault := TRUE;
+    END_IF;
+END_FOR;</pre>
+  </figure>
+
+  <p>Pass a whole UDT to an FB through an <strong>InOut</strong> parameter typed as the UDT — the FB then works on any motor:</p>
+  <figure class="code"><figcaption><span>UDT as InOut parameter</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// FB_MotorCtrl interface:
+VAR_IN_OUT
+    motor : "UDT_Motor";
+END_VAR
+
+// OB1: one line per drive, all identical logic
+"FB_MotorCtrl_DB1"(motor := "DB_Plant".motors[1]);
+"FB_MotorCtrl_DB2"(motor := "DB_Plant".motors[2]);</pre>
+  </figure>
+
+  <h3>Variable-length arrays: <code>Array[*]</code></h3>
+  <p>Library blocks shouldn't hard-code array sizes. Declare an InOut as <code>Array[*] of Real</code> and query the bounds at runtime (S7-1200 FW4+/S7-1500):</p>
+  <figure class="code"><figcaption><span>Size-agnostic array processing</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_IN_OUT
+    data : Array[*] of Real;
+END_VAR
+VAR_TEMP
+    lo, hi, i : DInt;
+    sum       : Real;
+END_VAR
+
+BEGIN
+#lo := LOWER_BOUND(ARR := #data, DIM := 1);
+#hi := UPPER_BOUND(ARR := #data, DIM := 1);
+#sum := 0.0;
+FOR #i := #lo TO #hi DO
+    #sum := #sum + #data[#i];
+END_FOR;
+#mean := #sum / DINT_TO_REAL(#hi - #lo + 1);</pre>
+  </figure>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch10">
+  <div class="chnum">Chapter 10</div>
+  <h2>Strings &amp; conversions</h2>
+  <p>Strings carry batch IDs, barcodes, error texts, and telegram fragments. A <code>String[20]</code> reserves 20 characters plus 2 length bytes. Always size strings — the default <code>String</code> is 254 chars and bloats DBs and InOut transfers.</p>
+
+  <figure class="code"><figcaption><span>String toolbox</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_TEMP
+    msg   : String[80];
+    part  : String[20];
+    pos   : Int;
+END_VAR
+
+BEGIN
+#len  := LEN(#barcode);                          // current length
+#part := LEFT(IN := #barcode, L := 4);           // first 4 chars
+#part := MID(IN := #barcode, L := 5, P := 6);    // 5 chars from pos 6
+#part := RIGHT(IN := #barcode, L := 3);
+#pos  := FIND(IN1 := #barcode, IN2 := '-');      // 0 if not found
+
+// Build a message
+#msg := CONCAT(IN1 := 'Batch ', IN2 := #batchId);
+#msg := CONCAT(IN1 := #msg, IN2 := ' started');
+
+// Number ↔ string
+#txt   := INT_TO_STRING(#count);                 // simple cases
+#value := STRING_TO_REAL('12.75');
+
+// Full-control formatting / parsing:
+// VAL_STRG (value→string with width/precision), STRG_VAL (parse)</pre>
+  </figure>
+
+  <div class="warn"><b>Strings and performance</b>String operations copy data and are far more expensive than integer math. Fine in an event-driven branch (a scan of a barcode); avoid rebuilding strings unconditionally every cycle in fast cyclic OBs.</div>
+
+  <h3>Analog scaling done right</h3>
+  <p>The standard instructions <code>NORM_X</code> and <code>SCALE_X</code> exist, but understand the math — you'll write variants of it forever:</p>
+  <figure class="code"><figcaption><span>NORM_X / SCALE_X and the raw formula</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// Library way: normalize 0..27648 → 0.0..1.0, then scale to units
+#norm  := NORM_X(MIN := 0, VALUE := #rawAI, MAX := 27648);
+#level := SCALE_X(MIN := 0.0, VALUE := #norm, MAX := 3.50);  // meters
+
+// Same thing by hand — with 4–20 mA live-zero (raw 5530..27648)
+#level := (INT_TO_REAL(#rawAI) - 5530.0) / (27648.0 - 5530.0) * 3.50;
+#wireBreak := #rawAI &lt; 4000;      // far below 4 mA → sensor fault</pre>
+  </figure>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch11">
+  <div class="chnum">Chapter 11</div>
+  <h2>State machines</h2>
+  <p>This is the chapter that turns you from "writes SCL" into "programs machines." Almost every real process is a sequence — fill, heat, hold, drain — and the professional pattern is a <strong>CASE-based step machine in an FB</strong>: one Static step number, one <code>CASE</code>, explicit transitions.</p>
+
+  <figure class="code"><figcaption><span>FB_MixerSeq — a complete sequence FB</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_MixerSeq"
+VAR_INPUT
+    start       : Bool;
+    stop        : Bool;      // graceful stop at end of step
+    abort       : Bool;      // immediate stop
+    levelHigh   : Bool;
+    tempReached : Bool;
+END_VAR
+VAR_OUTPUT
+    valveFill   : Bool;
+    heater      : Bool;
+    agitator    : Bool;
+    valveDrain  : Bool;
+    stepNo      : Int;       // expose for HMI diagnostics!
+END_VAR
+VAR
+    step        : Int;       // 0=idle
+    tStep       : TON;
+    trigStart   : R_TRIG;
+END_VAR
+VAR CONSTANT
+    IDLE  : Int := 0;   FILL  : Int := 10;
+    HEAT  : Int := 20;  MIX   : Int := 30;
+    DRAIN : Int := 40;  DONE  : Int := 50;
+END_VAR
+
+BEGIN
+#trigStart(CLK := #start);
+
+// Abort dominates everything
+IF #abort THEN
+    #step := #IDLE;
+END_IF;
+
+CASE #step OF
+    #IDLE:
+        IF #trigStart.Q THEN  #step := #FILL;  END_IF;
+
+    #FILL:      // valve open until level switch
+        IF #levelHigh THEN  #step := #HEAT;  END_IF;
+
+    #HEAT:
+        IF #tempReached THEN  #step := #MIX;  END_IF;
+
+    #MIX:       // mix for a fixed 5 minutes
+        IF #tStep.Q THEN
+            IF #stop THEN #step := #IDLE;      // graceful stop point
+            ELSE          #step := #DRAIN;
+            END_IF;
+        END_IF;
+
+    #DRAIN:
+        IF NOT #levelHigh AND #tStep.Q THEN  #step := #DONE;  END_IF;
+
+    #DONE:
+        #step := #IDLE;
+
+    ELSE        // unknown step = defensive reset
+        #step := #IDLE;
+END_CASE;
+
+// Step timer: runs while in a timed step (call unconditionally!)
+#tStep(IN := (#step = #MIX) OR (#step = #DRAIN),
+       PT := SEL(G := #step = #MIX, IN0 := T#30s, IN1 := T#5m));
+
+// ---- Outputs derived from state, in ONE place ----
+#valveFill  := #step = #FILL;
+#heater     := #step = #HEAT;
+#agitator   := (#step = #HEAT) OR (#step = #MIX);
+#valveDrain := #step = #DRAIN;
+#stepNo     := #step;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+
+  <p>The discipline that makes this pattern scale:</p>
+  <ul>
+    <li><strong>Transitions only set the step number.</strong> Outputs are computed from the state <em>after</em> the CASE, in one block — no output is ever set in two places.</li>
+    <li><strong>Number steps in tens</strong> (10, 20, 30…) so you can insert step 15 later without renumbering.</li>
+    <li><strong>Name steps with constants.</strong> <code>#step := #DRAIN</code> reviews itself; <code>#step := 40</code> doesn't.</li>
+    <li><strong>Expose <code>stepNo</code> to the HMI.</strong> "It's stuck in step 20" is a diagnosis; "it's stuck" is a phone call at 2 a.m.</li>
+    <li><strong>Every waiting step needs an exit</strong> — a transition, a timeout to a fault step, or both. A step that can wait forever will.</li>
+  </ul>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>In a step machine, where should the <code>valveFill</code> output be written?</p>
+      <div class="opts"><button>Inside the FILL branch of the CASE</button><button data-ok>After the CASE, derived from the step number, in one place</button><button>In the OB, next to the FB call</button></div>
+      <div class="why">If FILL sets it TRUE, some other branch must remember to set it FALSE — and one day nobody does. <code>#valveFill := #step = #FILL;</code> can never be stale.</div>
+    </div>
+    <div class="q"><p>Why number steps 10, 20, 30 instead of 1, 2, 3?</p>
+      <div class="opts"><button>The CPU processes tens faster</button><button data-ok>So a new step can be inserted later without renumbering everything</button><button>CASE requires gaps</button></div>
+      <div class="why">Pure engineering pragmatism, inherited from line-numbered BASIC and STEP 5 — and still the convention your colleagues expect.</div>
+    </div>
+    <div class="q"><p>A waiting step whose transition condition never comes true will…</p>
+      <div class="opts"><button>Time out automatically</button><button>Trip the cycle watchdog</button><button data-ok>Wait forever — unless you designed a timeout transition</button></div>
+      <div class="why">Unlike a stuck loop, a stuck <em>step</em> is scan-friendly and invisible until production stops. Every waiting step needs a designed exit — often a timeout into a fault step.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch12">
+  <div class="chnum">Chapter 12</div>
+  <h2>Reusable FB design</h2>
+  <p>The payoff of everything so far: device FBs you write once, test once, and drop into every project. Here is a production-shaped motor block combining UDTs, timers, edges, and fault latching:</p>
+
+  <figure class="code"><figcaption><span>FB_MotorCtrl — a library-grade device block</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_MotorCtrl"
+VAR_INPUT
+    cmdRun      : Bool;      // request from sequence/HMI
+    cmdReset    : Bool;
+    interlockOK : Bool;      // external interlocks, TRUE = safe to run
+    fbRunning   : Bool;      // contactor auxiliary contact
+    fbTripped   : Bool;      // motor protection relay
+    tFbMax      : Time := T#3s;
+END_VAR
+VAR_OUTPUT
+    contactor   : Bool;
+    running     : Bool;
+    fault       : Bool;
+    faultCode   : Int;       // 0 none, 1 no feedback, 2 tripped, 3 interlock
+END_VAR
+VAR
+    tFb         : TON;
+    trigReset   : R_TRIG;
+END_VAR
+
+BEGIN
+#trigReset(CLK := #cmdReset);
+
+// Fault latching --------------------------------------------------
+IF #fbTripped THEN
+    #fault := TRUE;  #faultCode := 2;
+END_IF;
+IF #contactor AND NOT #interlockOK THEN
+    #fault := TRUE;  #faultCode := 3;
+END_IF;
+#tFb(IN := #contactor AND NOT #fbRunning, PT := #tFbMax);
+IF #tFb.Q THEN
+    #fault := TRUE;  #faultCode := 1;   // commanded but no feedback
+END_IF;
+
+// Reset only if cause is gone
+IF #trigReset.Q AND NOT #fbTripped THEN
+    #fault := FALSE;  #faultCode := 0;
+END_IF;
+
+// Command --------------------------------------------------------
+#contactor := #cmdRun AND #interlockOK AND NOT #fault;
+#running   := #fbRunning;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+
+  <h3>Design rules for library blocks</h3>
+  <ul>
+    <li><strong>No global tags inside the FB.</strong> Everything through the interface. The block must not know it's in "Line 3" — that's what makes it reusable and simulatable.</li>
+    <li><strong>Inputs are commands and measurements; outputs are actions and status.</strong> The caller wires them to reality.</li>
+    <li><strong>Fail safe by structure:</strong> the output line <code>cmdRun AND interlockOK AND NOT fault</code> means any fault path automatically drops the contactor — you can't forget to turn it off in some branch.</li>
+    <li><strong>Fault codes, not just fault bits.</strong> An Int costs nothing and tells maintenance exactly what happened.</li>
+    <li><strong>Version your blocks</strong> (block properties → version) and never edit a released library block in a project — copy, bump, retest.</li>
+  </ul>
+
+  <h3>Going generic: VARIANT</h3>
+  <p>For true one-block-fits-all libraries, S7-1500 offers <code>Variant</code> InOuts with <code>TypeOf()</code>, <code>MOVE_BLK_VARIANT</code>, and <code>Variant_To</code>-style access, plus <code>REF_TO</code> references. Learn them <em>after</em> UDT + <code>Array[*]</code> patterns feel routine — 90% of practical genericity comes from those two.</p>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch13">
+  <div class="chnum">Chapter 13</div>
+  <h2>Closed-loop control</h2>
+  <p>Temperature, pressure, flow, level — sooner or later you'll close a loop. Two things matter: understanding the math well enough to not fear it, and knowing the Siemens way of running it.</p>
+
+  <h3>Rule one: control runs in a cyclic interrupt</h3>
+  <p>OB1's cycle time varies with program load — poison for a controller, whose math assumes a fixed sample time. Create a <strong>cyclic interrupt OB</strong> (OB30, e.g. every 100 ms) and call all closed-loop control there. The OS interrupts OB1 to run it exactly on schedule.</p>
+
+  <h3>The Siemens way: PID_Compact</h3>
+  <p><code>PID_Compact</code> is a <em>technology object</em>: an FB plus a configuration and commissioning UI. Add it under <em>Technology objects</em>, then call it from your cyclic interrupt:</p>
+  <figure class="code"><figcaption><span>OB30 (100 ms) — calling PID_Compact</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// "Cyclic interrupt" [OB30], cycle time 100 ms
+"PID_OvenTemp"(Setpoint := "DB_HMI".ovenSet,
+               Input    := "DB_Proc".ovenTemp,     // already scaled, °C
+               Output   =&gt; "DB_Proc".heaterPct);   // 0..100 %
+
+// Alternative pins: Input_PER takes the raw analog value directly;
+// Output_PWM gives a pulse-width Bool for solid-state relays.</pre>
+  </figure>
+  <p>What makes PID_Compact worth using over rolling your own: built-in <strong>auto-tuning</strong> (pretuning + fine tuning from the commissioning view), anti-windup, output limits, and mode management. The commissioning trend view is also a decent free loop analyzer — watch the response to a setpoint step before you trust any tuning.</p>
+
+  <h3>Know the math anyway: a PI controller in 6 lines</h3>
+  <p>Writing one yourself, once, demystifies every tuning conversation you'll ever have:</p>
+  <figure class="code"><figcaption><span>FB_PI — call from OB30 only</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_PI"
+VAR_INPUT
+    sp, pv  : Real;
+    Kp      : Real := 2.0;
+    Ti_s    : Real := 30.0;    // integral time, seconds
+    Ts_s    : Real := 0.1;     // sample time = the OB30 cycle!
+    outMin  : Real := 0.0;
+    outMax  : Real := 100.0;
+END_VAR
+VAR_OUTPUT
+    out     : Real;
+END_VAR
+VAR
+    iTerm   : Real;
+END_VAR
+VAR_TEMP
+    err     : Real;
+END_VAR
+
+BEGIN
+#err   := #sp - #pv;
+#iTerm := #iTerm + #Kp * #err * #Ts_s / #Ti_s;
+#iTerm := LIMIT(MN := #outMin, IN := #iTerm, MX := #outMax);  // anti-windup
+#out   := LIMIT(MN := #outMin,
+                IN := #Kp * #err + #iTerm,
+                MX := #outMax);
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <p>Read the anti-windup line twice: without clamping the integrator, a loop that sits saturated (heater at 100 %, still too cold) accumulates a huge <code>iTerm</code> and then massively overshoots. This single line is the difference between a controller and a lesson.</p>
+
+  <div class="warn"><b>Sample time discipline</b><code>Ts_s</code> must equal the real OB cycle time. Move the call from a 100 ms OB to OB1 and the integral action becomes wrong by an unknown, varying factor. This is the most common "the PID behaves differently on the real machine" cause.</div>
+
+  <ul>
+    <li><strong>Filter noisy inputs</strong> before the controller, not after: <code>#pvFilt := #pvFilt + 0.2 * (#pvRaw - #pvFilt);</code> is a one-line low-pass.</li>
+    <li><strong>Bumpless start:</strong> when switching to automatic, preset <code>iTerm</code> so the output doesn't jump (PID_Compact handles this for you).</li>
+    <li><strong>Use Trace</strong> (Ch. 15) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch14">
+  <div class="chnum">Chapter 14</div>
+  <h2>Talking to the world</h2>
+  <p>A PLC that only talks to its own I/O is rare. The communication landscape, from easiest to most manual:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>Channel</th><th>Mechanism</th><th>You write</th></tr>
+    <tr><td>HMI / SCADA (Siemens)</td><td>Symbolic tag access over PROFINET</td><td>Nothing — just structure your DBs well</td></tr>
+    <tr><td>PLC ↔ PLC (Siemens)</td><td><code>GET</code>/<code>PUT</code> S7 communication</td><td>One call per transfer; enable "Permit access via PUT/GET" on the server CPU</td></tr>
+    <tr><td>Modbus TCP devices</td><td><code>MB_CLIENT</code> / <code>MB_SERVER</code></td><td>Register maps and polling logic</td></tr>
+    <tr><td>Anything TCP/UDP</td><td>Open User Communication: <code>TSEND_C</code> / <code>TRCV_C</code></td><td>The whole telegram format — full control, full responsibility</td></tr>
+  </table></div>
+
+  <h3>Design the HMI interface DB deliberately</h3>
+  <p>The HMI should read <em>curated</em> data, not your internals. One global DB (e.g. <code>DB_HMI</code>) with commands in, status out — the same interface thinking as an FB, at project scale. It also means you can refactor logic without breaking a hundred HMI tag references.</p>
+
+  <h3>Open User Communication in SCL</h3>
+  <figure class="code"><figcaption><span>TSEND_C — send a telegram on demand</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    send     : TSEND_C;      // multi-instance
+    trigSend : R_TRIG;
+END_VAR
+
+BEGIN
+#trigSend(CLK := #sendReq);
+
+#send(REQ     := #trigSend.Q,
+      CONT    := TRUE,                       // establish & hold connection
+      CONNECT := "DB_Comm".connParams,       // a TCON_IP_v4 structure:
+                                             // partner IP, port, conn ID
+      DATA    := "DB_Comm".txBuffer,         // Array[0..127] of Byte
+      DONE    =&gt; #sendDone,
+      ERROR   =&gt; #sendError,
+      STATUS  =&gt; #sendStatus);               // look STATUS up on error!
+
+// TRCV_C mirrors this shape for receiving; its RCVD_LEN tells you
+// how many bytes actually arrived.</pre>
+  </figure>
+
+  <h3>Structured data → bytes: Serialize</h3>
+  <p>Rather than hand-packing bytes, <code>Serialize</code> / <code>Deserialize</code> convert a UDT to/from a byte array in the S7 format (big-endian):</p>
+  <figure class="code"><figcaption><span>Serialize a UDT into the send buffer</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#pos := 0;    // running byte offset, advanced by the call
+#ret := Serialize(SRC_VARIABLE := "DB_Plant".motors[1],
+                  DEST_ARRAY   =&gt; "DB_Comm".txBuffer,
+                  POS          := #pos);
+// #ret &lt;&gt; 0 → error; #pos now = number of bytes written</pre>
+  </figure>
+
+  <div class="warn"><b>Byte order is real</b>S7 CPUs are big-endian; most PC software and many devices expect little-endian. If values arrive scrambled (e.g. 256 instead of 1), you're looking at swapped bytes — use <code>SWAP</code> or define the telegram byte-exactly and document it. Half of all commissioning-week comms bugs are this paragraph.</div>
+
+  <ul>
+    <li>Status/error outputs of comm blocks are <strong>not optional reading</strong> — latch <code>STATUS</code> on <code>ERROR</code> so you can look it up after the fact.</li>
+    <li>Comm blocks work asynchronously across many cycles: trigger with an edge, then wait for <code>DONE</code>/<code>ERROR</code> — a small state machine (Ch. 11) around each transfer is the professional pattern.</li>
+    <li>For telegram buffers accessed by external partners byte-by-byte, a <strong>non-optimized DB</strong> keeps the layout predictable.</li>
+  </ul>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch15">
+  <div class="chnum">Chapter 15</div>
+  <h2>Pitfalls &amp; debugging</h2>
+
+  <h3>The greatest hits</h3>
+  <ul>
+    <li><strong>Setting an output in two places.</strong> The last write in the scan wins; the earlier one is invisible dead code. One owner per output, always.</li>
+    <li><strong>Timer starved inside an IF</strong> (Ch. 8). Call system FBs unconditionally; gate their inputs.</li>
+    <li><strong>Temp read before write</strong> (Ch. 5). Random behavior that simulation may hide.</li>
+    <li><strong>Integer division</strong> (Ch. 6). <code>a / b * 100</code> with integers is almost always a bug.</li>
+    <li><strong>Missing ELSE branches</strong> that should reset flags — a warning that latches on forever because only the "set" path was written.</li>
+    <li><strong>Waiting inside a loop.</strong> Scan-time overrun → CPU stop. Sequences wait across cycles via state machines, never within a cycle.</li>
+    <li><strong>Comparing Reals with <code>=</code>.</strong> After math, <code>#x = 10.0</code> may never be true. Compare with a tolerance: <code>ABS(#x - 10.0) &lt; 0.001</code>.</li>
+    <li><strong>Unclamped indices from HMI/comms</strong> (Ch. 9).</li>
+    <li><strong>Wrong sample time for control loops</strong> (Ch. 13).</li>
+  </ul>
+
+  <h3>Debugging workflow in TIA Portal</h3>
+  <ul>
+    <li><strong>Monitor mode</strong> (glasses icon): live values appear inline next to each SCL line; Bool expressions show green/gray highlighting of which branch is active.</li>
+    <li><strong>Watch tables</strong>: group the tags of one problem (step number, transitions, timers) and watch them together; force outputs <em>only</em> with the machine physically safe.</li>
+    <li><strong>Breakpoints exist in PLCSIM</strong> — but on a real, running machine you don't halt the CPU. Instead, add <em>trace</em>: the S7-1200/1500 Trace tool records tags at scan resolution — the PLC world's oscilloscope, unbeatable for "it glitches for one cycle" bugs.</li>
+    <li><strong>Cross-reference (Ctrl+Shift+R)</strong> answers "who writes this tag?" — the first question in every double-write hunt.</li>
+    <li><strong>Compile early, compile often.</strong> The SCL compiler's warnings (implicit conversions, unreachable code) are telling you about future site visits.</li>
+  </ul>
+
+  <div class="note"><b>Simulate first</b>PLCSIM runs your exact compiled code on your laptop. Build a habit: every FB gets exercised in PLCSIM with a watch table (or a small test OB toggling its inputs) before it ever meets hardware. It's the closest thing our field has to unit testing — and with TIA Portal Test Suite (Advanced), actual scripted unit tests exist too.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch16">
+  <div class="chnum">Chapter 16</div>
+  <h2>Quick reference</h2>
+  <p>The whole language on one screen — for the moment on site when you know exactly what you want and just need the spelling.</p>
+
+  <figure class="code"><figcaption><span>Skeletons</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// ---- declarations ----------------------------------------------
+VAR_INPUT    x : Bool;        y : Real := 1.5;      END_VAR
+VAR_OUTPUT   q : Bool;                              END_VAR
+VAR_IN_OUT   buf : Array[*] of Real;                END_VAR
+VAR          t1 : TON;        step : Int;           END_VAR   // Static
+VAR_TEMP     i : Int;         tmp : Real;           END_VAR
+VAR CONSTANT MAX : Int := 16;                       END_VAR
+
+arr  : Array[1..8] of Real;       arr2 : Array[0..3, 0..3] of Int;
+s    : String[32];                udt  : "UDT_Motor";
+
+// ---- control flow ----------------------------------------------
+IF c THEN ... ELSIF c2 THEN ... ELSE ... END_IF;
+CASE n OF  1: ...  2,3: ...  10..19: ...  ELSE ...  END_CASE;
+FOR #i := 1 TO 10 BY 2 DO ... END_FOR;        // CONTINUE; EXIT;
+WHILE c DO ... END_WHILE;
+REPEAT ... UNTIL c END_REPEAT;
+RETURN;
+
+// ---- system FB calls (instance in Static) ----------------------
+#t1(IN := c, PT := T#5s);            // .Q .ET     TON TOF TP
+#ctu(CU := c, R := r, PV := 10);     // .Q .CV     CTU CTD CTUD
+#trig(CLK := c);                     // .Q         R_TRIG F_TRIG</pre>
+  </figure>
+
+  <div class="tablewrap"><table>
+    <tr><th>Need</th><th>Reach for</th></tr>
+    <tr><td>Clamp / min / max</td><td><code>LIMIT(MN,IN,MX)</code> · <code>MIN(IN1,IN2)</code> · <code>MAX(IN1,IN2)</code></td></tr>
+    <tr><td>Pick one of two values</td><td><code>SEL(G, IN0, IN1)</code> — G=FALSE→IN0; also <code>MUX</code> for n-way</td></tr>
+    <tr><td>Math</td><td><code>ABS SQRT SQR EXP LN SIN COS TAN ASIN ACOS ATAN FRAC</code></td></tr>
+    <tr><td>Rounding</td><td><code>ROUND TRUNC CEIL FLOOR</code> (then <code>REAL_TO_INT</code> etc.)</td></tr>
+    <tr><td>Copy / fill arrays</td><td><code>MOVE_BLK</code> · <code>FILL_BLK</code> · <code>UMOVE_BLK</code> (uninterruptible)</td></tr>
+    <tr><td>Array bounds of <code>Array[*]</code></td><td><code>LOWER_BOUND(ARR, DIM)</code> · <code>UPPER_BOUND(ARR, DIM)</code></td></tr>
+    <tr><td>Strings</td><td><code>LEN CONCAT LEFT RIGHT MID FIND INSERT DELETE REPLACE</code></td></tr>
+    <tr><td>Value ↔ text</td><td><code>INT_TO_STRING STRING_TO_REAL …</code> · precise: <code>VAL_STRG STRG_VAL</code></td></tr>
+    <tr><td>Scaling</td><td><code>NORM_X</code> then <code>SCALE_X</code></td></tr>
+    <tr><td>Struct ↔ bytes</td><td><code>Serialize / Deserialize</code>; byte swap: <code>SWAP</code></td></tr>
+    <tr><td>Clock &amp; calendar</td><td><code>RD_LOC_T(→DTL)</code> · <code>T_ADD T_SUB T_DIFF</code></td></tr>
+    <tr><td>Word ↔ bits</td><td>Slice access <code>x.%X0 x.%B1 x.%W0</code></td></tr>
+  </table></div>
+
+  <figure class="code"><figcaption><span>Literals &amp; prefixes</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#local   "Global"   "DB".var.field   arr[i]   arr[i,j]   word.%X3
+16#FF  2#1010_0110  8#17             // based integers
+T#1d_2h_3m_4s_5ms   LT#100ns         // durations
+D#2026-08-24  TOD#06:30:00  DTL#2026-08-24-06:30:00
+'string'  WSTRING#'wide'  CHAR#'A'
+INT#42  REAL#1.0  WORD#16#00FF       // typed when ambiguous</pre>
+  </figure>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch17">
+  <div class="chnum">Chapter 17</div>
+  <h2>Exercises</h2>
+  <p>Do these in order, in PLCSIM. Write the block, wire a small test OB, watch it run. Solutions fold out — but struggle first; the struggle is the course.</p>
+
+  <p class="ex-title">1 · Pump down-time protection <span class="lvl">Basics · Ch. 6–8</span></p>
+  <p>A pump may only restart 10 s after it stopped (motor cooldown). Write <code>FB_PumpGuard</code>: input <code>cmdRun</code>, output <code>pumpOn</code>. Starting is delayed until the cooldown from the previous stop has elapsed; stopping is immediate.</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>FB_PumpGuard</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_INPUT
+    cmdRun : Bool;
+END_VAR
+VAR_OUTPUT
+    pumpOn : Bool;
+END_VAR
+VAR
+    tCool  : TOF;
+END_VAR
+
+BEGIN
+// TOF.Q stays TRUE for 10 s after the pump stops → lockout window
+#tCool(IN := #pumpOn, PT := T#10s);
+#pumpOn := #cmdRun AND (#pumpOn OR NOT #tCool.Q);
+// While running, keep running; when off, only start once tCool.Q dropped</pre>
+  </figure>
+  <p>The self-holding term <code>#pumpOn OR NOT #tCool.Q</code> is the key: the lockout only blocks <em>starting</em>, never running.</p>
+  </div></details>
+
+  <p class="ex-title">2 · Tank level with hysteresis and dry-run trip <span class="lvl">Basics · Ch. 6, 10</span></p>
+  <p>Raw analog 0–27648 = 0–4.0 m. Start the feed pump below 1.2 m, stop above 3.4 m (hysteresis, no chatter). If level reads below 0.05 m while the pump runs for more than 5 s, latch a dry-run fault that only a reset input clears.</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>FB_TankFeed</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_INPUT
+    rawAI   : Int;
+    reset   : Bool;
+END_VAR
+VAR_OUTPUT
+    pump    : Bool;
+    level_m : Real;
+    dryFault: Bool;
+END_VAR
+VAR
+    tDry    : TON;
+END_VAR
+
+BEGIN
+#level_m := INT_TO_REAL(#rawAI) / 27648.0 * 4.0;
+
+// Hysteresis: two independent IFs, no ELSE
+IF #level_m &lt; 1.2 THEN  #pump := TRUE;   END_IF;
+IF #level_m &gt; 3.4 THEN  #pump := FALSE;  END_IF;
+
+// Dry-run supervision
+#tDry(IN := #pump AND #level_m &lt; 0.05, PT := T#5s);
+IF #tDry.Q THEN
+    #dryFault := TRUE;
+END_IF;
+IF #reset THEN
+    #dryFault := FALSE;
+END_IF;
+
+#pump := #pump AND NOT #dryFault;   // fault overrides — single final owner</pre>
+  </figure>
+  </div></details>
+
+  <p class="ex-title">3 · Zone scanner <span class="lvl">Arrays · Ch. 7, 9</span></p>
+  <p>Given <code>temps : Array[1..24] of Real</code> and one shared <code>limit</code>, produce: a <code>Bool</code> alarm array, the count of zones in alarm, and the index of the hottest zone. One FOR loop total.</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>Zone scan — single pass</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#alarmCount := 0;
+#hottestIdx := 1;
+FOR #i := 1 TO 24 DO
+    #alarm[#i] := #temps[#i] &gt; #limit;
+    IF #alarm[#i] THEN
+        #alarmCount := #alarmCount + 1;
+    END_IF;
+    IF #temps[#i] &gt; #temps[#hottestIdx] THEN
+        #hottestIdx := #i;
+    END_IF;
+END_FOR;</pre>
+  </figure>
+  </div></details>
+
+  <p class="ex-title">4 · Star-delta starter <span class="lvl">State machine · Ch. 8, 11</span></p>
+  <p>On <code>start</code>: close main + star contactors; after 6 s open star, wait 100 ms (arc extinction!), close delta. <code>stop</code> or <code>trip</code> opens everything immediately. Star and delta must be mutually exclusive <em>by structure</em>, not by hoping.</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>FB_StarDelta</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    step  : Int;      // 0 off, 10 star, 20 gap, 30 delta
+    tStep : TON;
+END_VAR
+
+BEGIN
+IF #stop OR #trip THEN
+    #step := 0;
+END_IF;
+
+CASE #step OF
+    0:  IF #start AND NOT #trip THEN  #step := 10;  END_IF;
+    10: IF #tStep.Q THEN  #step := 20;  END_IF;   // 6 s in star
+    20: IF #tStep.Q THEN  #step := 30;  END_IF;   // 100 ms open gap
+    30: ;                                          // run in delta
+    ELSE  #step := 0;
+END_CASE;
+
+#tStep(IN := (#step = 10) OR (#step = 20),
+       PT := SEL(G := #step = 10, IN0 := T#100ms, IN1 := T#6s));
+
+// Outputs from state — star and delta CANNOT both be true
+#ctorMain  := #step &gt;= 10;
+#ctorStar  := #step = 10;
+#ctorDelta := #step = 30;</pre>
+  </figure>
+  <p>Deriving both contactors from one step variable makes simultaneous closure structurally impossible — the hardware interlock on the panel is then a second, independent layer.</p>
+  </div></details>
+
+  <p class="ex-title">5 · Telegram builder <span class="lvl">Strings · Ch. 10</span></p>
+  <p>Build the string <code>'B&lt;batch&gt;;W&lt;weight&gt;;'</code> — e.g. <code>'B0042;W12.50;'</code> — from <code>batchNo : Int</code> and <code>weight : Real</code>, freshly on each rising edge of <code>send</code>. (Hint: <code>VAL_STRG</code> gives you width and precision control; a simpler version with <code>INT_TO_STRING</code>/<code>REAL_TO_STRING</code> is acceptable.)</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>Telegram on demand</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#trigSend(CLK := #send);
+IF #trigSend.Q THEN
+    #tele := CONCAT(IN1 := 'B',    IN2 := INT_TO_STRING(#batchNo));
+    #tele := CONCAT(IN1 := #tele,  IN2 := ';W');
+    #tele := CONCAT(IN1 := #tele,  IN2 := REAL_TO_STRING(#weight));
+    #tele := CONCAT(IN1 := #tele,  IN2 := ';');
+END_IF;
+// Polished version: use VAL_STRG with PREC := 2 for 'W12.50',
+// and pad batchNo to 4 digits by prepending '0' while LEN &lt; 4.</pre>
+  </figure>
+  <p>Note the whole build is gated behind the edge — string work happens once per request, not every scan (Ch. 10 warning).</p>
+  </div></details>
+
+  <p class="ex-title">6 · Recipe lookup <span class="lvl">UDTs + strings · Ch. 9, 10</span></p>
+  <p>Given <code>recipes : Array[1..20] of "UDT_Recipe"</code> (fields: <code>name : String[16]</code>, <code>tempSet : Real</code>, <code>mixTime : Time</code>), write logic that, on a rising edge of <code>load</code>, finds the recipe whose name equals <code>wanted : String[16]</code>, copies its setpoints to outputs, and sets <code>notFound</code> if no name matches. Stop searching at the first hit.</p>
+  <details class="sol"><summary>Show solution</summary><div>
+  <figure class="code"><figcaption><span>Recipe search with EXIT</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">#trigLoad(CLK := #load);
+IF #trigLoad.Q THEN
+    #notFound := TRUE;
+    FOR #i := 1 TO 20 DO
+        IF #recipes[#i].name = #wanted THEN
+            #tempSet  := #recipes[#i].tempSet;
+            #mixTime  := #recipes[#i].mixTime;
+            #foundIdx := #i;
+            #notFound := FALSE;
+            EXIT;                       // first hit wins — stop the loop
+        END_IF;
+    END_FOR;
+END_IF;</pre>
+  </figure>
+  <p>Strings compare directly with <code>=</code> (exact, case-sensitive). The <code>#notFound := TRUE</code> <em>before</em> the loop plus clearing it on a hit avoids a separate "found" flag and an ELSE tangle.</p>
+  </div></details>
+
+  <p class="ex-title">7 · Capstone: three-station conveyor <span class="lvl">Integration · everything</span></p>
+  <p>Design freely: infeed conveyor, saw station, outfeed. Photo eyes at each station; the saw takes 4 s; conveyors must never run while the saw is down; an emergency stop resets everything; the HMI shows a step number and per-motor fault codes. Use <code>FB_MotorCtrl</code> from Ch. 12 for all three drives and a sequence FB in the style of Ch. 11. No fold-out solution for this one — when it runs in PLCSIM and you can explain every line, you've finished the course.</p>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch18">
+  <div class="chnum">Chapter 18</div>
+  <h2>Roadmap &amp; resources</h2>
+
+  <h3>A realistic mastery path</h3>
+  <ul>
+    <li><strong>Weeks 1–2 — Syntax fluency.</strong> Chapters 1–8 with PLCSIM. Goal: write timers, edges, and CASE from memory without looking anything up. The quizzes should feel easy on a second pass.</li>
+    <li><strong>Weeks 3–4 — Data modeling.</strong> Chapters 9–10. Rebuild a small ladder project you know (or a tutorial project) entirely in SCL with UDTs.</li>
+    <li><strong>Month 2 — Sequences.</strong> Chapter 11 until step machines are reflex. Do exercises 4 and 6.</li>
+    <li><strong>Month 3 — Library thinking &amp; loops.</strong> Chapters 12–13; build your personal device library (motor, valve, analog channel, PI wrapper) and reuse it in the next project.</li>
+    <li><strong>Month 4 — Integration.</strong> Chapter 14 and the capstone: comms, HMI interface DBs, a complete small machine in PLCSIM.</li>
+    <li><strong>Ongoing —</strong> read other people's code (open-source S7 projects, Siemens application examples), and study the official <em>Programming Styleguide</em> — consistency is what separates a library from a pile of blocks.</li>
+  </ul>
+
+  <h3>Reference material worth bookmarking</h3>
+  <ul>
+    <li><a href="https://support.industry.siemens.com/cs/document/109478084" rel="noopener">Siemens <strong>Programming Guideline for S7-1200/1500</strong></a> — the document professional SCL style is built on.</li>
+    <li><a href="https://support.industry.siemens.com/cs/document/109756737" rel="noopener">Siemens <strong>Programming Styleguide</strong></a> — naming conventions (the <code>FB_</code>/<code>UDT_</code> prefixes used here follow it).</li>
+    <li><a href="https://support.industry.siemens.com" rel="noopener"><strong>SIOS</strong> (Siemens Industry Online Support)</a> — application examples with downloadable, readable SCL source; searching "SCL application example" is a course in itself.</li>
+    <li>TIA Portal's built-in help: press <strong>F1 on any keyword or instruction</strong> — the SCL instruction reference is genuinely good.</li>
+    <li><strong>PLCSIM / PLCSIM Advanced</strong> — your simulator; PLCSIM Advanced additionally exposes an API for co-simulation.</li>
+  </ul>
+
+  <div class="note"><b>The one habit</b>Every concept in this manual was learned by every good PLC programmer the same way: a small block, a watch table, and twenty minutes of "why is it doing <em>that</em>?" Budget for the twenty minutes. That's the course fee, and it's non-negotiable.</div>
+
+  <footer>SCL Field Manual · Structured Control Language for Siemens TIA Portal · S7-1200/1500, TIA Portal V17+. Verify instruction availability against your CPU firmware; syntax shown compiles on S7-1500. Quiz answers and chapter progress are stored only in this browser. Not affiliated with Siemens AG.</footer>
+</section>
+</main>
+
+<script>
+(function () {
+  // ---------- SCL syntax highlighting ----------
+  var KW = ["FUNCTION_BLOCK","END_FUNCTION_BLOCK","FUNCTION","END_FUNCTION","ORGANIZATION_BLOCK","END_ORGANIZATION_BLOCK","TYPE","END_TYPE","STRUCT","END_STRUCT","VAR_INPUT","VAR_OUTPUT","VAR_IN_OUT","VAR_TEMP","VAR_STATIC","VAR","END_VAR","CONSTANT","RETAIN","BEGIN","IF","THEN","ELSIF","ELSE","END_IF","CASE","OF","END_CASE","FOR","TO","BY","DO","END_FOR","WHILE","END_WHILE","REPEAT","UNTIL","END_REPEAT","CONTINUE","EXIT","RETURN","GOTO","AND","OR","XOR","NOT","MOD","TRUE","FALSE","REGION","END_REGION","ARRAY","AT"];
+  var TY = ["BOOL","BYTE","WORD","DWORD","LWORD","SINT","INT","DINT","LINT","USINT","UINT","UDINT","ULINT","REAL","LREAL","TIME","LTIME","DATE","TIME_OF_DAY","TOD","DTL","DT","CHAR","WCHAR","STRING","WSTRING","VARIANT","DB_ANY","REF_TO","TON","TOF","TP","TONR","CTU","CTD","CTUD","R_TRIG","F_TRIG","TSEND_C","TRCV_C","TCON_IP_V4"];
+  var kwSet = {}, tySet = {};
+  KW.forEach(function (k) { kwSet[k] = 1; });
+  TY.forEach(function (t) { tySet[t] = 1; });
+
+  var re = new RegExp(
+    "(\\/\\/[^\\n]*)" +
+    "|(\\(\\*[\\s\\S]*?\\*\\))" +
+    "|('(?:[^'\\n]|'')*')" +
+    "|((?:LT|T|DTL|DT|TOD|D|W?STRING|CHAR|INT|REAL|WORD|DINT)#[\\w.:\\-#]+)" +
+    "|((?:\\d+#[0-9A-Fa-f_]+))" +
+    "|(\\b\\d[\\d_]*(?:\\.\\d+)?(?:[eE][+\\-]?\\d+)?\\b)" +
+    "|(\\b[A-Za-z_][A-Za-z0-9_]*\\b)",
+    "g");
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  document.querySelectorAll("pre.scl").forEach(function (pre) {
+    var src = pre.textContent;
+    var out = "", last = 0, m;
+    re.lastIndex = 0;
+    while ((m = re.exec(src)) !== null) {
+      out += esc(src.slice(last, m.index));
+      var t = m[0], cls = null, up = t.toUpperCase();
+      if (m[1] || m[2]) cls = "com";
+      else if (m[3]) cls = "str";
+      else if (m[4] || m[5] || m[6]) cls = "num";
+      else if (m[7]) {
+        if (kwSet[up]) cls = "kw";
+        else if (tySet[up]) cls = "ty";
+      }
+      out += cls ? '<span class="' + cls + '">' + esc(t) + "</span>" : esc(t);
+      last = m.index + t.length;
+    }
+    out += esc(src.slice(last));
+    pre.innerHTML = out;
+  });
+
+  // ---------- copy buttons ----------
+  document.querySelectorAll("figure.code").forEach(function (fig) {
+    var cap = fig.querySelector("figcaption");
+    var pre = fig.querySelector("pre.scl");
+    if (!cap || !pre) return;
+    var btn = document.createElement("button");
+    btn.className = "copy";
+    btn.type = "button";
+    btn.textContent = "COPY";
+    btn.addEventListener("click", function () {
+      var text = pre.textContent;
+      function ok() {
+        btn.textContent = "COPIED";
+        setTimeout(function () { btn.textContent = "COPY"; }, 1500);
+      }
+      function fallback() {
+        try {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          ok();
+        } catch (e) { btn.textContent = "FAILED"; }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok, fallback);
+      } else { fallback(); }
+    });
+    cap.appendChild(btn);
+  });
+
+  // ---------- quizzes ----------
+  document.querySelectorAll(".quiz .q").forEach(function (q) {
+    q.querySelectorAll(".opts button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (q.classList.contains("answered")) return;
+        q.classList.add("answered");
+        if (!b.hasAttribute("data-ok")) b.classList.add("wrong");
+        var right = q.querySelector(".opts button[data-ok]");
+        if (right) right.classList.add("right");
+      });
+    });
+  });
+
+  // ---------- progress (localStorage, per-viewer) ----------
+  var PKEY = "sclfm-progress";
+  function loadProg() {
+    try {
+      var v = localStorage.getItem(PKEY);
+      return v ? JSON.parse(v) : {};
+    } catch (e) { return {}; }
+  }
+  function saveProg(p) {
+    try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch (e) {}
+  }
+  var prog = loadProg();
+  var sections = document.querySelectorAll("section.ch");
+  var railLinks = {};
+  document.querySelectorAll("nav.rail a[href^='#']").forEach(function (a) {
+    railLinks[a.getAttribute("href").slice(1)] = a;
+  });
+
+  function updateProgLine() {
+    var total = sections.length, done = 0;
+    sections.forEach(function (s) { if (prog[s.id]) done++; });
+    var el = document.getElementById("progline");
+    if (el) el.innerHTML = done
+      ? "<b>" + done + "</b> / " + total + " chapters complete"
+      : total + " chapters";
+  }
+
+  sections.forEach(function (sec) {
+    var btn = document.createElement("button");
+    btn.className = "donebtn";
+    btn.type = "button";
+    function render() {
+      var on = !!prog[sec.id];
+      btn.classList.toggle("on", on);
+      btn.textContent = on ? "✓ Chapter complete — tap to undo" : "Mark chapter complete";
+      var link = railLinks[sec.id];
+      if (link) link.classList.toggle("done", on);
+      var mlink = document.querySelector("#mtoc a[href='#" + sec.id + "']");
+      if (mlink) mlink.classList.toggle("done", on);
+    }
+    btn.addEventListener("click", function () {
+      if (prog[sec.id]) delete prog[sec.id];
+      else prog[sec.id] = true;
+      saveProg(prog);
+      render();
+      updateProgLine();
+    });
+    render();
+    sec.appendChild(btn);
+  });
+
+  // ---------- mobile TOC generated from the rail ----------
+  var mtoc = document.getElementById("mtoc");
+  if (mtoc) {
+    document.querySelectorAll("nav.rail a[href^='#']").forEach(function (a) {
+      var c = document.createElement("a");
+      c.href = a.getAttribute("href");
+      var num = a.querySelector(".n");
+      c.textContent = (num ? num.textContent + " · " : "") + a.textContent.replace(num ? num.textContent : "", "").trim();
+      if (a.classList.contains("done")) c.classList.add("done");
+      mtoc.appendChild(c);
+    });
+  }
+  updateProgLine();
+
+  // ---------- scroll-spy ----------
+  var current = null;
+  try {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          if (current) current.classList.remove("active");
+          current = railLinks[e.target.id];
+          if (current) current.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-15% 0px -70% 0px" });
+    sections.forEach(function (s) { obs.observe(s); });
+  } catch (e) { /* no scroll-spy — nav still works */ }
+})();
+</script>
+</body>
+</html>
