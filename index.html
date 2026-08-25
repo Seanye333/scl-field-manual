@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A practical course in Structured Control Language (SCL) for Siemens TIA Portal — S7-1200/1500, with quizzes, exercises and a quick reference.">
+<meta name="description" content="A practical course in Structured Control Language (SCL) for Siemens TIA Portal — S7-1200/1500, with a live playground, quizzes, a final exam, exercises and a quick reference.">
+<meta property="og:title" content="SCL Field Manual">
+<meta property="og:description" content="Master Structured Control Language for Siemens TIA Portal: 22 chapters, a live SCL playground, quizzes, and importable source files.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://seanye333.github.io/scl-field-manual/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
 <title>SCL Field Manual</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@87.5,400..700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap">
@@ -474,6 +478,225 @@
     font-size: .85rem;
     max-width: 54rem;
   }
+
+  /* ---------- rail groups & tools ---------- */
+  .rail .grp {
+    font-family: "Saira", sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 1rem 1.25rem .25rem;
+  }
+  .rail .tools { padding: .4rem 1.25rem .2rem; display: flex; flex-direction: column; gap: .5rem; }
+  .rail .tools input[type="search"] {
+    width: 100%;
+    font: inherit;
+    font-size: .85rem;
+    padding: .35rem .6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .rail .tools input[type="search"]:focus-visible { outline: 2px solid var(--accent); }
+  .themebtn {
+    font-family: "Saira", sans-serif;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .3rem .6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--muted);
+    cursor: pointer;
+    align-self: flex-start;
+  }
+  .themebtn:hover { color: var(--accent); border-color: var(--accent); }
+  .themebtn:focus-visible { outline: 2px solid var(--accent); }
+  .searchres { margin: 0; padding: 0; list-style: none; }
+  .searchres li { margin: 0; }
+  .searchres a {
+    display: block;
+    padding: .35rem 1.25rem;
+    font-size: .8rem;
+    line-height: 1.35;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+  }
+  .searchres a:hover { background: var(--accent-soft); color: var(--ink); }
+  .searchres .where { display: block; font-family: "Saira", sans-serif; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .searchres mark { background: var(--amber-soft); color: var(--amber); border-radius: 2px; padding: 0 .1em; }
+  .searchres .none { padding: .35rem 1.25rem; font-size: .8rem; color: var(--faint); }
+  @media (max-width: 900px) {
+    #mobile-toc .tools { padding: .4rem 1rem .6rem; display: flex; flex-direction: column; gap: .5rem; }
+  }
+
+  /* ---------- hero LEDs ---------- */
+  .leds { display: flex; gap: 1.1rem; margin: 0 0 1.4rem; }
+  .leds .ledbox { display: flex; align-items: center; gap: .45rem; font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .1em; color: var(--faint); }
+  .leds i {
+    width: 11px; height: 11px; border-radius: 2px; display: inline-block;
+    background: var(--line);
+    box-shadow: inset 0 0 2px rgba(0,0,0,.35);
+  }
+  .leds .run i { background: var(--good); animation: ledblink 1.6s steps(1) infinite; }
+  @keyframes ledblink { 0%, 60% { opacity: 1; } 60.01%, 100% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .leds .run i { animation: none; } }
+
+  /* ---------- zebra tables ---------- */
+  table tr:nth-child(even) td { background: var(--surface); }
+
+  /* ---------- h3 anchors ---------- */
+  h3 .anchor { opacity: 0; margin-left: .4rem; font-size: .85em; text-decoration: none; color: var(--faint); }
+  h3:hover .anchor, h3 .anchor:focus-visible { opacity: 1; }
+
+  /* ---------- playground ---------- */
+  .lab-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 1rem;
+    max-width: 62rem;
+    margin: 1.2rem 0;
+  }
+  @media (max-width: 1100px) { .lab-grid { grid-template-columns: 1fr; } }
+  .pg-toolbar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0 .8rem; }
+  .pg-toolbar select {
+    font: inherit; font-size: .9rem;
+    padding: .35rem .6rem;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: var(--surface); color: var(--ink);
+    max-width: 100%;
+  }
+  .pg-btn {
+    font-family: "Saira", sans-serif; font-weight: 600;
+    font-size: .82rem; letter-spacing: .08em; text-transform: uppercase;
+    padding: .42rem 1.1rem; border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent); color: #fff;
+    cursor: pointer;
+  }
+  .pg-btn.alt { background: transparent; color: var(--accent); }
+  .pg-btn:hover { filter: brightness(1.08); }
+  .pg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pg-status {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem; letter-spacing: .06em;
+    padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted);
+  }
+  .pg-status.run { border-color: var(--good); color: var(--good); }
+  .pg-status.err { border-color: var(--bad); color: var(--bad); }
+  #pg-editor {
+    width: 100%;
+    min-height: 430px;
+    resize: vertical;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .84rem;
+    line-height: 1.6;
+    tab-size: 4;
+    color: var(--code-ink);
+    background: var(--code-bg);
+    border: 1px solid var(--code-line);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    white-space: pre;
+  }
+  #pg-editor:focus-visible { outline: 2px solid var(--accent); }
+  .pg-err {
+    display: none;
+    margin-top: .6rem;
+    padding: .6rem .9rem;
+    border-left: 4px solid var(--bad);
+    background: var(--amber-soft);
+    color: var(--ink);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem;
+    border-radius: 6px;
+    white-space: pre-wrap;
+  }
+  .pg-err.show { display: block; }
+  .pg-side { display: flex; flex-direction: column; gap: .8rem; }
+  .pg-panel {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: .7rem .9rem .8rem;
+  }
+  .pg-panel h4 {
+    margin: 0 0 .5rem;
+    font-family: "Saira", sans-serif;
+    font-size: .72rem; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .pg-row { display: flex; align-items: center; gap: .6rem; padding: .22rem 0; font-size: .86rem; }
+  .pg-row .nm { font-family: "IBM Plex Mono", monospace; font-size: .78rem; flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .pg-row .val { font-family: "IBM Plex Mono", monospace; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pg-row input[type="number"] {
+    width: 5.5em; font: inherit; font-size: .8rem;
+    padding: .15rem .35rem;
+    border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg); color: var(--ink);
+  }
+  .sw { position: relative; width: 34px; height: 19px; flex-shrink: 0; }
+  .sw input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .sw i {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: var(--line); transition: background .15s;
+    pointer-events: none;
+  }
+  .sw i::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--surface); transition: transform .15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,.3);
+  }
+  .sw input:checked + i { background: var(--accent); }
+  .sw input:checked + i::after { transform: translateX(15px); }
+  .sw input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lamp {
+    width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+    background: var(--line);
+    box-shadow: inset 0 0 3px rgba(0,0,0,.3);
+  }
+  .lamp.on { background: var(--good); box-shadow: 0 0 6px var(--good); }
+  .pg-meta { font-family: "IBM Plex Mono", monospace; font-size: .72rem; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .pg-empty { font-size: .8rem; color: var(--faint); }
+
+  /* ---------- exam ---------- */
+  .exam-bar {
+    max-width: 54rem;
+    display: flex; flex-wrap: wrap; gap: .8rem; align-items: center;
+    margin: 1.5rem 0 0;
+    padding: .8rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+  .exam-bar .score {
+    font-family: "Saira", sans-serif; font-weight: 700; font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .exam-bar .best { font-size: .82rem; color: var(--muted); }
+
+  /* ---------- print ---------- */
+  @media print {
+    nav.rail, #mobile-toc, .quiz, .donebtn, .pg-toolbar, .lab-grid, .pg-err,
+    .exam-bar, figure.code .copy, .hero .leds, #lab { display: none !important; }
+    main { margin-left: 0; padding: 0; max-width: none; }
+    body { background: #fff; color: #000; }
+    pre.scl { background: #f2f2f2; color: #000; border: 1px solid #ccc; }
+    pre.scl .kw { color: #005a60; } pre.scl .ty { color: #8a5a00; }
+    pre.scl .com { color: #667; } pre.scl .str { color: #2b6018; } pre.scl .num { color: #7a2f7a; }
+    a { color: #000; text-decoration: none; }
+  }
+  html.print-quickref main > section.ch:not(#ch19),
+  html.print-quickref header.hero,
+  html.print-quickref #mobile-toc { display: none !important; }
 </style>
 </head>
 <body>
@@ -484,24 +707,39 @@
     <div class="s">Siemens TIA Portal · S7-1200/1500</div>
     <div class="prog" id="progline"></div>
   </div>
+  <div class="tools">
+    <input type="search" id="searchbox" placeholder="Search the manual…" aria-label="Search the manual">
+    <button type="button" class="themebtn" id="themebtn" aria-label="Switch color theme">Theme: Auto</button>
+  </div>
+  <ul class="searchres" id="searchres" hidden></ul>
+  <a href="#lab"><span class="n">▶</span>The Playground</a>
+  <div class="grp">I · Foundations</div>
   <a href="#ch1"><span class="n">01</span>Why SCL</a>
   <a href="#ch2"><span class="n">02</span>Your first block</a>
   <a href="#ch3"><span class="n">03</span>OBs, FBs, FCs &amp; DBs</a>
+  <div class="grp">II · The Language</div>
   <a href="#ch4"><span class="n">04</span>Data types</a>
   <a href="#ch5"><span class="n">05</span>Variables &amp; interfaces</a>
   <a href="#ch6"><span class="n">06</span>Operators &amp; expressions</a>
   <a href="#ch7"><span class="n">07</span>Control flow</a>
   <a href="#ch8"><span class="n">08</span>Timers, counters, edges</a>
+  <div class="grp">III · Data &amp; Patterns</div>
   <a href="#ch9"><span class="n">09</span>Arrays, structs &amp; UDTs</a>
   <a href="#ch10"><span class="n">10</span>Strings &amp; conversions</a>
   <a href="#ch11"><span class="n">11</span>State machines</a>
   <a href="#ch12"><span class="n">12</span>Reusable FB design</a>
+  <div class="grp">IV · Systems</div>
   <a href="#ch13"><span class="n">13</span>Closed-loop control</a>
   <a href="#ch14"><span class="n">14</span>Talking to the world</a>
-  <a href="#ch15"><span class="n">15</span>Pitfalls &amp; debugging</a>
-  <a href="#ch16"><span class="n">16</span>Quick reference</a>
-  <a href="#ch17"><span class="n">17</span>Exercises</a>
-  <a href="#ch18"><span class="n">18</span>Roadmap &amp; resources</a>
+  <a href="#ch15"><span class="n">15</span>Interrupts, startup &amp; OBs</a>
+  <a href="#ch16"><span class="n">16</span>Indirect access &amp; VARIANT</a>
+  <a href="#ch17"><span class="n">17</span>Program architecture</a>
+  <div class="grp">V · Mastery</div>
+  <a href="#ch18"><span class="n">18</span>Pitfalls &amp; debugging</a>
+  <a href="#ch19"><span class="n">19</span>Quick reference</a>
+  <a href="#ch20"><span class="n">20</span>Exercises</a>
+  <a href="#ch21"><span class="n">21</span>Final exam</a>
+  <a href="#ch22"><span class="n">22</span>Roadmap &amp; resources</a>
 </nav>
 
 <main>
@@ -511,16 +749,59 @@
 </details>
 
 <header class="hero">
+  <div class="leds" aria-hidden="true">
+    <span class="ledbox run"><i></i>RUN</span>
+    <span class="ledbox"><i></i>ERROR</span>
+    <span class="ledbox"><i></i>MAINT</span>
+  </div>
   <div class="eyebrow">Structured Control Language · IEC 61131-3</div>
   <h1>SCL Field<br>Manual <span class="thin">/ TIA Portal</span></h1>
-  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Quizzes check your understanding; your progress is remembered in this browser.</p>
+  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Run real SCL in the built-in playground, check yourself with quizzes and a final exam, and import the companion source files straight into TIA Portal. Progress is remembered in this browser.</p>
   <div class="specs">
     <span>TARGET <b>S7-1200 / S7-1500</b></span>
     <span>IDE <b>TIA Portal V17+</b></span>
     <span>STANDARD <b>IEC 61131-3 ST</b></span>
-    <span>PRACTICE <b>PLCSIM / PLCSIM Advanced</b></span>
+    <span>PRACTICE <b>PLCSIM + THE LAB ↓</b></span>
   </div>
 </header>
+
+<!-- ================================================================ -->
+<section class="ch" id="lab">
+  <div class="chnum">The Lab</div>
+  <h2>The Playground</h2>
+  <p>A live SCL scan-cycle simulator, right on this page. It compiles a teaching subset of the language — <code>Bool</code>/<code>Int</code>/<code>DInt</code>/<code>Real</code>/<code>Time</code>, all control structures, <code>TON</code>/<code>TOF</code>/<code>TP</code> timers, <code>R_TRIG</code>/<code>F_TRIG</code>, <code>CTU</code>/<code>CTD</code>, and functions like <code>LIMIT</code> and <code>SEL</code> — and executes it 20 times a second, exactly like a PLC scans. Variables you declare in <code>VAR_INPUT</code> become toggle switches and number fields; <code>VAR_OUTPUT</code> Bools become lamps. Pick an example, press Run, then break it and fix it.</p>
+  <div class="pg-toolbar">
+    <select id="pg-example" aria-label="Load an example program"></select>
+    <button type="button" class="pg-btn" id="pg-run">Compile &amp; Run</button>
+    <button type="button" class="pg-btn alt" id="pg-stop">Stop</button>
+    <span class="pg-status" id="pg-status">STOP</span>
+  </div>
+  <div class="lab-grid">
+    <div>
+      <textarea id="pg-editor" spellcheck="false" aria-label="SCL code editor"></textarea>
+      <div class="pg-err" id="pg-err"></div>
+    </div>
+    <div class="pg-side">
+      <div class="pg-panel">
+        <h4>Inputs</h4>
+        <div id="pg-inputs"><p class="pg-empty">Run a program to see its inputs here.</p></div>
+      </div>
+      <div class="pg-panel">
+        <h4>Outputs</h4>
+        <div id="pg-outputs"><p class="pg-empty">—</p></div>
+      </div>
+      <div class="pg-panel">
+        <h4>Watch (Static)</h4>
+        <div id="pg-watch"><p class="pg-empty">—</p></div>
+      </div>
+      <div class="pg-panel">
+        <h4>Scan</h4>
+        <div class="pg-meta" id="pg-meta">idle</div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>What it can't do (yet)</b>Arrays, strings, UDTs and PID are beyond the playground — for those, use PLCSIM with the <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">companion source files</a>. The simulator's point is the scan cycle: watch how timers, edges and state machines behave <em>over time</em>, which is the part of PLC programming a printed page can't show.</div>
+</section>
 
 <!-- ================================================================ -->
 <section class="ch" id="ch1">
@@ -536,6 +817,17 @@
   </ul>
   <p>Where LAD still wins: simple interlock chains that electricians and maintenance staff will troubleshoot live with power-flow highlighting. Real projects mix both — a common professional pattern is <em>LAD for the safety/interlock layer, SCL for logic, sequencing and data handling</em>. Mastering SCL doesn't mean abandoning ladder; it means never being limited by it.</p>
   <div class="note"><b>How this manual works</b>Each chapter is short theory plus compilable code (every code panel has a copy button). Type the examples into a real project — TIA Portal + PLCSIM costs nothing extra if you have Portal, and the trial download runs 21 days. When you finish a chapter, hit <em>Mark chapter complete</em> at its end; the sidebar keeps your score. Reading SCL teaches you syntax; typing it and watching the compiler complain teaches you the language.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Which task is SCL clearly better at than ladder logic?</p>
+      <div class="opts"><button>A two-contact motor interlock maintenance will troubleshoot live</button><button data-ok>Averaging 100 analog samples in an array</button><button>Forcing an output for a wiring check</button></div>
+      <div class="why">Loops over arrays are SCL's home turf — ladder has no good FOR. The simple interlock is the case where LAD's power-flow view still earns its keep.</div>
+    </div>
+    <div class="q"><p>SCL is Siemens' implementation of which IEC 61131-3 language?</p>
+      <div class="opts"><button>Instruction List</button><button data-ok>Structured Text</button><button>Sequential Function Chart</button></div>
+      <div class="why">Structured Text (ST). That's why most SCL skills transfer to CODESYS, Rockwell ST, Beckhoff and others with only dialect changes.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -597,6 +889,17 @@ END_REGION</pre>
   </figure>
 
   <div class="note"><b>Editor survival kit</b><code>Ctrl+Space</code> completes tags and instructions. <code>Ctrl+Shift+F</code> formats/indents. Right-click → <em>Monitor</em> shows live values inline while online. The compiler output window is your friend — double-clicking an error jumps to the line.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>What does <code>#lamp</code> mean versus <code>"lamp"</code>?</p>
+      <div class="opts"><button data-ok># is a local variable of this block; "…" is a global tag or block</button><button>They are interchangeable styles</button><button># marks constants</button></div>
+      <div class="why">The prefixes tell you where data lives — read them like a map. Portal inserts them automatically.</div>
+    </div>
+    <div class="q"><p>Which line reads an FB's output into a global tag?</p>
+      <div class="opts"><button><code>lamp := "BeaconLamp";</code></button><button data-ok><code>lamp =&gt; "BeaconLamp"</code> inside the call</button><button><code>lamp = "BeaconLamp";</code></button></div>
+      <div class="why"><code>:=</code> passes <em>into</em> a block, <code>=&gt;</code> routes an output <em>out</em>, and a lone <code>=</code> only ever compares.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -648,6 +951,17 @@ BEGIN
   </figure>
 
   <div class="warn"><b>Rule of thumb</b>Stateless math → FC. Anything with a timer, edge, counter, or remembered mode → FB. If you find yourself passing "memory" bits into an FC so it can fake state, it should have been an FB.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A block computes flow-corrected volume from three inputs — no timers, no history. FB or FC?</p>
+      <div class="opts"><button>FB, to be safe</button><button data-ok>FC — pure calculation, no memory needed</button></div>
+      <div class="why">No state → FC. It needs no instance DB and its output depends only on this call's inputs, which also makes it trivially testable.</div>
+    </div>
+    <div class="q"><p>Declaring <code>tDelay : TON;</code> in an FB's Static section (multi-instance) means…</p>
+      <div class="opts"><button>The timer gets its own separate DB</button><button data-ok>The timer's data lives inside the parent FB's instance DB</button><button>The timer resets every scan</button></div>
+      <div class="why">One device FB, one DB — the parent's instance DB contains all embedded instances. This is what keeps a 40-motor project at 40 DBs instead of 200.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -751,6 +1065,21 @@ VAR CONSTANT
 END_VAR</pre>
   </figure>
   <p>Mark Static data <code>RETAIN</code> when it must survive a power cycle (totalizers, service counters, selected recipe). Everything else should re-initialize cleanly — a machine that "remembers" it was mid-sequence through a power cut is a hazard unless you designed for it.</p>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A value must survive from one scan to the next inside an FB. It belongs in…</p>
+      <div class="opts"><button>Temp</button><button data-ok>Static</button><button>Constant</button></div>
+      <div class="why">Temp is garbage at the start of every call. Static <em>is</em> the FB's memory — that's the whole difference between an FB and an FC.</div>
+    </div>
+    <div class="q"><p>You must pass a 200-element UDT array into an FC. Which section avoids copying it?</p>
+      <div class="opts"><button>Input</button><button data-ok>InOut — passed by reference</button><button>Output</button></div>
+      <div class="why">Structured data through InOut travels as a reference, no copy. For FCs it's required for STRING/ARRAY/STRUCT anyway — and it's why Ch. 9's motor FB takes its UDT that way.</div>
+    </div>
+    <div class="q"><p>Code reads a Temp variable before writing it this scan. In PLCSIM it works. On the CPU…</p>
+      <div class="opts"><button>It works the same — Temp is zeroed</button><button data-ok>It reads leftover stack data — behavior is effectively random</button></div>
+      <div class="why">Temp is <em>not initialized</em>. Simulation often hides it by happening to hand you zeros. Hardware won't be so polite.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -789,6 +1118,17 @@ IF #temp &lt; #setpoint - 2.0 THEN  #cooling := FALSE; END_IF;
   </figure>
 
   <div class="note"><b>Integer vs Real division</b><code>7 / 2</code> is <code>3</code> (integer math). <code>7.0 / 2.0</code> is <code>3.5</code>. The compiler picks the math by operand type, not by what you meant — convert <em>before</em> dividing when you need fractions.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p><code>#done := 3; #total := 8;</code> — what is <code>#done / #total * 100</code>?</p>
+      <div class="opts"><button>37.5</button><button>37</button><button data-ok>0</button></div>
+      <div class="why">Integer division first: <code>3 / 8 = 0</code>, then <code>0 * 100 = 0</code>. Multiply first (<code>#done * 100 / #total</code> = 37) or convert to Real for 37.5. Try it in the Playground.</div>
+    </div>
+    <div class="q"><p>Which expression gives a one-line ring-buffer index over 0..49?</p>
+      <div class="opts"><button data-ok><code>(#i + 1) MOD 50</code></button><button><code>#i + 1 XOR 50</code></button><button><code>LIMIT(0, #i + 1, 49)</code></button></div>
+      <div class="why"><code>MOD</code> wraps 49 back to 0. <code>LIMIT</code> would <em>clamp</em> at 49 and stick there — a different (and here wrong) behavior.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -1039,6 +1379,17 @@ FOR #i := #lo TO #hi DO
 END_FOR;
 #mean := #sum / DINT_TO_REAL(#hi - #lo + 1);</pre>
   </figure>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>An HMI field feeds <code>#idx</code> for <code>#zoneTemp[#idx]</code> (bounds 1..16). The operator types 0. What should the code have done?</p>
+      <div class="opts"><button>Nothing — the compiler catches it</button><button data-ok>Clamped it first: <code>#idx := LIMIT(MN := 1, IN := #idx, MX := 16);</code></button><button>Used a Real index</button></div>
+      <div class="why">The compiler can only check <em>constant</em> indices. Runtime values from HMI or comms must be clamped — an out-of-range access is a programming-error event and wrong data.</div>
+    </div>
+    <div class="q"><p>The single most important tool for scaling a project from 3 devices to 40 is…</p>
+      <div class="opts"><button>Faster CPU</button><button data-ok>A UDT per device class + an array of them + one FB working on the UDT</button><button>More global DBs</button></div>
+      <div class="why">Model the thing once, loop over instances. Forty motors become <code>motors : Array[1..40] of "UDT_Motor"</code> and one tested FB.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -1086,6 +1437,17 @@ BEGIN
 #level := (INT_TO_REAL(#rawAI) - 5530.0) / (27648.0 - 5530.0) * 3.50;
 #wireBreak := #rawAI &lt; 4000;      // far below 4 mA → sensor fault</pre>
   </figure>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Why declare <code>String[20]</code> instead of plain <code>String</code>?</p>
+      <div class="opts"><button>Plain String is read-only</button><button data-ok>Plain String reserves 254+2 bytes — sized strings keep DBs and parameter transfers lean</button><button>Sized strings are Unicode</button></div>
+      <div class="why">A default String costs 256 bytes every time it appears. Twenty batch-ID strings of the right size cost less than two default ones.</div>
+    </div>
+    <div class="q"><p>Building a status string with CONCAT every scan in a 10 ms cyclic OB is…</p>
+      <div class="opts"><button>Fine — strings are cheap</button><button data-ok>A scan-time problem: do string work only on the event that changes it</button></div>
+      <div class="why">String operations copy bytes around. Gate them behind an edge (new barcode, changed state) and the cost disappears.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -1112,6 +1474,7 @@ VAR_OUTPUT
 END_VAR
 VAR
     step        : Int;       // 0=idle
+    stepOld     : Int;       // last scan's step — resets the step timer
     tStep       : TON;
     trigStart   : R_TRIG;
 END_VAR
@@ -1157,8 +1520,12 @@ CASE #step OF
 END_CASE;
 
 // Step timer: runs while in a timed step (call unconditionally!)
-#tStep(IN := (#step = #MIX) OR (#step = #DRAIN),
+// The (#step = #stepOld) term drops IN for one scan on every step
+// change, so the timer restarts from zero in each new step.
+#tStep(IN := (#step = #stepOld)
+         AND ((#step = #MIX) OR (#step = #DRAIN)),
        PT := SEL(G := #step = #MIX, IN0 := T#30s, IN1 := T#5m));
+#stepOld := #step;
 
 // ---- Outputs derived from state, in ONE place ----
 #valveFill  := #step = #FILL;
@@ -1177,6 +1544,8 @@ END_FUNCTION_BLOCK</pre>
     <li><strong>Expose <code>stepNo</code> to the HMI.</strong> "It's stuck in step 20" is a diagnosis; "it's stuck" is a phone call at 2 a.m.</li>
     <li><strong>Every waiting step needs an exit</strong> — a transition, a timeout to a fault step, or both. A step that can wait forever will.</li>
   </ul>
+
+  <div class="warn"><b>The shared-step-timer trap</b>Look again at the <code>#stepOld</code> line. Without it there is a genuine bug: an IEC timer's <code>ET</code> only resets when <code>IN</code> goes FALSE. If two <em>consecutive</em> steps are both timed (MIX → DRAIN here), <code>IN</code> stays TRUE straight through the transition — the timer never resets, <code>ET</code> is already past the new (shorter) <code>PT</code>, and <code>Q</code> fires immediately: the second step's time is silently skipped. Comparing <code>#step</code> to last scan's value drops <code>IN</code> for exactly one cycle on every step change, restarting the timer. Try it in the Playground: the star-delta example is wired this way — remove the <code>stepOld</code> term and watch the 100 ms gap step vanish.</div>
 
   <div class="quiz"><div class="qhead">Check yourself</div>
     <div class="q"><p>In a step machine, where should the <code>valveFill</code> output be written?</p>
@@ -1256,8 +1625,19 @@ END_FUNCTION_BLOCK</pre>
     <li><strong>Version your blocks</strong> (block properties → version) and never edit a released library block in a project — copy, bump, retest.</li>
   </ul>
 
-  <h3>Going generic: VARIANT</h3>
-  <p>For true one-block-fits-all libraries, S7-1500 offers <code>Variant</code> InOuts with <code>TypeOf()</code>, <code>MOVE_BLK_VARIANT</code>, and <code>Variant_To</code>-style access, plus <code>REF_TO</code> references. Learn them <em>after</em> UDT + <code>Array[*]</code> patterns feel routine — 90% of practical genericity comes from those two.</p>
+  <h3>Going generic</h3>
+  <p>For true one-block-fits-all libraries, S7-1500 adds <code>Variant</code> parameters and <code>REF_TO</code> references — Chapter 16 covers them. Learn them <em>after</em> UDT + <code>Array[*]</code> patterns feel routine: 90% of practical genericity comes from those two.</p>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Why must a library FB never read a global tag directly?</p>
+      <div class="opts"><button>Global reads are slow</button><button data-ok>It welds the block to one project — it can no longer be reused or tested in isolation</button><button>The compiler forbids it</button></div>
+      <div class="why">Everything through the interface. A block that references <code>"Line3_Fault"</code> internally cannot go into a library, a different project, or a PLCSIM test bench.</div>
+    </div>
+    <div class="q"><p>In <code>FB_MotorCtrl</code>, why is <code>#contactor := #cmdRun AND #interlockOK AND NOT #fault;</code> safer than switching the output off inside each fault branch?</p>
+      <div class="opts"><button>It compiles to fewer instructions</button><button data-ok>Every fault path drops the output by construction — no branch can forget</button></div>
+      <div class="why">Fail-safe by structure: safety comes from the shape of the logic, not from remembering to write the off-command in each of five places.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -1320,8 +1700,19 @@ END_FUNCTION_BLOCK</pre>
   <ul>
     <li><strong>Filter noisy inputs</strong> before the controller, not after: <code>#pvFilt := #pvFilt + 0.2 * (#pvRaw - #pvFilt);</code> is a one-line low-pass.</li>
     <li><strong>Bumpless start:</strong> when switching to automatic, preset <code>iTerm</code> so the output doesn't jump (PID_Compact handles this for you).</li>
-    <li><strong>Use Trace</strong> (Ch. 15) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
+    <li><strong>Use Trace</strong> (Ch. 18) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
   </ul>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>The heater sits at 100 % for ten minutes while the tank warms up. Without anti-windup, when the temperature finally reaches setpoint the loop will…</p>
+      <div class="opts"><button>Settle immediately</button><button data-ok>Overshoot badly — the integrator accumulated a huge term that must unwind first</button><button>Oscillate at exactly the setpoint</button></div>
+      <div class="why">That's integrator windup. Clamping <code>iTerm</code> to the output range is the one-line cure — find it in FB_PI.</div>
+    </div>
+    <div class="q"><p><code>Ts_s</code> in FB_PI must equal…</p>
+      <div class="opts"><button>The desired settling time</button><button data-ok>The actual cycle time of the OB that calls it</button><button>The process dead time</button></div>
+      <div class="why">The integral multiplies the error by the sample time. If the code says 100 ms but the OB runs at 250 ms, integral action is 2.5× too weak — and worse, OB1's varying cycle makes it drift.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -1381,11 +1772,188 @@ BEGIN
     <li>Comm blocks work asynchronously across many cycles: trigger with an edge, then wait for <code>DONE</code>/<code>ERROR</code> — a small state machine (Ch. 11) around each transfer is the professional pattern.</li>
     <li>For telegram buffers accessed by external partners byte-by-byte, a <strong>non-optimized DB</strong> keeps the layout predictable.</li>
   </ul>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A PC application reads your counter as 512 when the PLC shows 2. The cause is almost certainly…</p>
+      <div class="opts"><button>A scan-time overrun</button><button data-ok>Byte order — S7 is big-endian, the PC read it little-endian</button><button>An optimized DB</button></div>
+      <div class="why">2 = 16#0002; swap the bytes and you get 16#0200 = 512. Define the telegram byte-exactly and swap where needed.</div>
+    </div>
+    <div class="q"><p><code>TSEND_C</code> returned <code>ERROR</code> for one scan. What must your code have done for you to diagnose it later?</p>
+      <div class="opts"><button>Nothing — Portal logs it</button><button data-ok>Latched the STATUS word the moment ERROR was true</button><button>Restarted the CPU</button></div>
+      <div class="why">Comm block outputs are valid for one cycle. If STATUS isn't captured on the error edge, the diagnostic code is gone before anyone can look it up.</div>
+    </div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
 <section class="ch" id="ch15">
   <div class="chnum">Chapter 15</div>
+  <h2>Interrupts, startup &amp; OBs in depth</h2>
+  <p>Chapter 3 introduced OBs as "entry points the OS calls." Here is the fuller map — knowing <em>which</em> OB to put code in is half of program design:</p>
+
+  <div class="tablewrap"><table>
+    <tr><th>OB</th><th>Fires when…</th><th>Put here</th></tr>
+    <tr><td><strong>OB1</strong></td><td>Continuously, as fast as the program allows</td><td>The main machine logic — sequences, device FBs</td></tr>
+    <tr><td><strong>OB30–38</strong> cyclic interrupt</td><td>On a fixed clock (e.g. every 100 ms), preempting OB1</td><td>Closed-loop control, filtering, anything needing a fixed sample time</td></tr>
+    <tr><td><strong>OB40–47</strong> hardware interrupt</td><td>A configured input edge or module event</td><td>Time-critical reactions (registration marks, fast reject gates)</td></tr>
+    <tr><td><strong>OB100</strong> startup</td><td>Once, on STOP → RUN</td><td>Initialization: presets, handshakes, forcing a known state</td></tr>
+    <tr><td><strong>OB82 / 83 / 86</strong> diagnostics</td><td>Module fault / removal / rack failure</td><td>Flag the fault for the HMI; their mere <em>presence</em> keeps the CPU in RUN</td></tr>
+    <tr><td><strong>OB121 / 122</strong> error</td><td>Programming error / I/O access error</td><td>Log and contain — again, presence changes behavior (S7-1500 also offers <em>settable</em> reactions)</td></tr>
+    <tr><td><strong>OB10x / OB2x</strong></td><td>Time-of-day / time-delay</td><td>Scheduled actions (daily totals reset), delayed one-shots</td></tr>
+  </table></div>
+
+  <h3>Startup: put the machine into a known state</h3>
+  <figure class="code"><figcaption><span>OB100 — startup once on STOP → RUN</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// "Startup" [OB100]
+"DB_Plant".seqAbortReq := TRUE;      // never resume a sequence blind
+"DB_HMI".msgStartup    := TRUE;
+
+// Re-derive anything that must be consistent with retained data
+"DB_Plant".activeRecipeValid := "DB_Plant".activeRecipeNo &gt; 0;</pre>
+  </figure>
+  <p>Design rule: after any power cycle the machine either resumes <em>deliberately</em> (you wrote resume logic) or resets <em>deliberately</em> (OB100 forces it). Whatever the retained step number says, an operator must confirm before motion. "It just continued where the RAM happened to be" is how machines hurt people.</p>
+
+  <h3>Preemption and data consistency</h3>
+  <p>A cyclic interrupt <strong>preempts OB1 mid-statement-sequence</strong>. If OB1 is halfway through updating a multi-field setpoint struct when OB30 reads it, OB30 sees a half-written mix — a bug that appears once a week and never in simulation. Rules that keep you safe:</p>
+  <ul>
+    <li>Keep interrupt OBs <strong>short</strong> — call the control FB, nothing else. Every ms spent there is jitter added to OB1.</li>
+    <li>Hand data between OB1 and interrupt OBs through <strong>dedicated DB areas</strong>, written on one side only (one owner per direction — the Ch. 18 rule, applied across priorities).</li>
+    <li>For multi-value handovers, use a <strong>valid flag written last</strong>: fill the fields, then set <code>newDataValid := TRUE;</code> — the reader checks the flag, consumes, clears it.</li>
+    <li>On S7-1500, <code>UMOVE_BLK</code> copies a block <em>uninterruptibly</em> when you truly need atomicity.</li>
+  </ul>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Why does a PID loop belong in OB30 rather than OB1?</p>
+      <div class="opts"><button>OB30 has more memory available</button><button data-ok>Its math assumes a fixed sample time, and OB1's cycle time varies</button><button>OB1 cannot call technology objects</button></div>
+      <div class="why">The integral and derivative terms multiply by the sample time. A varying OB1 cycle makes the effective tuning drift with program load.</div>
+    </div>
+    <div class="q"><p>What does merely <em>adding</em> an empty OB82 to a project change?</p>
+      <div class="opts"><button>Nothing until you write code in it</button><button data-ok>Diagnostic events no longer stop the CPU</button><button>It enables module diagnostics in hardware config</button></div>
+      <div class="why">For several fault classes the CPU's reaction depends on whether the matching error OB exists. An empty OB says "I am handling this — stay in RUN."</div>
+    </div>
+    <div class="q"><p>OB1 writes three Real setpoints that OB30 reads. The safe pattern is…</p>
+      <div class="opts"><button>Write them in alphabetical order</button><button data-ok>Write all three, then set a valid flag that OB30 checks and clears</button><button>Read them twice in OB30 and compare</button></div>
+      <div class="why">The flag-written-last pattern guarantees OB30 never consumes a half-updated set, even if it preempts OB1 between assignments.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch16">
+  <div class="chnum">Chapter 16</div>
+  <h2>Indirect access &amp; VARIANT</h2>
+  <p>Ninety percent of "generic" programming is runtime array indexing plus <code>Array[*]</code> — you learned both in Chapter 9. This chapter is the last ten percent: blocks that accept <em>any type</em>, and true references. S7-1500 territory, mostly.</p>
+
+  <h3>VARIANT: a checked, type-aware handle</h3>
+  <p>A <code>Variant</code> InOut parameter accepts anything — the block then asks what it got. Unlike the old S7-300 <code>ANY</code> pointer, every access is type-checked at runtime:</p>
+  <figure class="code"><figcaption><span>FB with a Variant parameter</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_IN_OUT
+    device : Variant;      // caller passes a UDT_Motor, UDT_Valve, ...
+END_VAR
+VAR_TEMP
+    motor  : "UDT_Motor";
+    ret    : Int;
+END_VAR
+
+BEGIN
+IF TypeOf(#device) = "UDT_Motor" THEN
+    // Copy out, work on it, copy back
+    #ret := VariantGet(SRC := #device, DST =&gt; #motor);
+    #motor.runHours := #motor.runHours + #cycleHours;
+    #ret := VariantPut(SRC := #motor, DST := #device);
+ELSIF TypeOf(#device) = "UDT_Valve" THEN
+    ...
+ELSE
+    #unsupportedType := TRUE;   // fail loudly, not silently
+END_IF;
+
+// Also useful:
+// CountOfElements(#device)         → array length behind the Variant
+// MOVE_BLK_VARIANT(...)            → copy between Variant arrays</pre>
+  </figure>
+
+  <h3>References: REF_TO</h3>
+  <p>A <code>REF_TO</code> is a typed reference — closer to a pointer, still safe. Where Variant copies, a reference works <em>in place</em>:</p>
+  <figure class="code"><figcaption><span>REF_TO — S7-1500</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR
+    pMotor : REF_TO "UDT_Motor";
+END_VAR
+
+BEGIN
+#pMotor := REF("DB_Plant".motors[#selectedIdx]);   // take a reference
+
+IF #pMotor &lt;&gt; NULL THEN
+    #pMotor^.cmdRun := TRUE;        // ^ dereferences — writes the real data
+    #current := #pMotor^.current_A;
+END_IF;</pre>
+  </figure>
+  <p>The <code>^</code> is the dereference operator; always guard against <code>NULL</code>. References shine in exactly one pattern: <em>select one element of a structure array once, then work on it through many statements</em> without repeating the index arithmetic — clearer and faster.</p>
+
+  <div class="warn"><b>Know when to stop</b>There is also <code>PEEK</code>/<code>POKE</code> for raw byte access to non-optimized areas. It exists for protocol edge cases and migrations — if you reach for it in normal machine logic, the design took a wrong turn several chapters ago. Typed interfaces (UDT, <code>Array[*]</code>) beat clever indirection in every review, every handover, every 2 a.m. call.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>The main practical difference between <code>Variant</code> and the classic <code>ANY</code> pointer?</p>
+      <div class="opts"><button>Variant is faster</button><button data-ok>Variant accesses are type-checked; you can ask what type was passed</button><button>Variant works on S7-300</button></div>
+      <div class="why"><code>TypeOf</code>, <code>VariantGet</code>/<code>VariantPut</code> and friends validate the type at runtime — wrong-type access fails detectably instead of corrupting memory.</div>
+    </div>
+    <div class="q"><p>What does <code>#pMotor^.cmdRun := TRUE;</code> write to?</p>
+      <div class="opts"><button>A local copy inside the FB</button><button data-ok>The actual referenced element, e.g. "DB_Plant".motors[i]</button><button>Nothing until VariantPut is called</button></div>
+      <div class="why">That's the point of a reference: <code>^</code> reaches through to the original data. No copy-out/copy-back cycle.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch17">
+  <div class="chnum">Chapter 17</div>
+  <h2>Program architecture</h2>
+  <p>Everything so far was about writing a good block. This chapter is about writing a good <em>program</em> — the layer that decides whether your project is maintainable in year three or a haunted house.</p>
+
+  <h3>Three layers, strictly ordered</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Layer</th><th>Blocks</th><th>Knows about</th></tr>
+    <tr><td><strong>Coordination</strong></td><td>OB1, OB30…, one thin "Main" level</td><td>Which areas exist and in what order to call them</td></tr>
+    <tr><td><strong>Process / area</strong></td><td>FB per machine area: <code>FB_Infeed</code>, <code>FB_SawStation</code>, <code>FB_CIP</code></td><td>The sequence and interlocks of its area; owns its state machines</td></tr>
+    <tr><td><strong>Device</strong></td><td>Library FBs: motor, valve, analog channel, drive</td><td>One physical device class. Nothing about the plant</td></tr>
+  </table></div>
+
+  <figure class="code"><figcaption><span>OB1 as a table of contents</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// "Main" [OB1] — reads like the machine's block diagram
+"FB_Safety_DB"();                 // evaluates guards, produces permits
+"FB_Infeed_DB"(permit := "FB_Safety_DB".permitInfeed);
+"FB_SawStation_DB"(permit := "FB_Safety_DB".permitSaw);
+"FB_Outfeed_DB"(permit := "FB_Safety_DB".permitOutfeed);
+"FB_AlarmCollect_DB"();           // gathers faults for the HMI
+// Nothing else. OB1 coordinates; it never contains logic.</pre>
+  </figure>
+
+  <h3>Rules that scale</h3>
+  <ul>
+    <li><strong>Data flows down as parameters, up as status.</strong> An area FB calls device FBs through their interfaces; devices never reach up or sideways. Cross-area needs go through the coordination layer.</li>
+    <li><strong>No M-memory (bit memory).</strong> Everything lives in DBs with names. M-flags are the untyped global variables of the PLC world — the Siemens guidelines say the same.</li>
+    <li><strong>One global DB per concern:</strong> <code>DB_HMI</code> (curated operator interface), <code>DB_Recipe</code>, <code>DB_Comm</code>. Not one giant "DB_Global" that everything writes.</li>
+    <li><strong>Naming as documentation:</strong> <code>FB_</code>/<code>FC_</code>/<code>DB_</code>/<code>UDT_</code> prefixes, devices named by plant code (<code>M301_Conveyor</code>), verbs for commands (<code>cmdStart</code>), states as adjectives (<code>running</code>, <code>fault</code>). Pick the convention on day one; the styleguide in Ch. 22 is a ready-made one.</li>
+    <li><strong>Libraries, not copy-paste.</strong> Put released device FBs and UDTs into a TIA <em>project library</em> / global library as versioned types. Fixing a bug then means "update instances," not "find all 14 copies."</li>
+    <li><strong>Version control:</strong> export blocks as external sources (or use TIA's workspace/VCI features) and keep them in git. Text SCL diffs — use that superpower; it's half the reason to write SCL at all.</li>
+  </ul>
+
+  <div class="note"><b>The test</b>Open OB1. Can a stranger see what the machine <em>is</em> in ten seconds? Open any device FB. Could you drop it into a different project unchanged? Both yes → the architecture is right. The companion <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">source files</a> follow this layering.</div>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>A device FB needs to know whether the <em>other</em> conveyor is running. It should…</p>
+      <div class="opts"><button>Read the other conveyor's instance DB directly</button><button data-ok>Get that information as an input parameter from the layer above</button><button>Use a global M-flag both FBs share</button></div>
+      <div class="why">Sideways reads couple two devices forever. The area layer knows both devices exist — it wires status of one into an interlock input of the other.</div>
+    </div>
+    <div class="q"><p>Why do the guidelines say to avoid M (bit memory) entirely?</p>
+      <div class="opts"><button>M-memory is slower than DBs</button><button data-ok>M-flags are untyped, unstructured globals with no owner — DBs give names, types, and structure</button><button>M-memory is not retentive</button></div>
+      <div class="why">It's an architecture argument, not a performance one: every M-flag is a hidden coupling that cross-reference archaeology has to dig up later.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch18">
+  <div class="chnum">Chapter 18</div>
   <h2>Pitfalls &amp; debugging</h2>
 
   <h3>The greatest hits</h3>
@@ -1414,9 +1982,10 @@ BEGIN
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch16">
-  <div class="chnum">Chapter 16</div>
+<section class="ch" id="ch19">
+  <div class="chnum">Chapter 19</div>
   <h2>Quick reference</h2>
+  <p style="margin-top:-.4rem"><button type="button" class="pg-btn alt" id="printcard">Print this card</button></p>
   <p>The whole language on one screen — for the moment on site when you know exactly what you want and just need the spelling.</p>
 
   <figure class="code"><figcaption><span>Skeletons</span><span class="lang">SCL</span></figcaption>
@@ -1472,8 +2041,8 @@ INT#42  REAL#1.0  WORD#16#00FF       // typed when ambiguous</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch17">
-  <div class="chnum">Chapter 17</div>
+<section class="ch" id="ch20">
+  <div class="chnum">Chapter 20</div>
   <h2>Exercises</h2>
   <p>Do these in order, in PLCSIM. Write the block, wire a small test OB, watch it run. Solutions fold out — but struggle first; the struggle is the course.</p>
 
@@ -1560,8 +2129,9 @@ END_FOR;</pre>
   <details class="sol"><summary>Show solution</summary><div>
   <figure class="code"><figcaption><span>FB_StarDelta</span><span class="lang">SCL</span></figcaption>
 <pre class="scl">VAR
-    step  : Int;      // 0 off, 10 star, 20 gap, 30 delta
-    tStep : TON;
+    step    : Int;    // 0 off, 10 star, 20 gap, 30 delta
+    stepOld : Int;
+    tStep   : TON;
 END_VAR
 
 BEGIN
@@ -1577,15 +2147,18 @@ CASE #step OF
     ELSE  #step := 0;
 END_CASE;
 
-#tStep(IN := (#step = 10) OR (#step = 20),
+// stepOld term: steps 10 and 20 are consecutive timed steps, so the
+// timer must be forced to restart on the transition (see Ch. 11)
+#tStep(IN := (#step = #stepOld) AND ((#step = 10) OR (#step = 20)),
        PT := SEL(G := #step = 10, IN0 := T#100ms, IN1 := T#6s));
+#stepOld := #step;
 
 // Outputs from state — star and delta CANNOT both be true
 #ctorMain  := #step &gt;= 10;
 #ctorStar  := #step = 10;
 #ctorDelta := #step = 30;</pre>
   </figure>
-  <p>Deriving both contactors from one step variable makes simultaneous closure structurally impossible — the hardware interlock on the panel is then a second, independent layer.</p>
+  <p>Deriving both contactors from one step variable makes simultaneous closure structurally impossible — the hardware interlock on the panel is then a second, independent layer. And note the <code>#stepOld</code> term: without it the gap step would be skipped entirely, because the shared timer's <code>IN</code> never drops between star and gap (the Ch. 11 shared-step-timer trap). This version runs in the Playground — try it.</p>
   </div></details>
 
   <p class="ex-title">5 · Telegram builder <span class="lvl">Strings · Ch. 10</span></p>
@@ -1631,17 +2204,114 @@ END_IF;</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch18">
-  <div class="chnum">Chapter 18</div>
+<section class="ch" id="ch21">
+  <div class="chnum">Chapter 21</div>
+  <h2>Final exam</h2>
+  <p>Twenty questions across the whole manual. Answer them all; your score appears below and your best run is remembered in this browser. No time limit — but no peeking either. Aim for 18+ before calling yourself fluent.</p>
+
+  <div class="exam-bar">
+    <span class="score" id="exam-score">0 / 20</span>
+    <span class="best" id="exam-best"></span>
+    <button type="button" class="pg-btn alt" id="exam-reset">Reset exam</button>
+  </div>
+
+  <div class="quiz" id="exam"><div class="qhead">The exam</div>
+    <div class="q"><p>1 · Which symbol assigns a value?</p>
+      <div class="opts"><button><code>=</code></button><button data-ok><code>:=</code></button><button><code>==</code></button></div>
+      <div class="why"><code>:=</code> assigns; <code>=</code> only compares; <code>==</code> doesn't exist in SCL.</div>
+    </div>
+    <div class="q"><p>2 · What is <code>9 / 4</code>?</p>
+      <div class="opts"><button>2.25</button><button data-ok>2</button><button>3</button></div>
+      <div class="why">Integer operands → integer division, truncated.</div>
+    </div>
+    <div class="q"><p>3 · "Output comes on only after the input has been TRUE for 2 s" — which timer?</p>
+      <div class="opts"><button data-ok>TON</button><button>TOF</button><button>TP</button></div>
+      <div class="why">On-delay. TOF delays the <em>off</em>; TP makes a fixed pulse.</div>
+    </div>
+    <div class="q"><p>4 · A TON is only called inside <code>IF #run THEN</code>. When <code>#run</code> drops mid-timing, the timer…</p>
+      <div class="opts"><button>Resets</button><button data-ok>Freezes with stale outputs</button><button>Completes in the background</button></div>
+      <div class="why">Uncalled = not executed. Call unconditionally; gate IN.</div>
+    </div>
+    <div class="q"><p>5 · <code>R_TRIG.Q</code> is TRUE for…</p>
+      <div class="opts"><button>As long as CLK is TRUE</button><button data-ok>Exactly one scan</button><button>100 ms minimum</button></div>
+      <div class="why">It converts a level into a single-cycle event.</div>
+    </div>
+    <div class="q"><p>6 · Which section's variables are garbage at the start of every call?</p>
+      <div class="opts"><button>Static</button><button data-ok>Temp</button><button>Input</button></div>
+      <div class="why">Temp is uninitialized scratch — write before read, every call.</div>
+    </div>
+    <div class="q"><p>7 · Passing a big ARRAY/STRUCT to an FC goes through InOut because…</p>
+      <div class="opts"><button data-ok>InOut passes by reference — no copy, and FCs require it for structured types</button><button>Inputs are read-only</button><button>Outputs can't hold arrays</button></div>
+      <div class="why">Reference semantics: fast, and the block works on the caller's actual data.</div>
+    </div>
+    <div class="q"><p>8 · <code>CASE</code> selects on…</p>
+      <div class="opts"><button>Any comparable type</button><button data-ok>An integer expression</button><button>Bools only</button></div>
+      <div class="why">Integer selector; labels are integer literals, lists, and ranges.</div>
+    </div>
+    <div class="q"><p>9 · <code>FOR #i := 0 TO 7 DO</code> runs…</p>
+      <div class="opts"><button>7 times</button><button data-ok>8 times</button><button>Forever without BY</button></div>
+      <div class="why">Both bounds inclusive: 0,1,…,7.</div>
+    </div>
+    <div class="q"><p>10 · A WHILE loop that waits for a photo eye to change will…</p>
+      <div class="opts"><button>Work if the eye is fast</button><button data-ok>Stall the scan until the watchdog stops the CPU</button><button>Yield to other OBs</button></div>
+      <div class="why">Inputs don't refresh mid-scan. Cross-cycle waiting = state machine.</div>
+    </div>
+    <div class="q"><p>11 · The robust way to test a computed Real against 10.0:</p>
+      <div class="opts"><button><code>#x = 10.0</code></button><button data-ok><code>ABS(#x - 10.0) &lt; 0.001</code></button><button><code>#x &gt;= 10.0 AND #x &lt;= 10.0</code></button></div>
+      <div class="why">Floating-point math rarely lands exactly on a value — compare with a tolerance.</div>
+    </div>
+    <div class="q"><p>12 · A PLC data type (UDT) primarily buys you…</p>
+      <div class="opts"><button>Faster execution</button><button data-ok>One model of a device, reused in arrays, FB interfaces and DBs</button><button>Retentive storage</button></div>
+      <div class="why">Define the thing once; every motor/valve/channel becomes an instance of it.</div>
+    </div>
+    <div class="q"><p>13 · Inside an FB, the bounds of an <code>Array[*]</code> InOut come from…</p>
+      <div class="opts"><button>The compiler constant N</button><button data-ok><code>LOWER_BOUND</code> / <code>UPPER_BOUND</code></button><button><code>LEN()</code></button></div>
+      <div class="why">Queried at runtime — that's what makes the block size-agnostic.</div>
+    </div>
+    <div class="q"><p>14 · <code>msg : String;</code> (no size) reserves…</p>
+      <div class="opts"><button>Exactly what's needed</button><button data-ok>256 bytes (254 chars + 2 length bytes)</button><button>2 bytes until used</button></div>
+      <div class="why">Always size strings: <code>String[32]</code> costs 34 bytes instead.</div>
+    </div>
+    <div class="q"><p>15 · In a CASE step machine, outputs should be written…</p>
+      <div class="opts"><button>Inside each step's branch</button><button data-ok>After the CASE, derived from the step number, one place per output</button><button>In the calling OB</button></div>
+      <div class="why">Derived outputs can never be stale and are never double-written.</div>
+    </div>
+    <div class="q"><p>16 · Two consecutive timed steps share one TON via <code>IN := (#step=10) OR (#step=20)</code>. Without a <code>stepOld</code> reset term…</p>
+      <div class="opts"><button>Both steps time correctly</button><button data-ok>The second step is skipped — ET never reset, so Q is already TRUE</button><button>The timer faults</button></div>
+      <div class="why">ET only resets when IN drops. The transition keeps IN TRUE — the Ch. 11 trap.</div>
+    </div>
+    <div class="q"><p>17 · Closed-loop control belongs in a cyclic interrupt OB because…</p>
+      <div class="opts"><button>OB1 can't do Real math</button><button data-ok>The controller's math assumes a fixed sample time</button><button>Technology objects only run there</button></div>
+      <div class="why">Ti and Td act per-sample; jittery sampling = drifting tuning.</div>
+    </div>
+    <div class="q"><p>18 · Integrator anti-windup means…</p>
+      <div class="opts"><button>Resetting the loop on fault</button><button data-ok>Clamping the integral term to the output limits so saturation can't accumulate</button><button>Filtering the setpoint</button></div>
+      <div class="why">Otherwise a long saturated phase stores a mountain of integral that must unwind as overshoot.</div>
+    </div>
+    <div class="q"><p>19 · Your Int arrives at a PC as 256× its value. The classic cause:</p>
+      <div class="opts"><button data-ok>Byte order — big-endian S7 vs little-endian PC</button><button>An optimized DB</button><button>Signed/unsigned mismatch</button></div>
+      <div class="why">Swapped bytes: 16#0001 read as 16#0100. Use SWAP or define the telegram byte-exactly.</div>
+    </div>
+    <div class="q"><p>20 · OB100's job in a well-designed program is…</p>
+      <div class="opts"><button>Running the first scan of OB1 faster</button><button data-ok>Forcing a known, safe state on STOP → RUN instead of resuming blind</button><button>Loading firmware updates</button></div>
+      <div class="why">Deliberate reset or deliberate resume — never "wherever the retained RAM happened to be."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch22">
+  <div class="chnum">Chapter 22</div>
   <h2>Roadmap &amp; resources</h2>
 
   <h3>A realistic mastery path</h3>
   <ul>
-    <li><strong>Weeks 1–2 — Syntax fluency.</strong> Chapters 1–8 with PLCSIM. Goal: write timers, edges, and CASE from memory without looking anything up. The quizzes should feel easy on a second pass.</li>
-    <li><strong>Weeks 3–4 — Data modeling.</strong> Chapters 9–10. Rebuild a small ladder project you know (or a tutorial project) entirely in SCL with UDTs.</li>
-    <li><strong>Month 2 — Sequences.</strong> Chapter 11 until step machines are reflex. Do exercises 4 and 6.</li>
+    <li><strong>Weeks 1–2 — Syntax fluency.</strong> Chapters 1–8, alternating between the Playground (instant feedback on timers and edges) and PLCSIM (the real toolchain). Goal: write timers, edges, and CASE from memory. The quizzes should feel easy on a second pass.</li>
+    <li><strong>Weeks 3–4 — Data modeling.</strong> Chapters 9–10. Import the <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">companion source files</a> into a TIA project and rebuild a small ladder project you know entirely in SCL with UDTs.</li>
+    <li><strong>Month 2 — Sequences.</strong> Chapter 11 until step machines are reflex — including the shared-step-timer trap. Do exercises 4 and 6.</li>
     <li><strong>Month 3 — Library thinking &amp; loops.</strong> Chapters 12–13; build your personal device library (motor, valve, analog channel, PI wrapper) and reuse it in the next project.</li>
-    <li><strong>Month 4 — Integration.</strong> Chapter 14 and the capstone: comms, HMI interface DBs, a complete small machine in PLCSIM.</li>
+    <li><strong>Month 4 — Systems.</strong> Chapters 14–17: comms, interrupt design, and program architecture. Then the capstone exercise — a complete small machine in PLCSIM, layered as Chapter 17 preaches.</li>
+    <li><strong>Checkpoint —</strong> the <a href="#ch21">final exam</a>, cold. 18+ out of 20 and the fundamentals are yours.</li>
     <li><strong>Ongoing —</strong> read other people's code (open-source S7 projects, Siemens application examples), and study the official <em>Programming Styleguide</em> — consistency is what separates a library from a pile of blocks.</li>
   </ul>
 
@@ -1652,6 +2322,7 @@ END_IF;</pre>
     <li><a href="https://support.industry.siemens.com" rel="noopener"><strong>SIOS</strong> (Siemens Industry Online Support)</a> — application examples with downloadable, readable SCL source; searching "SCL application example" is a course in itself.</li>
     <li>TIA Portal's built-in help: press <strong>F1 on any keyword or instruction</strong> — the SCL instruction reference is genuinely good.</li>
     <li><strong>PLCSIM / PLCSIM Advanced</strong> — your simulator; PLCSIM Advanced additionally exposes an API for co-simulation.</li>
+    <li><a href="https://github.com/Seanye333/scl-field-manual" rel="noopener"><strong>This manual's repository</strong></a> — every FB from these pages as importable external source files under <code>src/</code> (TIA Portal: <em>External source files → Add new external file</em>, then <em>Generate blocks from source</em>).</li>
   </ul>
 
   <div class="note"><b>The one habit</b>Every concept in this manual was learned by every good PLC programmer the same way: a small block, a watch table, and twenty minutes of "why is it doing <em>that</em>?" Budget for the twenty minutes. That's the course fee, and it's non-negotiable.</div>
@@ -1660,6 +2331,838 @@ END_IF;</pre>
 </section>
 </main>
 
+<script>
+try {
+  var __t = localStorage.getItem("sclfm-theme");
+  if (__t === "light" || __t === "dark") document.documentElement.setAttribute("data-theme", __t);
+} catch (e) {}
+</script>
+<script>
+/* SCL playground VM — tokenizer, parser, scan-cycle runtime for a teaching
+   subset of Structured Control Language. DOM-free; UI wiring lives elsewhere. */
+(function (global) {
+'use strict';
+
+var KW = {};
+["FUNCTION_BLOCK","END_FUNCTION_BLOCK","FUNCTION","END_FUNCTION",
+ "VAR_INPUT","VAR_OUTPUT","VAR_IN_OUT","VAR_TEMP","VAR","END_VAR","CONSTANT","RETAIN",
+ "BEGIN","IF","THEN","ELSIF","ELSE","END_IF","CASE","OF","END_CASE",
+ "FOR","TO","BY","DO","END_FOR","WHILE","END_WHILE","REPEAT","UNTIL","END_REPEAT",
+ "CONTINUE","EXIT","RETURN","AND","OR","XOR","NOT","MOD","TRUE","FALSE",
+ "REGION","END_REGION"].forEach(function (k) { KW[k] = 1; });
+
+var DECL_TYPES = {
+  BOOL:"B", INT:"I", DINT:"I", SINT:"I", USINT:"I", UINT:"I", UDINT:"I",
+  REAL:"R", LREAL:"R", TIME:"T"
+};
+var INST_TYPES = { TON:1, TOF:1, TP:1, R_TRIG:1, F_TRIG:1, CTU:1, CTD:1 };
+
+var TIME_UNITS = { d: 86400000, h: 3600000, m: 60000, s: 1000, ms: 1 };
+
+function CompileError(msg, line) {
+  this.message = msg; this.line = line; this.isCompile = true;
+}
+function RuntimeError(msg, line) {
+  this.message = msg; this.line = line; this.isRuntime = true;
+}
+
+/* ---------------- tokenizer ---------------- */
+function tokenize(src) {
+  var toks = [], i = 0, line = 1, n = src.length;
+  function err(m) { throw new CompileError(m, line); }
+  while (i < n) {
+    var c = src[i];
+    if (c === "\n") { line++; i++; continue; }
+    if (c === " " || c === "\t" || c === "\r") { i++; continue; }
+    if (c === "/" && src[i + 1] === "/") { while (i < n && src[i] !== "\n") i++; continue; }
+    if (c === "(" && src[i + 1] === "*") {
+      i += 2;
+      while (i < n && !(src[i] === "*" && src[i + 1] === ")")) { if (src[i] === "\n") line++; i++; }
+      if (i >= n) err("unterminated (* comment");
+      i += 2; continue;
+    }
+    if (c === "'") { err("strings are not supported in the playground (yet)"); }
+    // time literal
+    if ((c === "T" || c === "t") && src[i + 1] === "#") {
+      var j = i + 2, seg = "";
+      while (j < n && /[0-9a-zA-Z_.]/.test(src[j])) { seg += src[j]; j++; }
+      var ms = 0, re = /(\d+(?:\.\d+)?)(ms|d|h|m|s)/gi, m, consumed = 0;
+      var clean = seg.replace(/_/g, "");
+      while ((m = re.exec(clean)) !== null) {
+        ms += parseFloat(m[1]) * TIME_UNITS[m[2].toLowerCase()];
+        consumed += m[0].length;
+      }
+      if (consumed !== clean.length || clean.length === 0)
+        err("bad TIME literal T#" + seg);
+      toks.push({ t: "time", v: Math.round(ms), line: line });
+      i = j; continue;
+    }
+    // number (incl. based like 16#FF, 2#1010)
+    if (/[0-9]/.test(c)) {
+      var j2 = i, txt = "";
+      while (j2 < n && /[0-9_]/.test(src[j2])) { txt += src[j2]; j2++; }
+      if (src[j2] === "#") { // based literal
+        var base = parseInt(txt.replace(/_/g, ""), 10);
+        j2++; var digits = "";
+        while (j2 < n && /[0-9a-fA-F_]/.test(src[j2])) { digits += src[j2]; j2++; }
+        var v = parseInt(digits.replace(/_/g, ""), base);
+        if (isNaN(v)) err("bad based literal");
+        toks.push({ t: "num", v: v, real: false, line: line });
+        i = j2; continue;
+      }
+      var isReal = false;
+      if (src[j2] === "." && /[0-9]/.test(src[j2 + 1] || "")) {
+        isReal = true; txt += "."; j2++;
+        while (j2 < n && /[0-9_]/.test(src[j2])) { txt += src[j2]; j2++; }
+      }
+      if (src[j2] === "e" || src[j2] === "E") {
+        var k = j2 + 1; if (src[k] === "+" || src[k] === "-") k++;
+        if (/[0-9]/.test(src[k] || "")) {
+          isReal = true; txt += src.slice(j2, k); j2 = k;
+          while (j2 < n && /[0-9]/.test(src[j2])) { txt += src[j2]; j2++; }
+        }
+      }
+      toks.push({ t: "num", v: parseFloat(txt.replace(/_/g, "")), real: isReal, line: line });
+      i = j2; continue;
+    }
+    // identifier / keyword (# and " prefixes tolerated)
+    if (/[A-Za-z_#"]/.test(c)) {
+      var quoted = c === '"', j3 = i + (c === "#" || quoted ? 1 : 0), name = "";
+      while (j3 < n && /[A-Za-z0-9_]/.test(src[j3])) { name += src[j3]; j3++; }
+      if (quoted) {
+        if (src[j3] !== '"') err('unterminated "name"');
+        j3++;
+      }
+      if (!name) err("stray '" + c + "'");
+      var up = name.toUpperCase();
+      if (!quoted && KW[up]) toks.push({ t: "kw", v: up, line: line });
+      else toks.push({ t: "id", v: name, line: line });
+      i = j3; continue;
+    }
+    // punctuation / operators
+    var three = src.substr(i, 2);
+    if (three === ":=" || three === "=>" || three === "<>" || three === "<=" ||
+        three === ">=" || three === "..") {
+      toks.push({ t: "p", v: three, line: line }); i += 2; continue;
+    }
+    if ("();:,.=<>+-*/[]".indexOf(c) >= 0) {
+      toks.push({ t: "p", v: c, line: line }); i++; continue;
+    }
+    err("unexpected character '" + c + "'");
+  }
+  toks.push({ t: "eof", v: "", line: line });
+  return toks;
+}
+
+/* ---------------- parser ---------------- */
+function parse(src) {
+  var toks = tokenize(src), pos = 0;
+
+  function peek(o) { return toks[pos + (o || 0)]; }
+  function next() { return toks[pos++]; }
+  function err(m, tok) { throw new CompileError(m, (tok || peek()).line); }
+  function isKw(k) { var t = peek(); return t.t === "kw" && t.v === k; }
+  function eatKw(k) { if (!isKw(k)) err("expected " + k); return next(); }
+  function isP(v) { var t = peek(); return t.t === "p" && t.v === v; }
+  function eatP(v) { if (!isP(v)) err("expected '" + v + "'"); return next(); }
+
+  var decls = [], declNames = {};
+
+  // optional block header
+  if (isKw("FUNCTION_BLOCK") || isKw("FUNCTION")) {
+    next();
+    if (peek().t === "id") next();
+    if (isP(":")) { next(); if (peek().t === "id") next(); } // FC return type — ignored
+  }
+
+  function parseDeclSection(kind) {
+    next(); // section keyword
+    if (isKw("RETAIN")) next();
+    if (isKw("CONSTANT")) { kind = "constant"; next(); }
+    while (!isKw("END_VAR")) {
+      var names = [];
+      if (peek().t !== "id") err("expected a variable name");
+      names.push(next().v);
+      while (isP(",")) { next(); names.push(next().v); }
+      eatP(":");
+      if (peek().t !== "id") err("expected a data type");
+      var tType = next(), typeName = tType.v.toUpperCase();
+      var init = null;
+      if (isP(":=")) {
+        next();
+        var neg = false;
+        if (isP("-")) { neg = true; next(); }
+        var lit = next();
+        if (lit.t === "num") init = { tag: lit.real ? "R" : "I", v: neg ? -lit.v : lit.v };
+        else if (lit.t === "time") init = { tag: "T", v: lit.v };
+        else if (lit.t === "kw" && lit.v === "TRUE") init = { tag: "B", v: true };
+        else if (lit.t === "kw" && lit.v === "FALSE") init = { tag: "B", v: false };
+        else err("only simple literals are supported as start values", lit);
+      }
+      eatP(";");
+      names.forEach(function (nm) {
+        var key = nm.toLowerCase();
+        if (declNames[key]) err("'" + nm + "' declared twice", tType);
+        var d;
+        if (DECL_TYPES[typeName]) {
+          d = { name: nm, kind: kind, tag: DECL_TYPES[typeName], typeName: typeName, init: init };
+        } else if (INST_TYPES[typeName]) {
+          if (kind !== "static")
+            err(typeName + " instances belong in the VAR (Static) section", tType);
+          d = { name: nm, kind: "static", inst: typeName };
+        } else {
+          err("unsupported type '" + tType.v + "' (playground supports Bool, Int, DInt, Real, Time, TON, TOF, TP, R_TRIG, F_TRIG, CTU, CTD)", tType);
+        }
+        declNames[key] = d;
+        decls.push(d);
+      });
+    }
+    next(); // END_VAR
+  }
+
+  var sawSection = true;
+  while (sawSection) {
+    if (isKw("VAR_INPUT")) parseDeclSection("input");
+    else if (isKw("VAR_OUTPUT")) parseDeclSection("output");
+    else if (isKw("VAR_IN_OUT")) parseDeclSection("input");
+    else if (isKw("VAR_TEMP")) parseDeclSection("temp");
+    else if (isKw("VAR")) parseDeclSection("static");
+    else sawSection = false;
+  }
+  if (isKw("BEGIN")) next();
+
+  /* ---- expressions ---- */
+  function parseExpr() { return parseOr(); }
+  function parseOr() {
+    var l = parseXor();
+    while (isKw("OR")) { var t = next(); l = { k: "bin", op: "OR", l: l, r: parseXor(), line: t.line }; }
+    return l;
+  }
+  function parseXor() {
+    var l = parseAnd();
+    while (isKw("XOR")) { var t = next(); l = { k: "bin", op: "XOR", l: l, r: parseAnd(), line: t.line }; }
+    return l;
+  }
+  function parseAnd() {
+    var l = parseNot();
+    while (isKw("AND")) { var t = next(); l = { k: "bin", op: "AND", l: l, r: parseNot(), line: t.line }; }
+    return l;
+  }
+  function parseNot() {
+    if (isKw("NOT")) { var t = next(); return { k: "not", e: parseNot(), line: t.line }; }
+    return parseCmp();
+  }
+  function parseCmp() {
+    var l = parseAdd();
+    var t = peek();
+    if (t.t === "p" && ["=", "<>", "<", "<=", ">", ">="].indexOf(t.v) >= 0) {
+      next();
+      return { k: "bin", op: t.v, l: l, r: parseAdd(), line: t.line };
+    }
+    return l;
+  }
+  function parseAdd() {
+    var l = parseMul();
+    while (isP("+") || isP("-")) {
+      var t = next(); l = { k: "bin", op: t.v, l: l, r: parseMul(), line: t.line };
+    }
+    return l;
+  }
+  function parseMul() {
+    var l = parseUnary();
+    while (isP("*") || isP("/") || isKw("MOD")) {
+      var t = next(); l = { k: "bin", op: t.v === "MOD" ? "MOD" : t.v, l: l, r: parseUnary(), line: t.line };
+    }
+    return l;
+  }
+  function parseUnary() {
+    if (isP("-")) { var t = next(); return { k: "neg", e: parseUnary(), line: t.line }; }
+    if (isP("+")) { next(); return parseUnary(); }
+    return parsePrimary();
+  }
+  function parseArgs() {
+    eatP("(");
+    var args = [];
+    if (!isP(")")) {
+      for (;;) {
+        var nm = null;
+        if (peek().t === "id" && peek(1).t === "p" && (peek(1).v === ":=" || peek(1).v === "=>")) {
+          nm = next().v; var dir = next().v;
+          if (dir === "=>") {
+            if (peek().t !== "id") err("expected a variable after '=>'");
+            args.push({ name: nm, out: next().v });
+          } else {
+            args.push({ name: nm, e: parseExpr() });
+          }
+        } else {
+          args.push({ name: null, e: parseExpr() });
+        }
+        if (isP(",")) { next(); continue; }
+        break;
+      }
+    }
+    eatP(")");
+    return args;
+  }
+  function parsePrimary() {
+    var t = peek();
+    if (t.t === "num") { next(); return { k: "lit", tag: t.real ? "R" : "I", v: t.v, line: t.line }; }
+    if (t.t === "time") { next(); return { k: "lit", tag: "T", v: t.v, line: t.line }; }
+    if (t.t === "kw" && (t.v === "TRUE" || t.v === "FALSE")) {
+      next(); return { k: "lit", tag: "B", v: t.v === "TRUE", line: t.line };
+    }
+    if (isP("(")) { next(); var e = parseExpr(); eatP(")"); return e; }
+    if (t.t === "id") {
+      next();
+      if (isP("(")) return { k: "call", fn: t.v, args: parseArgs(), line: t.line };
+      if (isP(".")) {
+        next();
+        if (peek().t !== "id") err("expected a member name after '.'");
+        var mem = next().v;
+        return { k: "member", obj: t.v, mem: mem.toUpperCase(), line: t.line };
+      }
+      return { k: "var", name: t.v, line: t.line };
+    }
+    err("unexpected '" + (t.v || t.t) + "' in expression", t);
+  }
+
+  /* ---- statements ---- */
+  function looksLikeCaseLabel() {
+    var t = peek();
+    if (t.t === "num") return true;
+    if (t.t === "p" && t.v === "-" && peek(1).t === "num") return true;
+    return false;
+  }
+  function parseStatements(stopPred) {
+    var list = [];
+    for (;;) {
+      var t = peek();
+      if (t.t === "eof") break;
+      if (stopPred && stopPred()) break;
+      if (t.t === "p" && t.v === ";") { next(); continue; }
+      list.push(parseStatement());
+    }
+    return list;
+  }
+  function parseStatement() {
+    var t = peek();
+    if (t.t === "kw") {
+      switch (t.v) {
+        case "IF": return parseIf();
+        case "CASE": return parseCase();
+        case "FOR": return parseFor();
+        case "WHILE": return parseWhile();
+        case "REPEAT": return parseRepeat();
+        case "EXIT": next(); eatP(";"); return { k: "exit", line: t.line };
+        case "CONTINUE": next(); eatP(";"); return { k: "continue", line: t.line };
+        case "RETURN": next(); eatP(";"); return { k: "return", line: t.line };
+        case "REGION":
+          next();
+          while (peek().t !== "eof" && peek().line === t.line) next(); // region title
+          return { k: "nop", line: t.line };
+        case "END_REGION": next(); return { k: "nop", line: t.line };
+        case "END_FUNCTION_BLOCK": case "END_FUNCTION":
+          next(); return { k: "nop", line: t.line };
+      }
+      err("unexpected " + t.v, t);
+    }
+    if (t.t === "id") {
+      next();
+      if (isP("(")) { // instance call
+        var args = parseArgs(); eatP(";");
+        return { k: "icall", name: t.v, args: args, line: t.line };
+      }
+      if (isP(":=")) {
+        next(); var e = parseExpr(); eatP(";");
+        return { k: "assign", name: t.v, e: e, line: t.line };
+      }
+      err("expected ':=' or '(' after '" + t.v + "'", t);
+    }
+    err("unexpected '" + (t.v || t.t) + "'", t);
+  }
+  function parseIf() {
+    var t = eatKw("IF");
+    var branches = [], elseBody = null;
+    var cond = parseExpr(); eatKw("THEN");
+    branches.push({ cond: cond, body: parseStatements(function () {
+      return isKw("ELSIF") || isKw("ELSE") || isKw("END_IF");
+    })});
+    while (isKw("ELSIF")) {
+      next(); var c2 = parseExpr(); eatKw("THEN");
+      branches.push({ cond: c2, body: parseStatements(function () {
+        return isKw("ELSIF") || isKw("ELSE") || isKw("END_IF");
+      })});
+    }
+    if (isKw("ELSE")) {
+      next();
+      elseBody = parseStatements(function () { return isKw("END_IF"); });
+    }
+    eatKw("END_IF"); if (isP(";")) next();
+    return { k: "if", branches: branches, elseBody: elseBody, line: t.line };
+  }
+  function parseCase() {
+    var t = eatKw("CASE");
+    var sel = parseExpr(); eatKw("OF");
+    var branches = [], elseBody = null;
+    function stop() { return isKw("ELSE") || isKw("END_CASE") || looksLikeCaseLabel(); }
+    while (!isKw("ELSE") && !isKw("END_CASE")) {
+      var labels = [];
+      for (;;) {
+        var neg = false;
+        if (isP("-")) { neg = true; next(); }
+        var numTok = next();
+        if (numTok.t !== "num" || numTok.real) err("CASE labels must be integer literals", numTok);
+        var lo = neg ? -numTok.v : numTok.v, hi = lo;
+        if (isP("..")) {
+          next();
+          var neg2 = false;
+          if (isP("-")) { neg2 = true; next(); }
+          var hiTok = next();
+          if (hiTok.t !== "num" || hiTok.real) err("CASE range needs an integer", hiTok);
+          hi = neg2 ? -hiTok.v : hiTok.v;
+        }
+        labels.push([lo, hi]);
+        if (isP(",")) { next(); continue; }
+        break;
+      }
+      eatP(":");
+      branches.push({ labels: labels, body: parseStatements(stop) });
+    }
+    if (isKw("ELSE")) {
+      next();
+      elseBody = parseStatements(function () { return isKw("END_CASE"); });
+    }
+    eatKw("END_CASE"); if (isP(";")) next();
+    return { k: "case", sel: sel, branches: branches, elseBody: elseBody, line: t.line };
+  }
+  function parseFor() {
+    var t = eatKw("FOR");
+    if (peek().t !== "id") err("expected a loop variable");
+    var v = next().v;
+    eatP(":="); var from = parseExpr();
+    eatKw("TO"); var to = parseExpr();
+    var by = null;
+    if (isKw("BY")) { next(); by = parseExpr(); }
+    eatKw("DO");
+    var body = parseStatements(function () { return isKw("END_FOR"); });
+    eatKw("END_FOR"); if (isP(";")) next();
+    return { k: "for", v: v, from: from, to: to, by: by, body: body, line: t.line };
+  }
+  function parseWhile() {
+    var t = eatKw("WHILE");
+    var cond = parseExpr(); eatKw("DO");
+    var body = parseStatements(function () { return isKw("END_WHILE"); });
+    eatKw("END_WHILE"); if (isP(";")) next();
+    return { k: "while", cond: cond, body: body, line: t.line };
+  }
+  function parseRepeat() {
+    var t = eatKw("REPEAT");
+    var body = parseStatements(function () { return isKw("UNTIL"); });
+    eatKw("UNTIL");
+    var cond = parseExpr();
+    eatKw("END_REPEAT"); if (isP(";")) next();
+    return { k: "repeat", cond: cond, body: body, line: t.line };
+  }
+
+  var body = parseStatements(null);
+  if (decls.length === 0)
+    throw new CompileError("declare your variables first (VAR_INPUT / VAR_OUTPUT / VAR ... END_VAR)", 1);
+  return { decls: decls, body: body };
+}
+
+/* ---------------- runtime ---------------- */
+function defVal(tag) { return tag === "B" ? false : 0; }
+
+function Runtime(prog) {
+  this.prog = prog;
+  this.vars = {};
+  this.order = [];
+  this.timeMs = 0;
+  this.scanCount = 0;
+  var self = this;
+  prog.decls.forEach(function (d) {
+    var key = d.name.toLowerCase();
+    var v;
+    if (d.inst) {
+      v = { name: d.name, kind: "static", inst: d.inst,
+            st: { q: false, et: 0, cv: 0, prev: false, pulsing: false } };
+    } else {
+      var val = d.init ? coerceInit(d) : defVal(d.tag);
+      v = { name: d.name, kind: d.kind, tag: d.tag, typeName: d.typeName, val: val, initVal: val };
+    }
+    self.vars[key] = v;
+    self.order.push(v);
+  });
+  function coerceInit(d) {
+    var i = d.init;
+    if (d.tag === "B") { if (i.tag !== "B") throw new CompileError("start value for '" + d.name + "' must be TRUE/FALSE", 1); return i.v; }
+    if (d.tag === "I") { if (i.tag !== "I") throw new CompileError("start value for '" + d.name + "' must be an integer", 1); return i.v; }
+    if (d.tag === "R") { if (i.tag !== "I" && i.tag !== "R") throw new CompileError("start value for '" + d.name + "' must be numeric", 1); return i.v; }
+    if (d.tag === "T") { if (i.tag !== "T") throw new CompileError("start value for '" + d.name + "' must be a T# literal", 1); return i.v; }
+    return i.v;
+  }
+}
+
+Runtime.prototype.setInput = function (name, v) {
+  var rec = this.vars[name.toLowerCase()];
+  if (rec && !rec.inst) rec.val = rec.tag === "B" ? !!v : +v;
+};
+
+var CTL_EXIT = { ctl: "exit" }, CTL_CONT = { ctl: "continue" }, CTL_RET = { ctl: "return" };
+
+var BUILTINS = {
+  ABS:   { params: ["IN"], f: function (a) { return num1(a, "ABS", Math.abs); } },
+  SQRT:  { params: ["IN"], f: function (a) { return { tag: "R", v: Math.sqrt(numv(a, "SQRT")) }; } },
+  MIN:   { params: ["IN1", "IN2"], f: function (a, b) { return num2(a, b, "MIN", Math.min); } },
+  MAX:   { params: ["IN1", "IN2"], f: function (a, b) { return num2(a, b, "MAX", Math.max); } },
+  LIMIT: { params: ["MN", "IN", "MX"], f: function (mn, x, mx) {
+    var v = Math.min(Math.max(numv(x, "LIMIT"), numv(mn, "LIMIT")), numv(mx, "LIMIT"));
+    var tag = (mn.tag === "R" || x.tag === "R" || mx.tag === "R") ? "R" : x.tag;
+    return { tag: tag, v: v };
+  }},
+  SEL:   { params: ["G", "IN0", "IN1"], f: function (g, a, b) {
+    if (g.tag !== "B") throw new RuntimeError("SEL: G must be Bool", 0);
+    return g.v ? b : a;
+  }},
+  INT_TO_REAL:  { params: ["IN"], f: function (a) { return { tag: "R", v: numv(a, "INT_TO_REAL") }; } },
+  DINT_TO_REAL: { params: ["IN"], f: function (a) { return { tag: "R", v: numv(a, "DINT_TO_REAL") }; } },
+  REAL_TO_INT:  { params: ["IN"], f: function (a) { return { tag: "I", v: Math.round(numv(a, "REAL_TO_INT")) }; } },
+  REAL_TO_DINT: { params: ["IN"], f: function (a) { return { tag: "I", v: Math.round(numv(a, "REAL_TO_DINT")) }; } },
+  TRUNC:        { params: ["IN"], f: function (a) { return { tag: "I", v: Math.trunc(numv(a, "TRUNC")) }; } },
+  TIME_TO_DINT: { params: ["IN"], f: function (a) {
+    if (a.tag !== "T") throw new RuntimeError("TIME_TO_DINT needs a Time", 0);
+    return { tag: "I", v: a.v };
+  }}
+};
+function numv(a, fn) {
+  if (a.tag !== "I" && a.tag !== "R") throw new RuntimeError(fn + ": numeric argument expected", 0);
+  return a.v;
+}
+function num1(a, fn, f) { return { tag: a.tag === "R" ? "R" : "I", v: f(numv(a, fn)) }; }
+function num2(a, b, fn, f) {
+  var tag = (a.tag === "R" || b.tag === "R") ? "R" : "I";
+  return { tag: tag, v: f(numv(a, fn), numv(b, fn)) };
+}
+
+Runtime.prototype.scan = function (dtMs) {
+  var self = this, ops = 0, OPS_MAX = 200000;
+  this.dt = dtMs;
+
+  // zero temp vars each scan (teachable behavior: they are NOT retained)
+  this.order.forEach(function (v) { if (v.kind === "temp") v.val = defVal(v.tag); });
+
+  function rerr(msg, line) { throw new RuntimeError(msg, line); }
+  function tick() { if (++ops > OPS_MAX) rerr("scan aborted: possible endless loop (cycle watchdog)", 0); }
+
+  function getVar(name, line) {
+    var rec = self.vars[name.toLowerCase()];
+    if (!rec) rerr("'" + name + "' is not declared", line);
+    return rec;
+  }
+
+  function evalE(n) {
+    tick();
+    switch (n.k) {
+      case "lit": return { tag: n.tag, v: n.v };
+      case "var": {
+        var rec = getVar(n.name, n.line);
+        if (rec.inst) rerr("'" + rec.name + "' is a " + rec.inst + " instance — read its outputs like " + rec.name + ".Q", n.line);
+        return { tag: rec.tag, v: rec.val };
+      }
+      case "member": {
+        var rec2 = getVar(n.obj, n.line);
+        if (!rec2.inst) rerr("'" + rec2.name + "' has no member ." + n.mem, n.line);
+        if (n.mem === "Q") return { tag: "B", v: rec2.st.q };
+        if (n.mem === "ET") return { tag: "T", v: Math.round(rec2.st.et) };
+        if (n.mem === "CV") return { tag: "I", v: rec2.st.cv };
+        rerr("unknown member ." + n.mem + " (playground knows .Q, .ET, .CV)", n.line);
+      }
+      case "not": {
+        var e = evalE(n.e);
+        if (e.tag !== "B") rerr("NOT needs a Bool", n.line);
+        return { tag: "B", v: !e.v };
+      }
+      case "neg": {
+        var e2 = evalE(n.e);
+        if (e2.tag === "B") rerr("cannot negate a Bool", n.line);
+        return { tag: e2.tag, v: -e2.v };
+      }
+      case "call": {
+        var fname = n.fn.toUpperCase();
+        var bi = BUILTINS[fname];
+        if (!bi) {
+          if (self.vars[n.fn.toLowerCase()] && self.vars[n.fn.toLowerCase()].inst)
+            rerr("instance calls are statements — end the line after the ')' with ';' and read outputs separately", n.line);
+          rerr("unknown function '" + n.fn + "'", n.line);
+        }
+        var vals = new Array(bi.params.length);
+        n.args.forEach(function (a, idx) {
+          if (a.out) rerr(fname + " has no '=>' outputs", n.line);
+          var slot = a.name ? bi.params.indexOf(a.name.toUpperCase()) : idx;
+          if (slot < 0 || slot >= bi.params.length)
+            rerr(fname + ": unknown parameter '" + (a.name || idx) + "'", n.line);
+          vals[slot] = evalE(a.e);
+        });
+        for (var i = 0; i < vals.length; i++)
+          if (vals[i] === undefined) rerr(fname + ": missing parameter " + bi.params[i], n.line);
+        try { return bi.f.apply(null, vals); }
+        catch (ex) { if (ex.isRuntime) { ex.line = n.line; throw ex; } throw ex; }
+      }
+      case "bin": return evalBin(n);
+    }
+    rerr("internal: bad expression node", n.line);
+  }
+
+  function evalBin(n) {
+    var op = n.op, a = evalE(n.l), b = evalE(n.r);
+    function bothNum() {
+      if ((a.tag !== "I" && a.tag !== "R") || (b.tag !== "I" && b.tag !== "R"))
+        rerr("'" + op + "' needs numeric operands (got " + a.tag + " and " + b.tag + ")", n.line);
+    }
+    switch (op) {
+      case "AND": case "OR": case "XOR": {
+        if (a.tag === "B" && b.tag === "B") {
+          var r = op === "AND" ? (a.v && b.v) : op === "OR" ? (a.v || b.v) : (a.v !== b.v);
+          return { tag: "B", v: r };
+        }
+        if (a.tag === "I" && b.tag === "I") {
+          var ri = op === "AND" ? (a.v & b.v) : op === "OR" ? (a.v | b.v) : (a.v ^ b.v);
+          return { tag: "I", v: ri };
+        }
+        rerr(op + " needs two Bools (or two integers for bitwise)", n.line);
+      }
+      case "=": case "<>": {
+        if (a.tag === "B" || b.tag === "B") {
+          if (a.tag !== b.tag) rerr("cannot compare Bool with " + (a.tag === "B" ? b.tag : a.tag), n.line);
+          return { tag: "B", v: op === "=" ? a.v === b.v : a.v !== b.v };
+        }
+        if (a.tag === "T" || b.tag === "T") {
+          if (a.tag !== b.tag) rerr("compare Time with Time (use a T# literal)", n.line);
+        }
+        return { tag: "B", v: op === "=" ? a.v === b.v : a.v !== b.v };
+      }
+      case "<": case "<=": case ">": case ">=": {
+        if (a.tag === "B" || b.tag === "B") rerr("cannot order Bools", n.line);
+        if ((a.tag === "T") !== (b.tag === "T")) rerr("compare Time with Time (use a T# literal)", n.line);
+        var c = op === "<" ? a.v < b.v : op === "<=" ? a.v <= b.v : op === ">" ? a.v > b.v : a.v >= b.v;
+        return { tag: "B", v: c };
+      }
+      case "+": case "-": {
+        if (a.tag === "T" && b.tag === "T")
+          return { tag: "T", v: op === "+" ? a.v + b.v : a.v - b.v };
+        bothNum();
+        var tag = (a.tag === "R" || b.tag === "R") ? "R" : "I";
+        return { tag: tag, v: op === "+" ? a.v + b.v : a.v - b.v };
+      }
+      case "*": {
+        bothNum();
+        return { tag: (a.tag === "R" || b.tag === "R") ? "R" : "I", v: a.v * b.v };
+      }
+      case "/": {
+        bothNum();
+        if (b.v === 0) rerr("division by zero", n.line);
+        if (a.tag === "I" && b.tag === "I") return { tag: "I", v: Math.trunc(a.v / b.v) };
+        return { tag: "R", v: a.v / b.v };
+      }
+      case "MOD": {
+        if (a.tag !== "I" || b.tag !== "I") rerr("MOD works on integers", n.line);
+        if (b.v === 0) rerr("MOD by zero", n.line);
+        return { tag: "I", v: a.v % b.v };
+      }
+    }
+    rerr("internal: bad operator " + op, n.line);
+  }
+
+  function assign(name, val, line) {
+    var rec = getVar(name, line);
+    if (rec.inst) rerr("cannot assign to instance '" + rec.name + "'", line);
+    if (rec.kind === "constant") rerr("'" + rec.name + "' is a constant", line);
+    if (rec.tag === "B") {
+      if (val.tag !== "B") rerr("cannot assign " + tagName(val.tag) + " to Bool '" + rec.name + "'", line);
+      rec.val = val.v;
+    } else if (rec.tag === "I") {
+      if (val.tag === "R") rerr("cannot assign Real to " + rec.typeName + " '" + rec.name + "' — use REAL_TO_INT(...)", line);
+      if (val.tag !== "I") rerr("cannot assign " + tagName(val.tag) + " to " + rec.typeName + " '" + rec.name + "'", line);
+      rec.val = val.v;
+    } else if (rec.tag === "R") {
+      if (val.tag !== "I" && val.tag !== "R") rerr("cannot assign " + tagName(val.tag) + " to Real '" + rec.name + "'", line);
+      rec.val = val.v;
+    } else if (rec.tag === "T") {
+      if (val.tag !== "T") rerr("cannot assign " + tagName(val.tag) + " to Time '" + rec.name + "' — use a T# literal", line);
+      rec.val = val.v;
+    }
+  }
+  function tagName(t) { return t === "B" ? "Bool" : t === "I" ? "Int" : t === "R" ? "Real" : "Time"; }
+
+  function stepInstance(rec, args, line) {
+    var byName = {};
+    args.forEach(function (a) {
+      if (!a.name) rerr("instance calls need named parameters (IN := ..., PT := ...)", line);
+      byName[a.name.toUpperCase()] = a;
+    });
+    function getIn(nm, tag, required) {
+      var a = byName[nm];
+      if (!a) { if (required) rerr(rec.inst + " call is missing " + nm, line); return null; }
+      if (a.out) rerr(nm + " is an input — use ':='", line);
+      var v = evalE(a.e);
+      if (tag && v.tag !== tag) rerr(rec.inst + "." + nm + " expects " + tagName(tag), line);
+      return v.v;
+    }
+    var st = rec.st, dt = self.dt;
+    if (rec.inst === "TON") {
+      var IN = getIn("IN", "B", true), PT = getIn("PT", "T", true);
+      if (IN) { st.et = Math.min(st.et + dt, PT); st.q = st.et >= PT; }
+      else { st.et = 0; st.q = false; }
+    } else if (rec.inst === "TOF") {
+      var IN2 = getIn("IN", "B", true), PT2 = getIn("PT", "T", true);
+      if (IN2) { st.q = true; st.et = 0; }
+      else if (st.q) { st.et = Math.min(st.et + dt, PT2); if (st.et >= PT2) st.q = false; }
+      else st.et = 0;
+    } else if (rec.inst === "TP") {
+      var IN3 = getIn("IN", "B", true), PT3 = getIn("PT", "T", true);
+      if (st.pulsing) {
+        st.et = Math.min(st.et + dt, PT3);
+        if (st.et >= PT3) { st.q = false; if (!IN3) { st.pulsing = false; st.et = 0; } }
+      } else if (IN3 && !st.prev) {
+        st.pulsing = true; st.q = true; st.et = 0;
+      }
+      st.prev = IN3;
+    } else if (rec.inst === "R_TRIG") {
+      var CLK = getIn("CLK", "B", true);
+      st.q = CLK && !st.prev; st.prev = CLK;
+    } else if (rec.inst === "F_TRIG") {
+      var CLK2 = getIn("CLK", "B", true);
+      st.q = !CLK2 && st.prev; st.prev = CLK2;
+    } else if (rec.inst === "CTU" || rec.inst === "CTD") {
+      var up = rec.inst === "CTU";
+      var C = getIn(up ? "CU" : "CD", "B", true);
+      var R = getIn("R", "B", false);
+      var PV = getIn("PV", "I", true);
+      if (C && !st.prev) st.cv += up ? 1 : -1;
+      st.prev = C;
+      if (R) st.cv = 0;
+      st.q = up ? st.cv >= PV : st.cv <= 0;
+    }
+    // route "=>" outputs
+    args.forEach(function (a) {
+      if (!a.out) return;
+      var mem = a.name.toUpperCase(), val;
+      if (mem === "Q") val = { tag: "B", v: st.q };
+      else if (mem === "ET") val = { tag: "T", v: Math.round(st.et) };
+      else if (mem === "CV") val = { tag: "I", v: st.cv };
+      else rerr("unknown output " + mem, line);
+      assign(a.out, val, line);
+    });
+  }
+
+  function execList(list) {
+    for (var i = 0; i < list.length; i++) exec(list[i]);
+  }
+  function exec(s) {
+    tick();
+    switch (s.k) {
+      case "nop": return;
+      case "assign": {
+        assign(s.name, evalE(s.e), s.line); return;
+      }
+      case "icall": {
+        var rec = getVar(s.name, s.line);
+        if (!rec.inst) rerr("'" + rec.name + "' is not a timer/counter/trigger instance", s.line);
+        stepInstance(rec, s.args, s.line); return;
+      }
+      case "if": {
+        for (var i = 0; i < s.branches.length; i++) {
+          var c = evalE(s.branches[i].cond);
+          if (c.tag !== "B") rerr("IF condition must be Bool", s.line);
+          if (c.v) { execList(s.branches[i].body); return; }
+        }
+        if (s.elseBody) execList(s.elseBody);
+        return;
+      }
+      case "case": {
+        var sel = evalE(s.sel);
+        if (sel.tag !== "I") rerr("CASE selects on an integer", s.line);
+        for (var j = 0; j < s.branches.length; j++) {
+          var br = s.branches[j];
+          for (var l = 0; l < br.labels.length; l++) {
+            if (sel.v >= br.labels[l][0] && sel.v <= br.labels[l][1]) {
+              execList(br.body); return;
+            }
+          }
+        }
+        if (s.elseBody) execList(s.elseBody);
+        return;
+      }
+      case "for": {
+        var from = evalE(s.from), to = evalE(s.to);
+        var by = s.by ? evalE(s.by) : { tag: "I", v: 1 };
+        if (from.tag !== "I" || to.tag !== "I" || by.tag !== "I")
+          rerr("FOR bounds must be integers", s.line);
+        if (by.v === 0) rerr("FOR ... BY 0 never ends", s.line);
+        var rec2 = getVar(s.v, s.line);
+        if (rec2.tag !== "I") rerr("FOR loop variable must be an Int/DInt", s.line);
+        for (var x = from.v; by.v > 0 ? x <= to.v : x >= to.v; x += by.v) {
+          tick();
+          rec2.val = x;
+          try { execList(s.body); }
+          catch (ex) {
+            if (ex === CTL_EXIT) return;
+            if (ex === CTL_CONT) continue;
+            throw ex;
+          }
+        }
+        return;
+      }
+      case "while": {
+        for (;;) {
+          tick();
+          var c2 = evalE(s.cond);
+          if (c2.tag !== "B") rerr("WHILE condition must be Bool", s.line);
+          if (!c2.v) return;
+          try { execList(s.body); }
+          catch (ex) {
+            if (ex === CTL_EXIT) return;
+            if (ex === CTL_CONT) continue;
+            throw ex;
+          }
+        }
+      }
+      case "repeat": {
+        for (;;) {
+          tick();
+          try { execList(s.body); }
+          catch (ex) {
+            if (ex === CTL_EXIT) return;
+            if (ex !== CTL_CONT) throw ex;
+          }
+          var c3 = evalE(s.cond);
+          if (c3.tag !== "B") rerr("UNTIL condition must be Bool", s.line);
+          if (c3.v) return;
+        }
+      }
+      case "exit": throw CTL_EXIT;
+      case "continue": throw CTL_CONT;
+      case "return": throw CTL_RET;
+    }
+    rerr("internal: bad statement", s.line);
+  }
+
+  try { execList(this.prog.body); }
+  catch (ex) {
+    if (ex !== CTL_RET) throw ex;
+  }
+  this.timeMs += dtMs;
+  this.scanCount++;
+};
+
+var SCLVM = {
+  compile: function (src) { return parse(src); },
+  Runtime: Runtime
+};
+global.SCLVM = SCLVM;
+if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
 <script>
 (function () {
   // ---------- SCL syntax highlighting ----------
@@ -1739,18 +3242,63 @@ END_IF;</pre>
     cap.appendChild(btn);
   });
 
-  // ---------- quizzes ----------
+  // ---------- quizzes (chapter checks + final exam) ----------
+  var exam = document.getElementById("exam");
+  var EXBEST = "sclfm-exambest";
+  function safeGetItem(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function safeSetItem(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  function examUpdate() {
+    if (!exam) return;
+    var qs = exam.querySelectorAll(".q"), total = qs.length, answered = 0, correct = 0;
+    qs.forEach(function (q) {
+      if (q.classList.contains("answered")) {
+        answered++;
+        if (q.dataset.gotIt === "1") correct++;
+      }
+    });
+    var scoreEl = document.getElementById("exam-score");
+    if (scoreEl) scoreEl.textContent = correct + " / " + total;
+    if (answered === total) {
+      var best = parseInt(safeGetItem(EXBEST) || "0", 10);
+      if (correct > best) { best = correct; safeSetItem(EXBEST, String(best)); }
+    }
+    examBest();
+  }
+  function examBest() {
+    var el = document.getElementById("exam-best");
+    if (!el) return;
+    var best = safeGetItem(EXBEST);
+    el.textContent = best ? "Best run: " + best + " / 20" : "No completed run yet.";
+  }
+  examBest();
+
   document.querySelectorAll(".quiz .q").forEach(function (q) {
     q.querySelectorAll(".opts button").forEach(function (b) {
       b.addEventListener("click", function () {
         if (q.classList.contains("answered")) return;
         q.classList.add("answered");
+        q.dataset.gotIt = b.hasAttribute("data-ok") ? "1" : "0";
         if (!b.hasAttribute("data-ok")) b.classList.add("wrong");
         var right = q.querySelector(".opts button[data-ok]");
         if (right) right.classList.add("right");
+        if (exam && exam.contains(q)) examUpdate();
       });
     });
   });
+
+  var examReset = document.getElementById("exam-reset");
+  if (examReset) examReset.addEventListener("click", function () {
+    exam.querySelectorAll(".q").forEach(function (q) {
+      q.classList.remove("answered");
+      delete q.dataset.gotIt;
+      q.querySelectorAll(".opts button").forEach(function (b) {
+        b.classList.remove("right", "wrong");
+      });
+    });
+    examUpdate();
+  });
+  examUpdate();
 
   // ---------- progress (localStorage, per-viewer) ----------
   var PKEY = "sclfm-progress";
@@ -1765,21 +3313,22 @@ END_IF;</pre>
   }
   var prog = loadProg();
   var sections = document.querySelectorAll("section.ch");
+  var progSections = Array.prototype.filter.call(sections, function (s) { return s.id !== "lab"; });
   var railLinks = {};
   document.querySelectorAll("nav.rail a[href^='#']").forEach(function (a) {
     railLinks[a.getAttribute("href").slice(1)] = a;
   });
 
   function updateProgLine() {
-    var total = sections.length, done = 0;
-    sections.forEach(function (s) { if (prog[s.id]) done++; });
+    var total = progSections.length, done = 0;
+    progSections.forEach(function (s) { if (prog[s.id]) done++; });
     var el = document.getElementById("progline");
     if (el) el.innerHTML = done
       ? "<b>" + done + "</b> / " + total + " chapters complete"
       : total + " chapters";
   }
 
-  sections.forEach(function (sec) {
+  progSections.forEach(function (sec) {
     var btn = document.createElement("button");
     btn.className = "donebtn";
     btn.type = "button";
@@ -1831,6 +3380,299 @@ END_IF;</pre>
     }, { rootMargin: "-15% 0px -70% 0px" });
     sections.forEach(function (s) { obs.observe(s); });
   } catch (e) { /* no scroll-spy — nav still works */ }
+
+  // ---------- theme toggle ----------
+  (function () {
+    var btn = document.getElementById("themebtn");
+    if (!btn) return;
+    var order = ["auto", "light", "dark"];
+    var labels = { auto: "Theme: Auto", light: "Theme: Light", dark: "Theme: Dark" };
+    var mode = safeGetItem("sclfm-theme");
+    if (order.indexOf(mode) < 0) mode = "auto";
+    function apply() {
+      if (mode === "light" || mode === "dark")
+        document.documentElement.setAttribute("data-theme", mode);
+      else document.documentElement.removeAttribute("data-theme");
+      btn.textContent = labels[mode];
+    }
+    btn.addEventListener("click", function () {
+      mode = order[(order.indexOf(mode) + 1) % order.length];
+      safeSetItem("sclfm-theme", mode);
+      apply();
+    });
+    apply();
+  })();
+
+  // ---------- search ----------
+  (function () {
+    var box = document.getElementById("searchbox");
+    var out = document.getElementById("searchres");
+    if (!box || !out) return;
+    var index = null;
+    function buildIndex() {
+      index = [];
+      document.querySelectorAll("section.ch").forEach(function (sec) {
+        var h2 = sec.querySelector("h2"), numEl = sec.querySelector(".chnum");
+        var where = (numEl ? numEl.textContent + " · " : "") + (h2 ? h2.textContent : sec.id);
+        sec.querySelectorAll("p, li, h3, pre.scl, figcaption > span:first-child, td").forEach(function (el) {
+          var t = el.textContent.replace(/\s+/g, " ").trim();
+          if (t.length > 2) index.push({ sec: sec.id, where: where, text: t, el: el });
+        });
+      });
+    }
+    function render(q) {
+      out.innerHTML = "";
+      if (q.length < 2) { out.hidden = true; return; }
+      if (!index) buildIndex();
+      var ql = q.toLowerCase(), hits = [];
+      for (var i = 0; i < index.length && hits.length < 12; i++) {
+        var at = index[i].text.toLowerCase().indexOf(ql);
+        if (at >= 0) hits.push({ e: index[i], at: at });
+      }
+      if (!hits.length) {
+        var li0 = document.createElement("li");
+        li0.className = "none"; li0.textContent = "No matches.";
+        out.appendChild(li0); out.hidden = false; return;
+      }
+      hits.forEach(function (h) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#" + h.e.sec;
+        var w = document.createElement("span");
+        w.className = "where"; w.textContent = h.e.where;
+        a.appendChild(w);
+        var start = Math.max(0, h.at - 34);
+        var pre = (start > 0 ? "…" : "") + h.e.text.slice(start, h.at);
+        var mid = h.e.text.substr(h.at, q.length);
+        var post = h.e.text.slice(h.at + q.length, h.at + q.length + 44) +
+                   (h.e.text.length > h.at + q.length + 44 ? "…" : "");
+        a.appendChild(document.createTextNode(pre));
+        var mk = document.createElement("mark"); mk.textContent = mid;
+        a.appendChild(mk);
+        a.appendChild(document.createTextNode(post));
+        a.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          h.e.el.scrollIntoView({ behavior: "smooth", block: "center" });
+          var prev = h.e.el.style.outline;
+          h.e.el.style.outline = "2px solid var(--accent)";
+          h.e.el.style.outlineOffset = "4px";
+          setTimeout(function () { h.e.el.style.outline = prev; h.e.el.style.outlineOffset = ""; }, 1600);
+          out.hidden = true; box.value = "";
+        });
+        li.appendChild(a);
+        out.appendChild(li);
+      });
+      out.hidden = false;
+    }
+    var deb = null;
+    box.addEventListener("input", function () {
+      clearTimeout(deb);
+      deb = setTimeout(function () { render(box.value.trim()); }, 120);
+    });
+    box.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") { box.value = ""; out.hidden = true; }
+    });
+  })();
+
+  // ---------- print the quick-reference card ----------
+  (function () {
+    var pb = document.getElementById("printcard");
+    if (!pb) return;
+    pb.addEventListener("click", function () {
+      document.documentElement.classList.add("print-quickref");
+      window.print();
+    });
+    window.addEventListener("afterprint", function () {
+      document.documentElement.classList.remove("print-quickref");
+    });
+  })();
+
+  // ---------- h3 anchors ----------
+  document.querySelectorAll("section.ch h3").forEach(function (h) {
+    var sec = h.closest("section");
+    var slug = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+    if (!slug || !sec) return;
+    var id = sec.id + "--" + slug;
+    if (!document.getElementById(id)) h.id = id;
+    var a = document.createElement("a");
+    a.className = "anchor"; a.href = "#" + h.id; a.textContent = "#";
+    a.setAttribute("aria-label", "Link to this section");
+    h.appendChild(a);
+  });
+
+  // ---------- playground ----------
+  (function () {
+    var editor = document.getElementById("pg-editor");
+    if (!editor || !window.SCLVM) return;
+    var sel = document.getElementById("pg-example"),
+        runBtn = document.getElementById("pg-run"),
+        stopBtn = document.getElementById("pg-stop"),
+        statusEl = document.getElementById("pg-status"),
+        errEl = document.getElementById("pg-err"),
+        inEl = document.getElementById("pg-inputs"),
+        outEl = document.getElementById("pg-outputs"),
+        watchEl = document.getElementById("pg-watch"),
+        metaEl = document.getElementById("pg-meta");
+
+    var EXAMPLES = [
+      { name: "Blinker — two chained TONs (Ch. 2)", code:
+"VAR_INPUT\n    enable  : Bool;\nEND_VAR\nVAR_OUTPUT\n    lamp    : Bool;\nEND_VAR\nVAR\n    tOn     : TON;\n    tOff    : TON;\nEND_VAR\n\nBEGIN\n// Classic flasher: two timers feed each other.\n// Toggle 'enable' and watch the scan do the rest.\ntOn(IN := enable AND NOT tOff.Q, PT := T#500ms);\ntOff(IN := tOn.Q, PT := T#500ms);\n\nlamp := enable AND tOn.Q;\n" },
+      { name: "Thermostat with hysteresis (Ch. 6)", code:
+"VAR_INPUT\n    temp     : Real := 20.0;   // pretend sensor - type a value\n    setpoint : Real := 55.0;\nEND_VAR\nVAR_OUTPUT\n    heater   : Bool;\n    tooHot   : Bool;\nEND_VAR\n\nBEGIN\n// Two independent IFs, no ELSE - the classic hysteresis pair.\n// Between 53 and 57 the heater keeps its last state.\nIF temp < setpoint - 2.0 THEN\n    heater := TRUE;\nEND_IF;\nIF temp > setpoint + 2.0 THEN\n    heater := FALSE;\nEND_IF;\n\ntooHot := temp > 80.0;\n" },
+      { name: "Batch counter — R_TRIG + CTU (Ch. 8)", code:
+"VAR_INPUT\n    photoEye  : Bool;   // toggle on/off to simulate parts\n    reset     : Bool;\n    batchSize : Int := 5;\nEND_VAR\nVAR_OUTPUT\n    batchDone : Bool;\n    pieces    : Int;\nEND_VAR\nVAR\n    trig      : R_TRIG;\n    counter   : CTU;\nEND_VAR\n\nBEGIN\n// Each OFF->ON of the eye is one part. The edge detector\n// turns the level into a single-scan event.\ntrig(CLK := photoEye);\ncounter(CU := trig.Q, R := reset, PV := batchSize,\n        Q => batchDone, CV => pieces);\n" },
+      { name: "Star-delta starter — state machine (Ch. 11)", code:
+"VAR_INPUT\n    start   : Bool;\n    stop    : Bool;\nEND_VAR\nVAR_OUTPUT\n    ctorMain  : Bool;\n    ctorStar  : Bool;\n    ctorDelta : Bool;\n    stepNo    : Int;\nEND_VAR\nVAR\n    step    : Int;\n    stepOld : Int;\n    tStep   : TON;\nEND_VAR\n\nBEGIN\nIF stop THEN\n    step := 0;\nEND_IF;\n\nCASE step OF\n    0:  IF start THEN step := 10; END_IF;\n    10: IF tStep.Q THEN step := 20; END_IF;  // 6 s in star\n    20: IF tStep.Q THEN step := 30; END_IF;  // 100 ms gap\n    30: ;                                    // run in delta\n    ELSE step := 0;\nEND_CASE;\n\n// The (step = stepOld) term restarts the shared timer on\n// every step change. Delete it and watch step 20 vanish!\ntStep(IN := (step = stepOld) AND ((step = 10) OR (step = 20)),\n      PT := SEL(G := step = 10, IN0 := T#100ms, IN1 := T#6s));\nstepOld := step;\n\nctorMain  := step >= 10;\nctorStar  := step = 10;\nctorDelta := step = 30;\nstepNo    := step;\n" },
+      { name: "Pump cooldown lockout — TOF (Exercise 1)", code:
+"VAR_INPUT\n    cmdRun : Bool;\nEND_VAR\nVAR_OUTPUT\n    pumpOn : Bool;\nEND_VAR\nVAR\n    tCool  : TOF;\nEND_VAR\n\nBEGIN\n// After the pump stops, tCool.Q stays TRUE for 10 s -\n// that window blocks restarting, never running.\ntCool(IN := pumpOn, PT := T#10s);\npumpOn := cmdRun AND (pumpOn OR NOT tCool.Q);\n" },
+      { name: "Integer division gotcha (Ch. 6)", code:
+"VAR_INPUT\n    done  : Int := 3;\n    total : Int := 8;\nEND_VAR\nVAR_OUTPUT\n    wrong   : Int;\n    better  : Int;\n    exact   : Real;\nEND_VAR\n\nBEGIN\n// Same math, three results. Change 'done' and watch.\nwrong  := done / total * 100;              // truncates to 0 first!\nbetter := done * 100 / total;              // multiply before divide\nexact  := INT_TO_REAL(done) / INT_TO_REAL(total) * 100.0;\n" }
+    ];
+
+    EXAMPLES.forEach(function (ex, i) {
+      var o = document.createElement("option");
+      o.value = String(i); o.textContent = ex.name;
+      sel.appendChild(o);
+    });
+    function loadExample(i) { editor.value = EXAMPLES[i].code; }
+    sel.addEventListener("change", function () { stop(); loadExample(+sel.value); });
+    loadExample(0);
+
+    editor.addEventListener("keydown", function (ev) {
+      if (ev.key === "Tab") {
+        ev.preventDefault();
+        var s = editor.selectionStart, e = editor.selectionEnd;
+        editor.value = editor.value.slice(0, s) + "    " + editor.value.slice(e);
+        editor.selectionStart = editor.selectionEnd = s + 4;
+      }
+    });
+
+    var rt = null, timer = null, controls = [], outs = [], watches = [];
+    var SCAN_MS = 50;
+
+    function setStatus(cls, txt) {
+      statusEl.className = "pg-status" + (cls ? " " + cls : "");
+      statusEl.textContent = txt;
+    }
+    function showErr(e) {
+      errEl.textContent = (e.isCompile ? "Compile error" : "Runtime error") +
+        (e.line ? " (line " + e.line + ")" : "") + ": " + e.message;
+      errEl.classList.add("show");
+    }
+    function fmt(v) {
+      if (v.inst) return "";
+      if (v.tag === "B") return v.val ? "TRUE" : "FALSE";
+      if (v.tag === "R") return (Math.round(v.val * 1000) / 1000).toString();
+      if (v.tag === "T") return v.val >= 1000 ? (Math.round(v.val / 100) / 10) + "s" : v.val + "ms";
+      return String(v.val);
+    }
+    function row(nm) {
+      var d = document.createElement("div");
+      d.className = "pg-row";
+      var n = document.createElement("span");
+      n.className = "nm"; n.textContent = nm;
+      return { d: d, n: n };
+    }
+    function buildIO() {
+      inEl.innerHTML = ""; outEl.innerHTML = ""; watchEl.innerHTML = "";
+      controls = []; outs = []; watches = [];
+      rt.order.forEach(function (v) {
+        if (v.kind === "input" && !v.inst) {
+          var r = row(v.name);
+          if (v.tag === "B") {
+            var lb = document.createElement("label");
+            lb.className = "sw";
+            var cb = document.createElement("input");
+            cb.type = "checkbox"; cb.checked = !!v.val;
+            cb.setAttribute("aria-label", v.name);
+            var knob = document.createElement("i");
+            lb.appendChild(cb); lb.appendChild(knob);
+            r.d.appendChild(lb); r.d.appendChild(r.n);
+            controls.push({ v: v, get: function () { return cb.checked; } });
+          } else {
+            var num = document.createElement("input");
+            num.type = "number"; num.step = "any"; num.value = String(v.val);
+            num.setAttribute("aria-label", v.name);
+            r.d.appendChild(r.n); r.d.appendChild(num);
+            controls.push({ v: v, get: function () {
+              var x = parseFloat(num.value);
+              return isNaN(x) ? v.val : (v.tag === "I" ? Math.trunc(x) : x);
+            }});
+          }
+          inEl.appendChild(r.d);
+        } else if (v.kind === "output" && !v.inst) {
+          var r2 = row(v.name);
+          var valEl = document.createElement("span");
+          valEl.className = "val";
+          if (v.tag === "B") {
+            var lamp = document.createElement("span");
+            lamp.className = "lamp";
+            r2.d.appendChild(lamp); r2.d.appendChild(r2.n);
+            outs.push({ v: v, lamp: lamp });
+          } else {
+            r2.d.appendChild(r2.n); r2.d.appendChild(valEl);
+            outs.push({ v: v, valEl: valEl });
+          }
+          outEl.appendChild(r2.d);
+        } else if (v.kind === "static") {
+          var r3 = row(v.name);
+          var valEl3 = document.createElement("span");
+          valEl3.className = "val";
+          r3.d.appendChild(r3.n); r3.d.appendChild(valEl3);
+          watchEl.appendChild(r3.d);
+          watches.push({ v: v, valEl: valEl3 });
+        }
+      });
+      if (!inEl.children.length) inEl.innerHTML = '<p class="pg-empty">No inputs declared.</p>';
+      if (!outEl.children.length) outEl.innerHTML = '<p class="pg-empty">No outputs declared.</p>';
+      if (!watchEl.children.length) watchEl.innerHTML = '<p class="pg-empty">No static variables.</p>';
+    }
+    function refresh() {
+      outs.forEach(function (o) {
+        if (o.lamp) o.lamp.className = "lamp" + (o.v.val ? " on" : "");
+        else o.valEl.textContent = fmt(o.v);
+      });
+      watches.forEach(function (w) {
+        var v = w.v;
+        if (v.inst) {
+          var bits = [v.inst, "Q=" + (v.st.q ? "1" : "0")];
+          if (v.inst !== "R_TRIG" && v.inst !== "F_TRIG") {
+            if (v.inst === "CTU" || v.inst === "CTD") bits.push("CV=" + v.st.cv);
+            else bits.push("ET=" + Math.round(v.st.et) + "ms");
+          }
+          w.valEl.textContent = bits.join(" ");
+        } else {
+          w.valEl.textContent = fmt(v);
+        }
+      });
+      metaEl.textContent = "scan #" + rt.scanCount + " · t = " +
+        (Math.round(rt.timeMs / 100) / 10).toFixed(1) + " s · " + SCAN_MS + " ms/scan";
+    }
+    function tick() {
+      controls.forEach(function (c) { c.v.val = c.v.tag === "B" ? !!c.get() : +c.get(); });
+      try { rt.scan(SCAN_MS); }
+      catch (e) { stop(); setStatus("err", "ERROR"); showErr(e); return; }
+      refresh();
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+      setStatus("", "STOP");
+    }
+    function run() {
+      stop();
+      errEl.classList.remove("show");
+      try {
+        var prog = window.SCLVM.compile(editor.value);
+        rt = new window.SCLVM.Runtime(prog);
+      } catch (e) { setStatus("err", "ERROR"); showErr(e); return; }
+      buildIO();
+      refresh();
+      setStatus("run", "RUN");
+      timer = setInterval(tick, SCAN_MS);
+    }
+    runBtn.addEventListener("click", run);
+    stopBtn.addEventListener("click", stop);
+  })();
 })();
 </script>
 </body>
