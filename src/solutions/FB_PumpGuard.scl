@@ -1,0 +1,20 @@
+FUNCTION_BLOCK "FB_PumpGuard"
+{ S7_Optimized_Access := 'TRUE' }
+// Exercise 1: restart only 10 s after the last stop; stopping is immediate.
+VAR_INPUT
+    cmdRun   : Bool;
+    coolTime : Time := T#10s;
+END_VAR
+VAR_OUTPUT
+    pumpOn   : Bool;
+END_VAR
+VAR
+    tCool    : TOF;
+END_VAR
+
+BEGIN
+    // TOF.Q stays TRUE for coolTime after the pump stops -> lockout window
+    #tCool(IN := #pumpOn, PT := #coolTime);
+    // The lockout only blocks STARTING, never running
+    #pumpOn := #cmdRun AND (#pumpOn OR NOT #tCool.Q);
+END_FUNCTION_BLOCK

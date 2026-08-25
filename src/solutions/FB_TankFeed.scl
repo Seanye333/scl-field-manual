@@ -1,0 +1,34 @@
+FUNCTION_BLOCK "FB_TankFeed"
+{ S7_Optimized_Access := 'TRUE' }
+// Exercise 2: hysteresis feed control with dry-run trip.
+VAR_INPUT
+    rawAI    : Int;             // 0..27648 = 0..4.0 m
+    reset    : Bool;
+END_VAR
+VAR_OUTPUT
+    pump     : Bool;
+    level_m  : Real;
+    dryFault : Bool;
+END_VAR
+VAR
+    tDry     : TON;
+END_VAR
+
+BEGIN
+    #level_m := INT_TO_REAL(#rawAI) / 27648.0 * 4.0;
+
+    // Hysteresis: two independent IFs, no ELSE
+    IF #level_m < 1.2 THEN #pump := TRUE;  END_IF;
+    IF #level_m > 3.4 THEN #pump := FALSE; END_IF;
+
+    // Dry-run supervision
+    #tDry(IN := #pump AND #level_m < 0.05, PT := T#5s);
+    IF #tDry.Q THEN
+        #dryFault := TRUE;
+    END_IF;
+    IF #reset THEN
+        #dryFault := FALSE;
+    END_IF;
+
+    #pump := #pump AND NOT #dryFault;  // fault overrides - single final owner
+END_FUNCTION_BLOCK

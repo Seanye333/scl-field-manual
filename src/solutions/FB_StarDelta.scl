@@ -1,0 +1,45 @@
+FUNCTION_BLOCK "FB_StarDelta"
+{ S7_Optimized_Access := 'TRUE' }
+// Exercise 4: star 6 s, 100 ms open gap, then delta.
+VAR_INPUT
+    start     : Bool;
+    stop      : Bool;
+    trip      : Bool;
+END_VAR
+VAR_OUTPUT
+    ctorMain  : Bool;
+    ctorStar  : Bool;
+    ctorDelta : Bool;
+    stepNo    : Int;
+END_VAR
+VAR
+    step      : Int;            // 0 off, 10 star, 20 gap, 30 delta
+    stepOld   : Int;
+    tStep     : TON;
+END_VAR
+
+BEGIN
+    IF #stop OR #trip THEN
+        #step := 0;
+    END_IF;
+
+    CASE #step OF
+        0:  IF #start AND NOT #trip THEN #step := 10; END_IF;
+        10: IF #tStep.Q THEN #step := 20; END_IF;   // 6 s in star
+        20: IF #tStep.Q THEN #step := 30; END_IF;   // 100 ms open gap
+        30: ;                                        // run in delta
+        ELSE #step := 0;
+    END_CASE;
+
+    // stepOld term: steps 10 and 20 are consecutive timed steps, so the
+    // shared timer must be forced to restart on the transition.
+    #tStep(IN := (#step = #stepOld) AND ((#step = 10) OR (#step = 20)),
+           PT := SEL(G := #step = 10, IN0 := T#100ms, IN1 := T#6s));
+    #stepOld := #step;
+
+    // Outputs from state - star and delta CANNOT both be true
+    #ctorMain  := #step >= 10;
+    #ctorStar  := #step = 10;
+    #ctorDelta := #step = 30;
+    #stepNo    := #step;
+END_FUNCTION_BLOCK

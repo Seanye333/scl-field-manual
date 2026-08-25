@@ -1,0 +1,30 @@
+FUNCTION_BLOCK "FB_PI"
+{ S7_Optimized_Access := 'TRUE' }
+// Call from a cyclic interrupt OB only - Ts_s must equal its cycle time.
+VAR_INPUT
+    sp     : Real;              // setpoint
+    pv     : Real;              // process value
+    Kp     : Real := 2.0;
+    Ti_s   : Real := 30.0;      // integral time, seconds
+    Ts_s   : Real := 0.1;       // sample time = the calling OB's cycle!
+    outMin : Real := 0.0;
+    outMax : Real := 100.0;
+END_VAR
+VAR_OUTPUT
+    out    : Real;
+END_VAR
+VAR
+    iTerm  : Real;
+END_VAR
+VAR_TEMP
+    err    : Real;
+END_VAR
+
+BEGIN
+    #err   := #sp - #pv;
+    #iTerm := #iTerm + #Kp * #err * #Ts_s / #Ti_s;
+    #iTerm := LIMIT(MN := #outMin, IN := #iTerm, MX := #outMax); // anti-windup
+    #out   := LIMIT(MN := #outMin,
+                    IN := #Kp * #err + #iTerm,
+                    MX := #outMax);
+END_FUNCTION_BLOCK

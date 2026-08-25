@@ -1,0 +1,75 @@
+FUNCTION_BLOCK "FB_MixerSeq"
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    start       : Bool;
+    stop        : Bool;         // graceful stop at end of step
+    abort       : Bool;         // immediate stop
+    levelHigh   : Bool;
+    tempReached : Bool;
+END_VAR
+VAR_OUTPUT
+    valveFill   : Bool;
+    heater      : Bool;
+    agitator    : Bool;
+    valveDrain  : Bool;
+    stepNo      : Int;          // expose for HMI diagnostics
+END_VAR
+VAR
+    step      : Int;
+    stepOld   : Int;            // last scan's step - restarts the step timer
+    tStep     : TON;
+    trigStart : R_TRIG;
+END_VAR
+VAR CONSTANT
+    IDLE  : Int := 0;
+    FILL  : Int := 10;
+    HEAT  : Int := 20;
+    MIX   : Int := 30;
+    DRAIN : Int := 40;
+    DONE  : Int := 50;
+END_VAR
+
+BEGIN
+    #trigStart(CLK := #start);
+
+    // Abort dominates everything
+    IF #abort THEN
+        #step := #IDLE;
+    END_IF;
+
+    CASE #step OF
+        #IDLE:
+            IF #trigStart.Q THEN #step := #FILL; END_IF;
+        #FILL:
+            IF #levelHigh THEN #step := #HEAT; END_IF;
+        #HEAT:
+            IF #tempReached THEN #step := #MIX; END_IF;
+        #MIX:
+            IF #tStep.Q THEN
+                IF #stop THEN #step := #IDLE;
+                ELSE #step := #DRAIN;
+                END_IF;
+            END_IF;
+        #DRAIN:
+            IF NOT #levelHigh AND #tStep.Q THEN #step := #DONE; END_IF;
+        #DONE:
+            #step := #IDLE;
+        ELSE
+            #step := #IDLE;     // unknown step = defensive reset
+    END_CASE;
+
+    // Step timer, called unconditionally. The (#step = #stepOld) term
+    // drops IN for one scan on every step change so consecutive timed
+    // steps (MIX -> DRAIN) each start from ET = 0.
+    #tStep(IN := (#step = #stepOld)
+             AND ((#step = #MIX) OR (#step = #DRAIN)),
+           PT := SEL(G := #step = #MIX, IN0 := T#30s, IN1 := T#5m));
+    #stepOld := #step;
+
+    // Outputs derived from state, in ONE place
+    #valveFill  := #step = #FILL;
+    #heater     := #step = #HEAT;
+    #agitator   := (#step = #HEAT) OR (#step = #MIX);
+    #valveDrain := #step = #DRAIN;
+    #stepNo     := #step;
+END_FUNCTION_BLOCK

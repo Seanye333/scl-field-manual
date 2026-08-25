@@ -1,0 +1,12 @@
+TYPE "UDT_Motor"
+STRUCT
+    cmdRun      : Bool;      // request to run
+    cmdReset    : Bool;      // fault reset request
+    fbRunning   : Bool;      // contactor auxiliary contact
+    fbTripped   : Bool;      // motor protection relay
+    running     : Bool;      // status: confirmed running
+    fault       : Bool;      // status: latched fault
+    current_A   : Real;      // measured current
+    runHours    : Real;      // service counter
+END_STRUCT
+END_TYPE

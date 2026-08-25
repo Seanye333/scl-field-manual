@@ -1,0 +1,12 @@
+FUNCTION "FC_ScaleAnalog" : Real
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    raw    : Int;               // 0..27648 from analog input
+    engMin : Real;
+    engMax : Real;
+END_VAR
+
+BEGIN
+    #FC_ScaleAnalog := INT_TO_REAL(#raw) / 27648.0
+                       * (#engMax - #engMin) + #engMin;
+END_FUNCTION

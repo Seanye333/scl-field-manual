@@ -1,0 +1,49 @@
+FUNCTION_BLOCK "FB_MotorCtrl"
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    cmdRun      : Bool;         // request from sequence/HMI
+    cmdReset    : Bool;
+    interlockOK : Bool;         // external interlocks, TRUE = safe to run
+    fbRunning   : Bool;         // contactor auxiliary contact
+    fbTripped   : Bool;         // motor protection relay
+    tFbMax      : Time := T#3s; // feedback supervision time
+END_VAR
+VAR_OUTPUT
+    contactor   : Bool;
+    running     : Bool;
+    fault       : Bool;
+    faultCode   : Int;          // 0 none, 1 no feedback, 2 tripped, 3 interlock
+END_VAR
+VAR
+    tFb       : TON;
+    trigReset : R_TRIG;
+END_VAR
+
+BEGIN
+    #trigReset(CLK := #cmdReset);
+
+    // Fault latching
+    IF #fbTripped THEN
+        #fault := TRUE;
+        #faultCode := 2;
+    END_IF;
+    IF #contactor AND NOT #interlockOK THEN
+        #fault := TRUE;
+        #faultCode := 3;
+    END_IF;
+    #tFb(IN := #contactor AND NOT #fbRunning, PT := #tFbMax);
+    IF #tFb.Q THEN
+        #fault := TRUE;
+        #faultCode := 1;        // commanded but no feedback
+    END_IF;
+
+    // Reset only if cause is gone
+    IF #trigReset.Q AND NOT #fbTripped THEN
+        #fault := FALSE;
+        #faultCode := 0;
+    END_IF;
+
+    // Command: any fault path drops the contactor by structure
+    #contactor := #cmdRun AND #interlockOK AND NOT #fault;
+    #running   := #fbRunning;
+END_FUNCTION_BLOCK

@@ -1,0 +1,22 @@
+FUNCTION_BLOCK "FB_Blinker"
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    enable  : Bool;             // run the blinker
+    onTime  : Time := T#500ms;
+    offTime : Time := T#500ms;
+END_VAR
+VAR_OUTPUT
+    lamp    : Bool;
+END_VAR
+VAR
+    tOn  : TON;
+    tOff : TON;
+END_VAR
+
+BEGIN
+    // Two timers chained: classic flasher
+    #tOn(IN := #enable AND NOT #tOff.Q, PT := #offTime);
+    #tOff(IN := #tOn.Q, PT := #onTime);
+
+    #lamp := #enable AND #tOn.Q;
+END_FUNCTION_BLOCK
