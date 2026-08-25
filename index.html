@@ -745,6 +745,11 @@
 <main>
 <details id="mobile-toc">
   <summary>Contents</summary>
+  <div class="tools">
+    <input type="search" id="mob-search" placeholder="Search the manual…" aria-label="Search the manual">
+    <button type="button" class="themebtn" id="mob-themebtn" aria-label="Switch color theme">Theme: Auto</button>
+  </div>
+  <ul class="searchres" id="mob-searchres" hidden></ul>
   <div id="mtoc"></div>
 </details>
 
@@ -3383,8 +3388,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
 
   // ---------- theme toggle ----------
   (function () {
-    var btn = document.getElementById("themebtn");
-    if (!btn) return;
+    var btns = [document.getElementById("themebtn"), document.getElementById("mob-themebtn")]
+      .filter(function (b) { return b; });
+    if (!btns.length) return;
     var order = ["auto", "light", "dark"];
     var labels = { auto: "Theme: Auto", light: "Theme: Light", dark: "Theme: Dark" };
     var mode = safeGetItem("sclfm-theme");
@@ -3393,21 +3399,20 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
       if (mode === "light" || mode === "dark")
         document.documentElement.setAttribute("data-theme", mode);
       else document.documentElement.removeAttribute("data-theme");
-      btn.textContent = labels[mode];
+      btns.forEach(function (b) { b.textContent = labels[mode]; });
     }
-    btn.addEventListener("click", function () {
-      mode = order[(order.indexOf(mode) + 1) % order.length];
-      safeSetItem("sclfm-theme", mode);
-      apply();
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        mode = order[(order.indexOf(mode) + 1) % order.length];
+        safeSetItem("sclfm-theme", mode);
+        apply();
+      });
     });
     apply();
   })();
 
   // ---------- search ----------
   (function () {
-    var box = document.getElementById("searchbox");
-    var out = document.getElementById("searchres");
-    if (!box || !out) return;
     var index = null;
     function buildIndex() {
       index = [];
@@ -3420,6 +3425,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
         });
       });
     }
+    function attach(box, out) {
+    if (!box || !out) return;
     function render(q) {
       out.innerHTML = "";
       if (q.length < 2) { out.hidden = true; return; }
@@ -3472,6 +3479,9 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
     box.addEventListener("keydown", function (ev) {
       if (ev.key === "Escape") { box.value = ""; out.hidden = true; }
     });
+    }
+    attach(document.getElementById("searchbox"), document.getElementById("searchres"));
+    attach(document.getElementById("mob-search"), document.getElementById("mob-searchres"));
   })();
 
   // ---------- print the quick-reference card ----------
@@ -3499,6 +3509,10 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
     a.setAttribute("aria-label", "Link to this section");
     h.appendChild(a);
   });
+  if (location.hash) {
+    var hashTgt = document.getElementById(location.hash.slice(1));
+    if (hashTgt) hashTgt.scrollIntoView();
+  }
 
   // ---------- playground ----------
   (function () {
