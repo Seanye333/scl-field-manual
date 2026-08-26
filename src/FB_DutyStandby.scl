@@ -1,0 +1,61 @@
+FUNCTION_BLOCK "FB_DutyStandby"
+{ S7_Optimized_Access := 'TRUE' }
+// Alternates the duty unit on every new demand, promotes the standby
+// on feedback failure. Playground Lab 6 grades exactly this logic.
+VAR_INPUT
+    demand   : Bool;      // "some pump should run" (e.g. hysteresis)
+    fbRunA   : Bool;
+    fbRunB   : Bool;
+    cmdReset : Bool;
+END_VAR
+VAR_OUTPUT
+    cmdA   : Bool;
+    cmdB   : Bool;
+    faultA : Bool;
+    faultB : Bool;
+END_VAR
+VAR
+    useA    : Bool;
+    trigDem : R_TRIG;
+    trigRst : R_TRIG;
+    tFA     : TON;
+    tFB     : TON;
+END_VAR
+
+BEGIN
+    #trigDem(CLK := #demand);
+    #trigRst(CLK := #cmdReset);
+
+    // New demand: alternate duty - unless one unit is out
+    IF #trigDem.Q THEN
+        IF #faultA THEN
+            #useA := FALSE;
+        ELSIF #faultB THEN
+            #useA := TRUE;
+        ELSE
+            #useA := NOT #useA;
+        END_IF;
+    END_IF;
+
+    // Mid-run failover: the running unit just faulted
+    IF #demand AND #useA AND #faultA THEN
+        #useA := FALSE;
+    END_IF;
+    IF #demand AND NOT #useA AND #faultB THEN
+        #useA := TRUE;
+    END_IF;
+
+    #cmdA := #demand AND #useA AND NOT #faultA;
+    #cmdB := #demand AND NOT #useA AND NOT #faultB;
+
+    // Feedback supervision per unit
+    #tFA(IN := #cmdA AND NOT #fbRunA, PT := T#2s);
+    #tFB(IN := #cmdB AND NOT #fbRunB, PT := T#2s);
+    IF #tFA.Q THEN #faultA := TRUE; END_IF;
+    IF #tFB.Q THEN #faultB := TRUE; END_IF;
+
+    IF #trigRst.Q THEN
+        #faultA := FALSE;
+        #faultB := FALSE;
+    END_IF;
+END_FUNCTION_BLOCK

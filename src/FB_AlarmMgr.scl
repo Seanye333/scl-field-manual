@@ -1,0 +1,51 @@
+FUNCTION_BLOCK "FB_AlarmMgr"
+{ S7_Optimized_Access := 'TRUE' }
+// ISA-18-style annunciator, simplified: raise latches, ack silences
+// the horn, indication clears only when acked AND the cause is gone.
+// Import UDT_Alarm first.
+VAR_INPUT
+    ackAll : Bool;
+END_VAR
+VAR_OUTPUT
+    anyActive  : Bool;
+    anyUnacked : Bool;
+    horn       : Bool;
+END_VAR
+VAR_IN_OUT
+    alarms : Array[*] of "UDT_Alarm";
+END_VAR
+VAR
+    trigAck : R_TRIG;
+END_VAR
+VAR_TEMP
+    i  : DInt;
+    lo : DInt;
+    hi : DInt;
+END_VAR
+
+BEGIN
+    #trigAck(CLK := #ackAll);
+    #anyActive := FALSE;
+    #anyUnacked := FALSE;
+    #lo := LOWER_BOUND(ARR := #alarms, DIM := 1);
+    #hi := UPPER_BOUND(ARR := #alarms, DIM := 1);
+
+    FOR #i := #lo TO #hi DO
+        IF #alarms[#i].raise THEN
+            IF NOT #alarms[#i].active THEN     // new occurrence
+                #alarms[#i].active := TRUE;
+                #alarms[#i].acked  := FALSE;
+            END_IF;
+        ELSIF #alarms[#i].acked THEN
+            #alarms[#i].active := FALSE;       // gone AND acked = clear
+        END_IF;
+        IF #trigAck.Q THEN
+            #alarms[#i].acked := TRUE;
+        END_IF;
+        #anyActive  := #anyActive  OR #alarms[#i].active;
+        #anyUnacked := #anyUnacked OR
+                       (#alarms[#i].active AND NOT #alarms[#i].acked);
+    END_FOR;
+
+    #horn := #anyUnacked;   // ack silences the horn; the lamp stays
+END_FUNCTION_BLOCK

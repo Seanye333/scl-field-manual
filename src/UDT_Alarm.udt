@@ -1,0 +1,7 @@
+TYPE "UDT_Alarm"
+STRUCT
+    raise  : Bool;   // condition, wired by the caller each scan
+    active : Bool;   // latched indication
+    acked  : Bool;
+END_STRUCT
+END_TYPE

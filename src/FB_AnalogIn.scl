@@ -1,0 +1,52 @@
+FUNCTION_BLOCK "FB_AnalogIn"
+{ S7_Optimized_Access := 'TRUE' }
+// One instance per analog signal: scaling, wire break, filter,
+// delayed alarms, and a simulation mode for commissioning.
+VAR_INPUT
+    raw       : Int;           // periphery value, 4-20 mA = 5530..27648
+    engMin    : Real := 0.0;
+    engMax    : Real := 100.0;
+    filterK   : Real := 0.2;   // 0..1; 1 = no filtering
+    hiLimit   : Real := 90.0;
+    loLimit   : Real := 10.0;
+    tAlarmDly : Time := T#3s;
+    simOn     : Bool;          // commissioning: substitute value
+    simValue  : Real;
+END_VAR
+VAR_OUTPUT
+    value     : Real;          // filtered engineering value
+    wireBreak : Bool;
+    alarmHi   : Bool;
+    alarmLo   : Bool;
+END_VAR
+VAR
+    filt : Real;
+    tHi  : TON;
+    tLo  : TON;
+END_VAR
+VAR_TEMP
+    scaled : Real;
+END_VAR
+
+BEGIN
+    // Live zero: far below 4 mA means a broken wire, not a low reading
+    #wireBreak := #raw < 4000;
+
+    #scaled := (INT_TO_REAL(#raw) - 5530.0) / 22118.0
+               * (#engMax - #engMin) + #engMin;
+
+    // One-line first-order low-pass
+    #filt := #filt + #filterK * (#scaled - #filt);
+
+    IF #simOn THEN
+        #value := #simValue;   // test the logic without the instrument
+    ELSE
+        #value := #filt;
+    END_IF;
+
+    // Delayed alarms, gated against wire break to avoid alarm floods
+    #tHi(IN := #value > #hiLimit AND NOT #wireBreak, PT := #tAlarmDly);
+    #tLo(IN := #value < #loLimit AND NOT #wireBreak, PT := #tAlarmDly);
+    #alarmHi := #tHi.Q;
+    #alarmLo := #tLo.Q;
+END_FUNCTION_BLOCK

@@ -1,0 +1,6 @@
+TYPE "UDT_LogEntry"
+STRUCT
+    stamp : DTL;
+    value : Real;
+END_STRUCT
+END_TYPE

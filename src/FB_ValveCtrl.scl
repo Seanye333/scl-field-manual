@@ -1,0 +1,49 @@
+FUNCTION_BLOCK "FB_ValveCtrl"
+{ S7_Optimized_Access := 'TRUE' }
+VAR_INPUT
+    cmdOpen    : Bool;        // TRUE = open, FALSE = close
+    cmdReset   : Bool;
+    fbOpened   : Bool;        // open limit switch
+    fbClosed   : Bool;        // closed limit switch
+    tTravelMax : Time := T#8s;
+END_VAR
+VAR_OUTPUT
+    coil      : Bool;
+    opened    : Bool;
+    closed    : Bool;
+    fault     : Bool;
+    faultCode : Int;          // 0 none, 1 travel timeout, 2 both switches
+END_VAR
+VAR
+    tTravel   : TON;
+    trigReset : R_TRIG;
+END_VAR
+
+BEGIN
+    #trigReset(CLK := #cmdReset);
+
+    // Wiring sanity: both limit switches at once is physically impossible
+    IF #fbOpened AND #fbClosed THEN
+        #fault := TRUE;
+        #faultCode := 2;
+    END_IF;
+
+    // Travel supervision: away from the commanded end position too long.
+    // Also catches a valve drifting off its end switch in service.
+    #tTravel(IN := (#cmdOpen AND NOT #fbOpened)
+                 OR (NOT #cmdOpen AND NOT #fbClosed),
+             PT := #tTravelMax);
+    IF #tTravel.Q THEN
+        #fault := TRUE;
+        #faultCode := 1;
+    END_IF;
+
+    IF #trigReset.Q AND NOT (#fbOpened AND #fbClosed) THEN
+        #fault := FALSE;
+        #faultCode := 0;
+    END_IF;
+
+    #coil   := #cmdOpen AND NOT #fault;
+    #opened := #fbOpened;
+    #closed := #fbClosed;
+END_FUNCTION_BLOCK
