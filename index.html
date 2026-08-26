@@ -740,7 +740,7 @@
     pre.scl .com { color: #667; } pre.scl .str { color: #2b6018; } pre.scl .num { color: #7a2f7a; }
     a { color: #000; text-decoration: none; }
   }
-  html.print-quickref main > section.ch:not(#ch19),
+  html.print-quickref main > section.ch:not(#ch21),
   html.print-quickref header.hero,
   html.print-quickref #mobile-toc { display: none !important; }
 </style>
@@ -780,12 +780,15 @@
   <a href="#ch15"><span class="n">15</span>Interrupts, startup &amp; OBs</a>
   <a href="#ch16"><span class="n">16</span>Indirect access &amp; VARIANT</a>
   <a href="#ch17"><span class="n">17</span>Program architecture</a>
-  <div class="grp">V · Mastery</div>
-  <a href="#ch18"><span class="n">18</span>Pitfalls &amp; debugging</a>
-  <a href="#ch19"><span class="n">19</span>Quick reference</a>
-  <a href="#ch20"><span class="n">20</span>Exercises</a>
-  <a href="#ch21"><span class="n">21</span>Final exam</a>
-  <a href="#ch22"><span class="n">22</span>Roadmap &amp; resources</a>
+  <div class="grp">V · Cookbook</div>
+  <a href="#ch18"><span class="n">18</span>Device patterns</a>
+  <a href="#ch19"><span class="n">19</span>Coordination patterns</a>
+  <div class="grp">VI · Mastery</div>
+  <a href="#ch20"><span class="n">20</span>Pitfalls &amp; debugging</a>
+  <a href="#ch21"><span class="n">21</span>Quick reference</a>
+  <a href="#ch22"><span class="n">22</span>Exercises</a>
+  <a href="#ch23"><span class="n">23</span>Final exam</a>
+  <a href="#ch24"><span class="n">24</span>Roadmap &amp; resources</a>
 </nav>
 
 <main>
@@ -1763,7 +1766,7 @@ END_FUNCTION_BLOCK</pre>
   <ul>
     <li><strong>Filter noisy inputs</strong> before the controller, not after: <code>#pvFilt := #pvFilt + 0.2 * (#pvRaw - #pvFilt);</code> is a one-line low-pass.</li>
     <li><strong>Bumpless start:</strong> when switching to automatic, preset <code>iTerm</code> so the output doesn't jump (PID_Compact handles this for you).</li>
-    <li><strong>Use Trace</strong> (Ch. 18) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
+    <li><strong>Use Trace</strong> (Ch. 20) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
   </ul>
 
   <div class="quiz"><div class="qhead">Check yourself</div>
@@ -1880,7 +1883,7 @@ BEGIN
   <p>A cyclic interrupt <strong>preempts OB1 mid-statement-sequence</strong>. If OB1 is halfway through updating a multi-field setpoint struct when OB30 reads it, OB30 sees a half-written mix — a bug that appears once a week and never in simulation. Rules that keep you safe:</p>
   <ul>
     <li>Keep interrupt OBs <strong>short</strong> — call the control FB, nothing else. Every ms spent there is jitter added to OB1.</li>
-    <li>Hand data between OB1 and interrupt OBs through <strong>dedicated DB areas</strong>, written on one side only (one owner per direction — the Ch. 18 rule, applied across priorities).</li>
+    <li>Hand data between OB1 and interrupt OBs through <strong>dedicated DB areas</strong>, written on one side only (one owner per direction — the Ch. 20 rule, applied across priorities).</li>
     <li>For multi-value handovers, use a <strong>valid flag written last</strong>: fill the fields, then set <code>newDataValid := TRUE;</code> — the reader checks the flag, consumes, clears it.</li>
     <li>On S7-1500, <code>UMOVE_BLK</code> copies a block <em>uninterruptibly</em> when you truly need atomicity.</li>
   </ul>
@@ -1995,7 +1998,7 @@ END_IF;</pre>
     <li><strong>Data flows down as parameters, up as status.</strong> An area FB calls device FBs through their interfaces; devices never reach up or sideways. Cross-area needs go through the coordination layer.</li>
     <li><strong>No M-memory (bit memory).</strong> Everything lives in DBs with names. M-flags are the untyped global variables of the PLC world — the Siemens guidelines say the same.</li>
     <li><strong>One global DB per concern:</strong> <code>DB_HMI</code> (curated operator interface), <code>DB_Recipe</code>, <code>DB_Comm</code>. Not one giant "DB_Global" that everything writes.</li>
-    <li><strong>Naming as documentation:</strong> <code>FB_</code>/<code>FC_</code>/<code>DB_</code>/<code>UDT_</code> prefixes, devices named by plant code (<code>M301_Conveyor</code>), verbs for commands (<code>cmdStart</code>), states as adjectives (<code>running</code>, <code>fault</code>). Pick the convention on day one; the styleguide in Ch. 22 is a ready-made one.</li>
+    <li><strong>Naming as documentation:</strong> <code>FB_</code>/<code>FC_</code>/<code>DB_</code>/<code>UDT_</code> prefixes, devices named by plant code (<code>M301_Conveyor</code>), verbs for commands (<code>cmdStart</code>), states as adjectives (<code>running</code>, <code>fault</code>). Pick the convention on day one; the styleguide in Ch. 24 is a ready-made one.</li>
     <li><strong>Libraries, not copy-paste.</strong> Put released device FBs and UDTs into a TIA <em>project library</em> / global library as versioned types. Fixing a bug then means "update instances," not "find all 14 copies."</li>
     <li><strong>Version control:</strong> export blocks as external sources (or use TIA's workspace/VCI features) and keep them in git. Text SCL diffs — use that superpower; it's half the reason to write SCL at all.</li>
   </ul>
@@ -2017,6 +2020,360 @@ END_IF;</pre>
 <!-- ================================================================ -->
 <section class="ch" id="ch18">
   <div class="chnum">Chapter 18</div>
+  <h2>Cookbook I — Device patterns</h2>
+  <p>Everything from here on is the layer between "knows SCL" and "gets handed a machine": worked patterns you write once per career and reuse forever. Each comes with the design reasoning and the trap it exists to prevent. All of them are in the repo's <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">src/</a> folder, ready to import.</p>
+
+  <h3>Valve with travel supervision</h3>
+  <p>The sibling of Ch. 12's motor block. A valve's failure modes are different: it <em>moves</em>, so the block supervises the journey — commanded to open but the open switch never comes (stuck, air lost, actuator dead), or the physically impossible case of both limit switches at once (wiring or a broken switch bracket). Together, <code>FB_MotorCtrl</code> + <code>FB_ValveCtrl</code> cover most discrete devices in a plant.</p>
+  <figure class="code"><figcaption><span>FB_ValveCtrl — travel-time supervision</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_ValveCtrl"
+VAR_INPUT
+    cmdOpen    : Bool;        // TRUE = open, FALSE = close
+    cmdReset   : Bool;
+    fbOpened   : Bool;        // open limit switch
+    fbClosed   : Bool;        // closed limit switch
+    tTravelMax : Time := T#8s;
+END_VAR
+VAR_OUTPUT
+    coil      : Bool;
+    opened    : Bool;
+    closed    : Bool;
+    fault     : Bool;
+    faultCode : Int;          // 0 none, 1 travel timeout, 2 both switches
+END_VAR
+VAR
+    tTravel   : TON;
+    trigReset : R_TRIG;
+END_VAR
+
+BEGIN
+#trigReset(CLK := #cmdReset);
+
+// Wiring sanity: both limit switches at once is physically impossible
+IF #fbOpened AND #fbClosed THEN
+    #fault := TRUE;  #faultCode := 2;
+END_IF;
+
+// Travel supervision: away from the commanded end position too long.
+// Also catches a valve drifting OFF its end switch in service.
+#tTravel(IN := (#cmdOpen AND NOT #fbOpened)
+             OR (NOT #cmdOpen AND NOT #fbClosed),
+         PT := #tTravelMax);
+IF #tTravel.Q THEN
+    #fault := TRUE;  #faultCode := 1;
+END_IF;
+
+IF #trigReset.Q AND NOT (#fbOpened AND #fbClosed) THEN
+    #fault := FALSE;  #faultCode := 0;
+END_IF;
+
+#coil   := #cmdOpen AND NOT #fault;
+#opened := #fbOpened;
+#closed := #fbClosed;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <p>Note what the travel timer's <code>IN</code> expression really says: <em>"the valve is not where the command wants it."</em> That single condition covers opening, closing, <strong>and</strong> drifting off position mid-service — three failure modes, one timer. That's the sign of a well-chosen supervision condition.</p>
+
+  <h3>The analog input channel</h3>
+  <p>The most underrated block in real projects. Raw analog values deserve a standard front door: scaling, wire-break detection, filtering, <em>delayed</em> alarms, and — the part people skip until commissioning week — a simulation mode so logic can be tested before instruments exist. One instance per signal, always, even when "it's just one temperature."</p>
+  <figure class="code"><figcaption><span>FB_AnalogIn — one front door per signal</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_AnalogIn"
+VAR_INPUT
+    raw       : Int;           // periphery value, 4-20 mA = 5530..27648
+    engMin    : Real := 0.0;
+    engMax    : Real := 100.0;
+    filterK   : Real := 0.2;   // 0..1; 1 = no filtering
+    hiLimit   : Real := 90.0;
+    loLimit   : Real := 10.0;
+    tAlarmDly : Time := T#3s;
+    simOn     : Bool;          // commissioning: substitute value
+    simValue  : Real;
+END_VAR
+VAR_OUTPUT
+    value     : Real;          // filtered engineering value
+    wireBreak : Bool;
+    alarmHi   : Bool;
+    alarmLo   : Bool;
+END_VAR
+VAR
+    filt : Real;
+    tHi  : TON;
+    tLo  : TON;
+END_VAR
+VAR_TEMP
+    scaled : Real;
+END_VAR
+
+BEGIN
+// Live zero: far below 4 mA means a broken wire, not a low reading
+#wireBreak := #raw &lt; 4000;
+
+#scaled := (INT_TO_REAL(#raw) - 5530.0) / 22118.0
+           * (#engMax - #engMin) + #engMin;
+
+// One-line first-order low-pass (Ch. 13)
+#filt := #filt + #filterK * (#scaled - #filt);
+
+IF #simOn THEN
+    #value := #simValue;      // test the logic without the instrument
+ELSE
+    #value := #filt;
+END_IF;
+
+// Delayed alarms: a 200 ms spike is noise; 3 s is real
+#tHi(IN := #value &gt; #hiLimit AND NOT #wireBreak, PT := #tAlarmDly);
+#tLo(IN := #value &lt; #loLimit AND NOT #wireBreak, PT := #tAlarmDly);
+#alarmHi := #tHi.Q;
+#alarmLo := #tLo.Q;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <div class="warn"><b>Why alarms are gated with NOT wireBreak</b>A broken wire reads as a huge negative value after scaling — without the gate, one broken sensor raises a nonsense low-alarm <em>and</em> the wire-break alarm, and the operator learns to ignore alarm floods. Alarm discipline starts one block above the terminal strip.</div>
+
+  <h3>The alarm manager</h3>
+  <p>Every machine needs one; almost nobody writes it well. The industry semantics (ISA-18 annunciator behavior, simplified): an alarm <strong>latches</strong> when its condition rises; the <strong>horn</strong> sounds until acknowledged; the <strong>indication</strong> stays until the condition is gone <em>and</em> it was acknowledged. Model one alarm as a UDT, manage the whole array in one loop:</p>
+  <figure class="code"><figcaption><span>UDT_Alarm + FB_AlarmMgr</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">TYPE "UDT_Alarm"
+STRUCT
+    raise  : Bool;   // condition, wired by the caller each scan
+    active : Bool;   // latched indication
+    acked  : Bool;
+END_STRUCT
+END_TYPE
+
+FUNCTION_BLOCK "FB_AlarmMgr"
+VAR_IN_OUT
+    alarms : Array[*] of "UDT_Alarm";   // any size (Ch. 9)
+END_VAR
+VAR_INPUT
+    ackAll : Bool;
+END_VAR
+VAR_OUTPUT
+    anyActive  : Bool;
+    anyUnacked : Bool;
+    horn       : Bool;
+END_VAR
+VAR
+    trigAck : R_TRIG;
+END_VAR
+VAR_TEMP
+    i, lo, hi : DInt;
+END_VAR
+
+BEGIN
+#trigAck(CLK := #ackAll);
+#anyActive := FALSE;
+#anyUnacked := FALSE;
+#lo := LOWER_BOUND(ARR := #alarms, DIM := 1);
+#hi := UPPER_BOUND(ARR := #alarms, DIM := 1);
+
+FOR #i := #lo TO #hi DO
+    IF #alarms[#i].raise THEN
+        IF NOT #alarms[#i].active THEN     // new occurrence
+            #alarms[#i].active := TRUE;
+            #alarms[#i].acked  := FALSE;
+        END_IF;
+    ELSIF #alarms[#i].acked THEN
+        #alarms[#i].active := FALSE;       // gone AND acked = clear
+    END_IF;
+    IF #trigAck.Q THEN
+        #alarms[#i].acked := TRUE;
+    END_IF;
+    #anyActive  := #anyActive  OR #alarms[#i].active;
+    #anyUnacked := #anyUnacked OR
+                   (#alarms[#i].active AND NOT #alarms[#i].acked);
+END_FOR;
+
+#horn := #anyUnacked;   // ack silences the horn; the lamp stays
+END_FUNCTION_BLOCK</pre>
+  </figure>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Both valve limit switches read TRUE simultaneously. The block should…</p>
+      <div class="opts"><button>Trust the open switch — it's usually right</button><button data-ok>Declare a wiring/hardware fault — the state is physically impossible</button><button>Average them</button></div>
+      <div class="why">Impossible sensor combinations are gold: they prove the <em>feedback</em> is lying, which no amount of control logic can fix. Fail loudly.</div>
+    </div>
+    <div class="q"><p>Acknowledging an alarm whose cause is still present should…</p>
+      <div class="opts"><button>Clear it from the display</button><button data-ok>Silence the horn but keep the indication until the cause is gone</button><button>Re-trigger it every scan</button></div>
+      <div class="why">Ack means "a human knows" — not "the problem is gone." Clearing indications on ack is how faults get forgotten with the machine still broken.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch19">
+  <div class="chnum">Chapter 19</div>
+  <h2>Cookbook II — Coordination patterns</h2>
+  <p>Device blocks answer "how do I run one thing safely." These three answer the next question: "how do I run several things <em>together</em>, over time, with operators involved."</p>
+
+  <h3>Duty / standby</h3>
+  <p>Two pumps, one job: alternate the duty pump on every start so wear splits evenly, and promote the standby automatically when the duty unit fails. The pattern is the Ch. 17 layering in miniature — this FB coordinates, the feedback supervision (Ch. 12) detects, and neither knows the other's internals. Lab 6 in the Playground grades exactly this logic, including a mid-run pump failure:</p>
+  <figure class="code"><figcaption><span>FB_DutyStandby — alternation + failover</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_DutyStandby"
+VAR_INPUT
+    demand  : Bool;      // "some pump should run" (e.g. hysteresis)
+    fbRunA  : Bool;
+    fbRunB  : Bool;
+    cmdReset: Bool;
+END_VAR
+VAR_OUTPUT
+    cmdA    : Bool;
+    cmdB    : Bool;
+    faultA  : Bool;
+    faultB  : Bool;
+END_VAR
+VAR
+    useA    : Bool;
+    trigDem : R_TRIG;
+    trigRst : R_TRIG;
+    tFA     : TON;
+    tFB     : TON;
+END_VAR
+
+BEGIN
+#trigDem(CLK := #demand);
+#trigRst(CLK := #cmdReset);
+
+// New demand: alternate duty - unless one unit is out
+IF #trigDem.Q THEN
+    IF #faultA THEN        #useA := FALSE;
+    ELSIF #faultB THEN     #useA := TRUE;
+    ELSE                   #useA := NOT #useA;
+    END_IF;
+END_IF;
+
+// Mid-run failover: the running unit just faulted
+IF #demand AND #useA AND #faultA THEN      #useA := FALSE; END_IF;
+IF #demand AND NOT #useA AND #faultB THEN  #useA := TRUE;  END_IF;
+
+#cmdA := #demand AND #useA AND NOT #faultA;
+#cmdB := #demand AND NOT #useA AND NOT #faultB;
+
+// Feedback supervision per unit (Ch. 12)
+#tFA(IN := #cmdA AND NOT #fbRunA, PT := T#2s);
+#tFB(IN := #cmdB AND NOT #fbRunB, PT := T#2s);
+IF #tFA.Q THEN #faultA := TRUE; END_IF;
+IF #tFB.Q THEN #faultB := TRUE; END_IF;
+
+IF #trigRst.Q THEN
+    #faultA := FALSE;  #faultB := FALSE;
+END_IF;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <p>A subtlety worth internalizing: a standby pump's failure is <em>invisible until you try it</em> — feedback supervision only runs while commanding. Real duty/standby systems therefore also alternate to <em>exercise</em> the standby regularly; a pump that hasn't run in a year is a pump you don't actually have.</p>
+
+  <h3>Pause and step mode for sequences</h3>
+  <p>The Ch. 11 machine runs; a <em>commissionable</em> machine also holds and single-steps. Operators demand pause; commissioning engineers demand "advance one transition per button press." Both are one gate applied to every transition — plus the discipline of freezing timers and parking outputs:</p>
+  <figure class="code"><figcaption><span>Additions to any CASE step machine</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">VAR_INPUT
+    pause    : Bool;    // hold: freeze the sequence, outputs safe
+    stepMode : Bool;    // commissioning: advance only on btnStep
+    btnStep  : Bool;
+END_VAR
+VAR
+    trigStep : R_TRIG;
+END_VAR
+VAR_TEMP
+    advance  : Bool;
+END_VAR
+
+BEGIN
+#trigStep(CLK := #btnStep);
+// The one gate: normal mode advances freely, step mode per press,
+// pause never
+#advance := NOT #pause AND (NOT #stepMode OR #trigStep.Q);
+
+CASE #step OF
+    #FILL:
+        IF #levelHigh AND #advance THEN  #step := #HEAT;  END_IF;
+    #HEAT:
+        IF #tempReached AND #advance THEN  #step := #MIX;  END_IF;
+    // ... every transition gets AND #advance
+END_CASE;
+
+// Pause must also freeze the step timer and park the actuators:
+#tStep(IN := (#step = #stepOld) AND NOT #pause
+         AND ((#step = #MIX) OR (#step = #DRAIN)), PT := ...);
+#stepOld := #step;
+
+#valveFill := (#step = #FILL) AND NOT #pause;
+#agitator  := ((#step = #HEAT) OR (#step = #MIX)) AND NOT #pause;</pre>
+  </figure>
+  <div class="warn"><b>Pause is three decisions, not one</b>Gating only the transitions gives you a sequence that stops <em>advancing</em> while the heater keeps <em>heating</em> and the dwell timer keeps <em>timing</em> — a paused machine that finishes its batch anyway. Decide all three explicitly: transitions (gate with <code>advance</code>), timers (gate the <code>IN</code>), outputs (gate with <code>NOT pause</code>). And decide per output — a cooling fan may deliberately keep running through pause.</div>
+
+  <h3>The ring-buffer logger</h3>
+  <p>Behind every "show me the last 100 readings" and "what happened before the trip" request. A fixed array, a wrapping index, timestamps from the CPU clock, and statistics — arrays, <code>MOD</code>, structs and event-driven work in one block:</p>
+  <figure class="code"><figcaption><span>UDT_LogEntry + FB_RingLogger</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">TYPE "UDT_LogEntry"
+STRUCT
+    stamp : DTL;
+    value : Real;
+END_STRUCT
+END_TYPE
+
+FUNCTION_BLOCK "FB_RingLogger"
+VAR_INPUT
+    sample  : Real;
+    trigger : Bool;        // rising edge stores one entry
+END_VAR
+VAR_OUTPUT
+    count   : Int;         // entries stored (saturates at 100)
+    newest  : Int;         // index of the most recent entry
+    minVal  : Real;
+    maxVal  : Real;
+    avgVal  : Real;
+END_VAR
+VAR
+    buf  : Array[0..99] of "UDT_LogEntry";
+    next : Int;
+    trig : R_TRIG;
+END_VAR
+VAR_TEMP
+    i   : Int;
+    sum : Real;
+    ret : Int;
+    now : DTL;
+END_VAR
+
+BEGIN
+#trig(CLK := #trigger);
+IF #trig.Q THEN
+    #ret := RD_LOC_T(OUT =&gt; #now);         // CPU local time
+    #buf[#next].stamp := #now;
+    #buf[#next].value := #sample;
+    #newest := #next;
+    #next := (#next + 1) MOD 100;          // the ring (Ch. 6)
+    IF #count &lt; 100 THEN  #count := #count + 1;  END_IF;
+
+    // Statistics only when an entry lands - event-driven, not per scan
+    #sum := 0.0;
+    #minVal := #buf[0].value;
+    #maxVal := #buf[0].value;
+    FOR #i := 0 TO #count - 1 DO
+        #sum    := #sum + #buf[#i].value;
+        #minVal := MIN(IN1 := #minVal, IN2 := #buf[#i].value);
+        #maxVal := MAX(IN1 := #maxVal, IN2 := #buf[#i].value);
+    END_FOR;
+    #avgVal := #sum / INT_TO_REAL(#count);
+END_IF;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <p>For serious capacity or scan-time budgets, keep a running sum instead of re-looping (add the new entry, subtract the overwritten one) — the upgrade is a good exercise once this version is understood.</p>
+
+  <div class="quiz"><div class="qhead">Check yourself</div>
+    <div class="q"><p>Why alternate the duty pump instead of always running A with B as backup?</p>
+      <div class="opts"><button>It's faster hydraulically</button><button data-ok>Even wear — and the standby gets exercised, so you know it actually works</button><button>To reduce power consumption</button></div>
+      <div class="why">A standby that never runs is unproven. Alternation halves wear <em>and</em> turns every second start into a test of the backup unit.</div>
+    </div>
+    <div class="q"><p>A pause input that only gates the CASE transitions will…</p>
+      <div class="opts"><button>Pause the machine correctly</button><button data-ok>Freeze the step number while outputs and timers carry on — the batch finishes itself</button><button>Reset the sequence</button></div>
+      <div class="why">Pause is three decisions: transitions, timers, outputs. Gate all three, deliberately, per output.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch20">
+  <div class="chnum">Chapter 20</div>
   <h2>Pitfalls &amp; debugging</h2>
 
   <h3>The greatest hits</h3>
@@ -2045,8 +2402,8 @@ END_IF;</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch19">
-  <div class="chnum">Chapter 19</div>
+<section class="ch" id="ch21">
+  <div class="chnum">Chapter 21</div>
   <h2>Quick reference</h2>
   <p style="margin-top:-.4rem"><button type="button" class="pg-btn alt" id="printcard">Print this card</button></p>
   <p>The whole language on one screen — for the moment on site when you know exactly what you want and just need the spelling.</p>
@@ -2104,8 +2461,8 @@ INT#42  REAL#1.0  WORD#16#00FF       // typed when ambiguous</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch20">
-  <div class="chnum">Chapter 20</div>
+<section class="ch" id="ch22">
+  <div class="chnum">Chapter 22</div>
   <h2>Exercises</h2>
   <p>Do these in order, in PLCSIM. Write the block, wire a small test OB, watch it run. Solutions fold out — but struggle first; the struggle is the course.</p>
 
@@ -2267,8 +2624,8 @@ END_IF;</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch21">
-  <div class="chnum">Chapter 21</div>
+<section class="ch" id="ch23">
+  <div class="chnum">Chapter 23</div>
   <h2>Final exam</h2>
   <p>Twenty questions across the whole manual. Answer them all; your score appears below and your best run is remembered in this browser. No time limit — but no peeking either. Aim for 18+ before calling yourself fluent.</p>
 
@@ -2363,8 +2720,8 @@ END_IF;</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch22">
-  <div class="chnum">Chapter 22</div>
+<section class="ch" id="ch24">
+  <div class="chnum">Chapter 24</div>
   <h2>Roadmap &amp; resources</h2>
 
   <h3>A realistic mastery path</h3>
@@ -2374,7 +2731,8 @@ END_IF;</pre>
     <li><strong>Month 2 — Sequences.</strong> Chapter 11 until step machines are reflex — including the shared-step-timer trap. Do exercises 4 and 6.</li>
     <li><strong>Month 3 — Library thinking &amp; loops.</strong> Chapters 12–13; build your personal device library (motor, valve, analog channel, PI wrapper) and reuse it in the next project.</li>
     <li><strong>Month 4 — Systems.</strong> Chapters 14–17: comms, interrupt design, and program architecture. Then the capstone exercise — a complete small machine in PLCSIM, layered as Chapter 17 preaches.</li>
-    <li><strong>Checkpoint —</strong> the <a href="#ch21">final exam</a>, cold. 18+ out of 20 and the fundamentals are yours.</li>
+    <li><strong>Month 5 — The cookbook.</strong> Chapters 18–19: rebuild each pattern from memory on the trainer, then take Playground labs 5 and 6 — the level crossing and the pump failover are exactly these patterns, under grading.</li>
+    <li><strong>Checkpoint —</strong> the <a href="#ch23">final exam</a>, cold. 18+ out of 20 and the fundamentals are yours.</li>
     <li><strong>Ongoing —</strong> read other people's code (open-source S7 projects, Siemens application examples), and study the official <em>Programming Styleguide</em> — consistency is what separates a library from a pile of blocks.</li>
   </ul>
 
@@ -2382,6 +2740,7 @@ END_IF;</pre>
   <ul>
     <li><a href="https://support.industry.siemens.com/cs/document/109478084" rel="noopener">Siemens <strong>Programming Guideline for S7-1200/1500</strong></a> — the document professional SCL style is built on.</li>
     <li><a href="https://support.industry.siemens.com/cs/document/109756737" rel="noopener">Siemens <strong>Programming Styleguide</strong></a> — naming conventions (the <code>FB_</code>/<code>UDT_</code> prefixes used here follow it).</li>
+    <li><a href="https://support.industry.siemens.com/cs/document/109479728" rel="noopener">Siemens <strong>LGF — Library of General Functions</strong></a> — a free library of professional SCL blocks. Read their valve and analog blocks against Chapter 18's; the comparison is a masterclass.</li>
     <li><a href="https://support.industry.siemens.com" rel="noopener"><strong>SIOS</strong> (Siemens Industry Online Support)</a> — application examples with downloadable, readable SCL source; searching "SCL application example" is a course in itself.</li>
     <li>TIA Portal's built-in help: press <strong>F1 on any keyword or instruction</strong> — the SCL instruction reference is genuinely good.</li>
     <li><strong>PLCSIM / PLCSIM Advanced</strong> — your simulator; PLCSIM Advanced additionally exposes an API for co-simulation.</li>
@@ -3235,11 +3594,12 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLVM;
 
 function createTrainScene() {
   var TRACK = 100, A = 12, B = 88, ZONE = 2.5;
+  var CROSS = 50, OCC = 6, APPR = 25, GATE_RATE = 0.5;
   var VMAX = 4.0, ACC = 1.6, BRK = 3.2, DOOR_RATE = 0.4, CRASH_V = 0.5;
   var st = {
-    pos: A, v: 0, door: 0,
-    crashed: false, doorViolation: false,
-    A: A, B: B, ZONE: ZONE, TRACK: TRACK
+    pos: A, v: 0, door: 0, gate: 0,
+    crashed: false, doorViolation: false, crossingViolation: false,
+    A: A, B: B, ZONE: ZONE, TRACK: TRACK, CROSS: CROSS
   };
   return {
     id: "train",
@@ -3250,6 +3610,10 @@ function createTrainScene() {
         atB: Math.abs(st.pos - B) <= ZONE,
         doorsClosed: st.door <= 0.05,
         doorsOpen: st.door >= 0.95,
+        occupied: Math.abs(st.pos - CROSS) <= OCC,
+        approaching: Math.abs(st.pos - CROSS) <= APPR,
+        gateClosed: st.gate >= 0.95,
+        gateOpen: st.gate <= 0.05,
         speed: st.v
       };
     },
@@ -3270,6 +3634,42 @@ function createTrainScene() {
       if (st.door < 0) st.door = 0;
       if (st.door > 1) st.door = 1;
       if (st.door > 0.08 && Math.abs(st.v) > 0.2) st.doorViolation = true;
+      // level-crossing gate: gateCmd TRUE = close (gate 1 = fully closed)
+      st.gate += ((!!out.gateCmd) ? GATE_RATE : -GATE_RATE) * dt;
+      if (st.gate < 0) st.gate = 0;
+      if (st.gate > 1) st.gate = 1;
+      if (Math.abs(st.pos - CROSS) <= OCC && st.gate < 0.95) st.crossingViolation = true;
+    }
+  };
+}
+
+function createDualTankScene() {
+  var LMAX = 2.0, PUMP_RATE = 0.09, OUT_RATE = 0.05, FAULT_AT = 100;
+  var st = { level: 1.0, t: 0, aFaulted: false, fbA: false, fbB: false,
+             overflowed: false, ranDry: false, LMAX: LMAX, FAULT_AT: FAULT_AT };
+  return {
+    id: "tank2",
+    state: st,
+    sensors: function () {
+      return {
+        level: st.level,
+        levelLow: st.level <= 0.4,
+        levelHigh: st.level >= 1.6,
+        fbRunA: st.fbA,
+        fbRunB: st.fbB
+      };
+    },
+    step: function (out, dt) {
+      st.t += dt;
+      if (st.t >= FAULT_AT) st.aFaulted = true;   // pump A trips mid-run
+      st.fbA = !!out.pumpA && !st.aFaulted;
+      st.fbB = !!out.pumpB;
+      var inflow = (st.fbA ? PUMP_RATE : 0) + (st.fbB ? PUMP_RATE : 0);
+      var outflow = st.level > 0 ? OUT_RATE : 0;
+      st.level += (inflow - outflow) * dt;
+      if (st.level >= LMAX) { st.level = LMAX; st.overflowed = true; }
+      if (st.level <= 0) { st.level = 0; }
+      if (st.level <= 0.02) st.ranDry = true;
     }
   };
 }
@@ -3298,7 +3698,7 @@ function createTankScene() {
   };
 }
 
-var SCLScenes = { train: createTrainScene, tank: createTankScene };
+var SCLScenes = { train: createTrainScene, tank: createTankScene, tank2: createDualTankScene };
 global.SCLScenes = SCLScenes;
 if (typeof module !== "undefined" && module.exports) module.exports = SCLScenes;
 })(typeof window !== "undefined" ? window : globalThis);
@@ -3470,6 +3870,134 @@ var LABS = [
       { label: "Doors never move while the train moves",
         onScan: function () {},
         result: function (scene) { return { pass: !scene.state.doorViolation, msg: scene.state.doorViolation ? "Door-safety violation." : "" }; } }
+    ];
+  }
+},
+
+{
+  id: "crossing",
+  title: "Lab 5 · Level crossing",
+  scene: "train",
+  duration: 90,
+  brief: "<b>Task</b>: there is a road crossing the track at the halfway point. Extend your Lab 3 station-stop machine with " +
+    "crossing protection: close the gate (<code>gateCmd</code>) and switch on the warning lamps (<code>lampsCmd</code>) " +
+    "before the train reaches the crossing, keep them until it has cleared, then release the road. " +
+    "Sensors: <code>approaching</code> (±25 m of the crossing) and <code>occupied</code> (±6 m). " +
+    "The gate takes 2 s to travel — the grader demands it fully closed at least 0.8 s before the train arrives, " +
+    "lamps on whenever the gate is not fully open, and everything released at the end. " +
+    "The starter is a working Lab 3 solution: only the crossing logic is missing.",
+  starter:
+"VAR_INPUT\n    atA         : Bool;\n    atB         : Bool;\n    doorsClosed : Bool;\n    doorsOpen   : Bool;\n    btnGo       : Bool;\n    speed       : Real;\n    approaching : Bool;   // within 25 m of the crossing\n    occupied    : Bool;   // train on the crossing\n    gateClosed  : Bool;\n    gateOpen    : Bool;\nEND_VAR\nVAR_OUTPUT\n    driveFwd    : Bool;\n    driveRev    : Bool;\n    doorsCmd    : Bool;\n    gateCmd     : Bool;   // TRUE = close the gate\n    lampsCmd    : Bool;   // road warning lamps\nEND_VAR\nVAR\n    step    : Int;\n    stepOld : Int;\n    tDwell  : TON;\n    trigGo  : R_TRIG;\nEND_VAR\n\nBEGIN\ntrigGo(CLK := btnGo);\n\nCASE step OF\n    0:  IF trigGo.Q THEN step := 10; END_IF;\n    10: IF atB THEN step := 20; END_IF;\n    20: IF ABS(speed) < 0.05 THEN step := 30; END_IF;\n    30: IF doorsOpen THEN step := 40; END_IF;\n    40: IF tDwell.Q THEN step := 50; END_IF;\n    50: IF doorsClosed THEN step := 60; END_IF;\n    60: ;\n    ELSE step := 0;\nEND_CASE;\n\ntDwell(IN := (step = stepOld) AND (step = 40), PT := T#5s);\nstepOld := step;\n\ndriveFwd := step = 10;\ndriveRev := FALSE;\ndoorsCmd := (step = 30) OR (step = 40);\n\n// TODO crossing protection: derive gateCmd and lampsCmd\n// from approaching / occupied / gateOpen.\ngateCmd  := FALSE;\nlampsCmd := FALSE;\n",
+  required: {
+    inputs: [["atA","B"],["atB","B"],["doorsClosed","B"],["doorsOpen","B"],["btnGo","B"],["speed","R"],
+             ["approaching","B"],["occupied","B"],["gateClosed","B"],["gateOpen","B"]],
+    outputs: [["driveFwd","B"],["driveRev","B"],["doorsCmd","B"],["gateCmd","B"],["lampsCmd","B"]]
+  },
+  controls: [{ name: "btnGo", label: "Dispatch (btnGo)" }],
+  events: [
+    { t: 2.0, name: "btnGo", v: true },
+    { t: 2.4, name: "btnGo", v: false }
+  ],
+  checks: function () {
+    var arrived = false, lampViol = false, gateCloseT = -1, occT = -1, lead = -1;
+    var prevClosed = false, prevOcc = false, endGateOpen = false, endLampsOff = false;
+    return [
+      { label: "Gate is closed whenever the train is on the crossing",
+        onScan: function () {},
+        result: function (scene) { return { pass: !scene.state.crossingViolation, msg: scene.state.crossingViolation ? "The train entered the crossing with the gate open." : "" }; } },
+      { label: "Gate fully closed at least 0.8 s before the train arrives",
+        onScan: function (t, io, scene, sen) {
+          if (sen.gateClosed && !prevClosed) gateCloseT = t;
+          if (sen.occupied && !prevOcc && occT < 0) { occT = t; lead = gateCloseT >= 0 ? t - gateCloseT : -1; }
+          prevClosed = sen.gateClosed; prevOcc = sen.occupied;
+        },
+        result: function () {
+          if (occT < 0) return { pass: false, msg: "The train never reached the crossing." };
+          return { pass: lead >= 0.8, msg: lead >= 0.8 ? "" : "Gate closed only " + (lead < 0 ? "after arrival" : lead.toFixed(1) + " s before arrival") + "." };
+        } },
+      { label: "Lamps on whenever the gate is not fully open",
+        onScan: function (t, io, scene) { if (scene.state.gate > 0.15 && !io.lampsCmd) lampViol = true; },
+        result: function () { return { pass: !lampViol, msg: lampViol ? "Warning lamps were off while the gate was moving or closed." : "" }; } },
+      { label: "Road released at the end (gate open, lamps off)",
+        onScan: function (t, io, scene, sen) { endGateOpen = sen.gateOpen; endLampsOff = !io.lampsCmd; },
+        result: function () { return { pass: endGateOpen && endLampsOff, msg: (endGateOpen && endLampsOff) ? "" : "The run ended with the road still blocked." }; } },
+      { label: "Arrives and stops at Station B",
+        onScan: function (t, io, scene, sen) { if (sen.atB && Math.abs(scene.state.v) < 0.05) arrived = true; },
+        result: function () { return { pass: arrived, msg: arrived ? "" : "The train never stopped at Station B." }; } },
+      { label: "No crash, doors never move while moving",
+        onScan: function () {},
+        result: function (scene) {
+          var ok = !scene.state.crashed && !scene.state.doorViolation;
+          return { pass: ok, msg: ok ? "" : (scene.state.crashed ? "Buffer collision." : "Door-safety violation.") };
+        } }
+    ];
+  }
+},
+
+{
+  id: "dutystandby",
+  title: "Lab 6 · Duty / standby pumps",
+  scene: "tank2",
+  duration: 240,
+  brief: "<b>Task</b>: two identical pumps (A and B, 0.09 m/s each) feed the tank against a 0.05 m/s process draw. " +
+    "Run <b>one pump at a time</b> with your Lab 2 hysteresis, but <b>alternate the duty pump on every new start</b> " +
+    "to balance wear. Each pump has a run feedback (<code>fbRunA</code>/<code>fbRunB</code>) — supervise it (Ch. 12): " +
+    "commanded but no feedback for 2 s means the pump has failed. " +
+    "<b>At t = 100 s the grader kills pump A.</b> Detect it, stop commanding A, and let B carry the load — " +
+    "the level must stay in band through the whole 4 minutes.",
+  starter:
+"VAR_INPUT\n    level    : Real;\n    levelLow : Bool;\n    levelHigh: Bool;\n    fbRunA   : Bool;\n    fbRunB   : Bool;\nEND_VAR\nVAR_OUTPUT\n    pumpA    : Bool;\n    pumpB    : Bool;\nEND_VAR\nVAR\n    demand   : Bool;\n    useA     : Bool;\n    faultA   : Bool;\n    faultB   : Bool;\n    trigDem  : R_TRIG;\n    tFA      : TON;\n    tFB      : TON;\nEND_VAR\n\nBEGIN\n// 1) demand: hysteresis on level (Lab 2)\n// 2) on each rising edge of demand: toggle useA (skip a faulted pump)\n// 3) command exactly one healthy pump while demand is TRUE\n// 4) supervise: commanded AND NOT feedback for 2 s -> fault\npumpA := level < 1.0;   // <- naive. Replace with the duty/standby logic!\npumpB := FALSE;\n",
+  required: {
+    inputs: [["level","R"],["fbRunA","B"],["fbRunB","B"]],
+    outputs: [["pumpA","B"],["pumpB","B"]]
+  },
+  events: [],
+  checks: function () {
+    var maxL = -1, minL = 99, minAfter = 99, bRanAfter = false, curA = 0, longA = 0;
+    var starts = [], prevA = false, prevB = false, altOK = true;
+    return [
+      { label: "Level stays in band the whole run (0.22 – 1.88 m)",
+        onScan: function (t, io, scene) {
+          var L = scene.state.level;
+          if (L > maxL) maxL = L;
+          if (L < minL) minL = L;
+        },
+        result: function () {
+          var ok = maxL < 1.88 && minL > 0.22;
+          return { pass: ok, msg: ok ? "" : "Level range was " + minL.toFixed(2) + " – " + maxL.toFixed(2) + " m." };
+        } },
+      { label: "Duty alternates between A and B before the fault (≥ 3 starts)",
+        onScan: function (t, io) {
+          if (t < 100) {
+            if (io.pumpA && !prevA) starts.push("A");
+            if (io.pumpB && !prevB) starts.push("B");
+          }
+          prevA = io.pumpA; prevB = io.pumpB;
+        },
+        result: function () {
+          for (var i = 1; i < starts.length; i++) if (starts[i] === starts[i - 1]) altOK = false;
+          var ok = starts.length >= 3 && altOK;
+          return { pass: ok, msg: ok ? "" : "Starts before the fault: [" + starts.join(", ") + "] — need ≥3, strictly alternating." };
+        } },
+      { label: "A's failure is supervised: after t = 110 s, A is never commanded more than 2.6 s at a stretch",
+        onScan: function (t, io) {
+          if (t > 110) {
+            if (io.pumpA) { curA += 0.05; if (curA > longA) longA = curA; }
+            else curA = 0;
+          }
+        },
+        result: function () { return { pass: longA <= 2.6, msg: longA <= 2.6 ? "" : "pumpA was commanded " + longA.toFixed(1) + " s continuously with no feedback — supervision missing." }; } },
+      { label: "Standby B carries the load after the fault",
+        onScan: function (t, io, scene, sen) {
+          if (t > 105) {
+            if (scene.state.level < minAfter) minAfter = scene.state.level;
+            if (sen.fbRunB) bRanAfter = true;
+          }
+        },
+        result: function () {
+          var ok = bRanAfter && minAfter > 0.25;
+          return { pass: ok, msg: ok ? "" : (bRanAfter ? "Level fell to " + minAfter.toFixed(2) + " m after the fault." : "Pump B never ran after the fault.") };
+        } }
     ];
   }
 }
@@ -3982,6 +4510,22 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
         svg.appendChild(lamp);
         if (p[0] === "A") lampA = lamp; else lampB = lamp;
       });
+      // level crossing at the midpoint
+      var rx = xOf(st.CROSS);
+      svg.appendChild(E("rect", { x: rx - 11, y: 62, width: 22, height: 108 },
+                       { fill: "var(--amber-soft)" }));
+      var roadLbl = E("text", { x: rx, y: 56, "text-anchor": "middle", "font-size": 10 },
+                      { fill: "var(--faint)", fontFamily: "Saira, sans-serif", letterSpacing: ".08em" });
+      roadLbl.textContent = "ROAD";
+      svg.appendChild(roadLbl);
+      var lampR1 = E("circle", { cx: rx - 19, cy: 70, r: 4 }, { fill: "var(--line)" });
+      var lampR2 = E("circle", { cx: rx + 19, cy: 70, r: 4 }, { fill: "var(--line)" });
+      svg.appendChild(lampR1); svg.appendChild(lampR2);
+      svg.appendChild(E("rect", { x: rx - 26, y: 74, width: 6, height: 12, rx: 1 }, { fill: "var(--muted)" }));
+      var gateArm = E("line", { x1: rx - 22, y1: 78, x2: rx + 9, y2: 78 },
+                      { stroke: "var(--bad)", strokeWidth: "4", strokeLinecap: "round" });
+      svg.appendChild(gateArm);
+      var lastLamps = false;
       // train
       var g = E("g", {});
       var body = E("rect", { x: -32, y: 102, width: 64, height: 34, rx: 6 }, { fill: "var(--accent)" });
@@ -4004,15 +4548,23 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
       var alarm = E("text", { x: 940, y: 24, "text-anchor": "end", "font-size": 12 },
                     { fill: "var(--bad)", fontFamily: "Saira, sans-serif", fontWeight: "700", letterSpacing: ".1em" });
       svg.appendChild(alarm);
-      return { el: svg, update: function () {
+      return { el: svg, update: function (io) {
         g.setAttribute("transform", "translate(" + xOf(st.pos).toFixed(1) + ",0)");
         doorL.setAttribute("x", -8 - st.door * 8);
         doorR.setAttribute("x", st.door * 8);
         var sen = scene.sensors();
         lampA.style.fill = sen.atA ? "var(--good)" : "var(--line)";
         lampB.style.fill = sen.atB ? "var(--good)" : "var(--line)";
-        info.textContent = "v = " + st.v.toFixed(1) + " m/s   pos = " + st.pos.toFixed(1) + " m   door = " + Math.round(st.door * 100) + "%";
-        alarm.textContent = st.crashed ? "BUFFER COLLISION" : (st.doorViolation ? "DOOR FAULT" : "");
+        gateArm.setAttribute("transform",
+          "rotate(" + (-78 * (1 - st.gate)).toFixed(1) + " " + (rx - 22) + " 78)");
+        if (io) lastLamps = !!io.lampsCmd;
+        var phase = Math.floor(Date.now() / 400) % 2 === 0;  // wig-wag flash
+        lampR1.style.fill = lastLamps ? (phase ? "var(--bad)" : "var(--line)") : "var(--line)";
+        lampR2.style.fill = lastLamps ? (phase ? "var(--line)" : "var(--bad)") : "var(--line)";
+        info.textContent = "v = " + st.v.toFixed(1) + " m/s   pos = " + st.pos.toFixed(1) + " m   door = " + Math.round(st.door * 100) + "%   gate = " + Math.round(st.gate * 100) + "%";
+        alarm.textContent = st.crashed ? "BUFFER COLLISION"
+          : (st.doorViolation ? "DOOR FAULT"
+          : (st.crossingViolation ? "CROSSING FAULT" : ""));
       } };
     }
 
@@ -4073,7 +4625,56 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
         alarm.textContent = st.overflowed ? "OVERFLOW" : (st.ranDry ? "RAN DRY" : "");
       } };
     }
-    var RENDERERS = { train: trainRenderer, tank: tankRenderer };
+    function dualTankRenderer(scene) {
+      var st = scene.state;
+      var svg = E("svg", { viewBox: "0 0 960 190", role: "img", "aria-label": "Dual-pump tank scene" });
+      var TX = 390, TW = 180, TY = 24, TH = 136;
+      var pumps = {};
+      [["A", 44], ["B", 96]].forEach(function (p) {
+        svg.appendChild(E("rect", { x: 256, y: p[1] - 4, width: 134, height: 8 }, { fill: "var(--line)" }));
+        var c = E("circle", { cx: 240, cy: p[1], r: 16 }, { fill: "var(--line)" });
+        svg.appendChild(c);
+        var ring = E("circle", { cx: 240, cy: p[1], r: 20 },
+                     { fill: "none", stroke: "transparent", strokeWidth: "3" });
+        svg.appendChild(ring);
+        var t = E("text", { x: 240, y: p[1] + 5, "text-anchor": "middle", "font-size": 13 },
+                  { fill: "var(--surface)", fontFamily: "Saira, sans-serif", fontWeight: "700" });
+        t.textContent = p[0];
+        svg.appendChild(t);
+        pumps[p[0]] = { c: c, ring: ring };
+      });
+      svg.appendChild(E("rect", { x: TX + TW - 4, y: 150, width: 140, height: 8 }, { fill: "var(--line)" }));
+      var outLbl = E("text", { x: TX + TW + 144, y: 172, "text-anchor": "end", "font-size": 11 },
+                     { fill: "var(--faint)", fontFamily: "IBM Plex Mono, monospace" });
+      outLbl.textContent = "process draw 0.05 m/s";
+      svg.appendChild(outLbl);
+      var liquid = E("rect", { x: TX + 3, y: 0, width: TW - 6, height: 0 }, { fill: "var(--accent)", opacity: ".55" });
+      svg.appendChild(liquid);
+      svg.appendChild(E("rect", { x: TX, y: TY, width: TW, height: TH, rx: 6 },
+                       { fill: "none", stroke: "var(--muted)", strokeWidth: "3" }));
+      var info = E("text", { x: TX + TW / 2, y: 105, "text-anchor": "middle", "font-size": 16 },
+                   { fill: "var(--ink)", fontFamily: "IBM Plex Mono, monospace" });
+      svg.appendChild(info);
+      var alarm = E("text", { x: 940, y: 24, "text-anchor": "end", "font-size": 12 },
+                    { fill: "var(--bad)", fontFamily: "Saira, sans-serif", fontWeight: "700", letterSpacing: ".1em" });
+      svg.appendChild(alarm);
+      var clock = E("text", { x: 20, y: 24, "font-size": 12 },
+                    { fill: "var(--muted)", fontFamily: "IBM Plex Mono, monospace" });
+      svg.appendChild(clock);
+      return { el: svg, update: function () {
+        var h = (st.level / st.LMAX) * (TH - 6);
+        liquid.setAttribute("height", h.toFixed(1));
+        liquid.setAttribute("y", (TY + TH - 3 - h).toFixed(1));
+        pumps.A.c.style.fill = st.fbA ? "var(--good)" : "var(--line)";
+        pumps.B.c.style.fill = st.fbB ? "var(--good)" : "var(--line)";
+        pumps.A.ring.style.stroke = st.aFaulted ? "var(--bad)" : "transparent";
+        info.textContent = st.level.toFixed(2) + " m";
+        clock.textContent = "t = " + st.t.toFixed(0) + " s" +
+          (st.aFaulted ? "  ·  PUMP A TRIPPED" : "  ·  pump A trips at t = " + st.FAULT_AT + " s");
+        alarm.textContent = st.overflowed ? "OVERFLOW" : (st.ranDry ? "RAN DRY" : "");
+      } };
+    }
+    var RENDERERS = { train: trainRenderer, tank: tankRenderer, tank2: dualTankRenderer };
 
     /* ---------- lab management ---------- */
     var LKEY = "sclfm-labs";
