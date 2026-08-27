@@ -713,6 +713,108 @@
     color: var(--faint); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem;
   }
 
+  /* ---------- academy dashboard ---------- */
+  .dash-top {
+    display: flex; flex-wrap: wrap; gap: 1.6rem; align-items: center;
+    margin: 1.2rem 0 1.6rem; max-width: 54rem;
+  }
+  .dash-ring { width: 132px; flex-shrink: 0; }
+  .dash-ring svg { width: 100%; height: auto; }
+  .ring-bg { fill: none; stroke: var(--line); stroke-width: 10; }
+  .ring-fg {
+    fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 60px 60px;
+    transition: stroke-dashoffset .5s ease;
+  }
+  @media (prefers-reduced-motion: reduce) { .ring-fg { transition: none; } }
+  .ring-pct {
+    fill: var(--ink); font-family: "Saira", sans-serif; font-weight: 700;
+    font-size: 26px; font-variant-numeric: tabular-nums;
+  }
+  .dash-stats {
+    flex: 1; min-width: 16rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .7rem 1.2rem;
+  }
+  .dash-stat { display: flex; flex-direction: column; }
+  .dash-stat .k {
+    font-family: "Saira", sans-serif; font-weight: 700; font-size: 1.15rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .dash-stat .l {
+    font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  }
+  .dash-resume {
+    grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+    margin-top: .3rem;
+  }
+  .dash-resume .res-l {
+    font-family: "Saira", sans-serif; font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .dash-resume a { text-decoration: none; }
+  .modules {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: .9rem; max-width: 62rem; margin: 1.2rem 0;
+  }
+  .module {
+    border: 1px solid var(--line); border-top: 3px solid var(--line);
+    border-radius: 8px; background: var(--surface); padding: .8rem .95rem 1rem;
+    display: flex; flex-direction: column;
+  }
+  .module.active { border-top-color: var(--accent); }
+  .module.done { border-top-color: var(--good); }
+  .mod-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+  .mod-n {
+    font-family: "Saira", sans-serif; font-size: .7rem; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent);
+  }
+  .mod-status {
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; color: var(--faint);
+  }
+  .module.done .mod-status { color: var(--good); }
+  .mod-title { font-size: 1.05rem; margin: .3rem 0 .35rem; }
+  .mod-title a { color: var(--ink); text-decoration: none; }
+  .mod-title a:hover { color: var(--accent); }
+  .mod-blurb { font-size: .84rem; color: var(--muted); margin: 0 0 .7rem; flex: 1; }
+  .mod-bar { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .mod-bar i { display: block; height: 100%; background: var(--accent); }
+  .module.done .mod-bar i { background: var(--good); }
+  .mod-meta {
+    display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin-top: .55rem;
+    font-family: "IBM Plex Mono", monospace; font-size: .7rem; color: var(--faint);
+  }
+  .mod-meta a { text-decoration: none; color: inherit; }
+  .mod-meta .cp-ok a { color: var(--good); }
+  .mod-meta .cp-no a { color: var(--amber); }
+  .dash-note { font-size: .85rem; color: var(--muted); max-width: 54rem; }
+  .dash-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 0; }
+
+  /* checkpoints */
+  .quiz.checkpoint { border-left: 4px solid var(--amber); }
+  .quiz.checkpoint .qhead { color: var(--amber); }
+  .cp-blurb { font-size: .88rem; color: var(--muted); margin: 0; }
+  .cp-foot {
+    display: flex; flex-wrap: wrap; gap: .8rem; align-items: center;
+    margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid var(--line);
+  }
+  .cp-result {
+    flex: 1; font-family: "Saira", sans-serif; font-weight: 600; font-size: .85rem;
+    letter-spacing: .06em; color: var(--muted);
+  }
+  .cp-result.ok { color: var(--good); }
+  .cp-result.no { color: var(--amber); }
+
+  /* study record */
+  .record { display: none; }
+  .record-name { font-size: .9rem; }
+  .record-name input {
+    font: inherit; padding: .3rem .5rem; margin-left: .5rem;
+    border: 1px solid var(--line); border-radius: 5px;
+    background: var(--bg); color: var(--ink);
+  }
+  .record-who { font-family: "Saira", sans-serif; font-size: 1.4rem; font-weight: 700; margin: .2rem 0; }
+  .record-fine { font-size: .75rem; color: var(--muted); max-width: 40rem; }
+
   /* ---------- drill deck ---------- */
   .drill { max-width: 54rem; margin: 1.2rem 0 2rem; }
   .drill-bar {
@@ -777,6 +879,17 @@
   html.print-quickref main > section.ch:not(#ch24),
   html.print-quickref header.hero,
   html.print-quickref #mobile-toc { display: none !important; }
+  html.print-record main > section.ch:not(#academy),
+  html.print-record header.hero,
+  html.print-record #mobile-toc,
+  html.print-record .dash-top,
+  html.print-record .modules,
+  html.print-record .dash-note,
+  html.print-record .dash-actions,
+  html.print-record .record-name { display: none !important; }
+  html.print-record .record { display: block !important; }
+  html.print-record #academy > .chnum,
+  html.print-record #academy > h2 { display: none !important; }
 </style>
 </head>
 <body>
@@ -792,6 +905,7 @@
     <button type="button" class="themebtn" id="themebtn" aria-label="Switch color theme">Theme: Auto</button>
   </div>
   <ul class="searchres" id="searchres" hidden></ul>
+  <a href="#academy"><span class="n">◈</span>Dashboard</a>
   <a href="#lab"><span class="n">▶</span>The Playground</a>
   <div class="grp">I · Foundations</div>
   <a href="#ch1"><span class="n">01</span>Why SCL</a>
@@ -848,7 +962,7 @@
   </div>
   <div class="eyebrow">Structured Control Language · IEC 61131-3</div>
   <h1>SCL Field<br>Manual <span class="thin">/ TIA Portal</span></h1>
-  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Run real SCL in the built-in playground against animated machines, work a complete plant from spec to commissioning, drill the syntax until it sticks, and import the companion source files straight into TIA Portal. Progress is remembered in this browser.</p>
+  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Seven modules with checkpoints, six graded labs on animated machines, a complete plant walked from spec to commissioning, a drill deck for the syntax, and companion sources you import straight into TIA Portal. The <a href="#academy">dashboard</a> tracks where you are; everything is stored in this browser only.</p>
   <div class="specs">
     <span>TARGET <b>S7-1200 / S7-1500</b></span>
     <span>IDE <b>TIA Portal V17+</b></span>
@@ -857,6 +971,45 @@
   </div>
 </header>
 
+<!-- ================================================================ -->
+<section class="ch" id="academy">
+  <div class="chnum">Your programme</div>
+  <h2>Dashboard</h2>
+  <div class="dash-top">
+    <div class="dash-ring">
+      <svg viewBox="0 0 120 120" role="img" aria-labelledby="dash-ring-label">
+        <title id="dash-ring-label">Overall completion</title>
+        <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+        <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52"></circle>
+        <text class="ring-pct" id="ring-pct" x="60" y="60" text-anchor="middle" dominant-baseline="central">0%</text>
+      </svg>
+    </div>
+    <div class="dash-stats">
+      <div class="dash-stat"><span class="k" id="stat-ch">0 / 27</span><span class="l">Chapters read</span></div>
+      <div class="dash-stat"><span class="k" id="stat-cp">0 / 7</span><span class="l">Checkpoints passed</span></div>
+      <div class="dash-stat"><span class="k" id="stat-lab">0 / 6</span><span class="l">Labs passed</span></div>
+      <div class="dash-stat"><span class="k" id="stat-exam">—</span><span class="l">Final exam best</span></div>
+      <div class="dash-stat"><span class="k" id="stat-drill">—</span><span class="l">Drill cards due</span></div>
+      <div class="dash-resume" id="dash-resume"></div>
+    </div>
+  </div>
+  <div class="modules" id="modules"></div>
+  <p class="dash-note">Progress is counted across 27 chapters, 7 checkpoints, 6 labs and the final exam — 41 milestones in all. Nothing is locked: the “next up” marker is a suggested route, not a gate, so you can always jump to whatever you need at the machine. Everything is stored in this browser only.</p>
+  <div class="dash-actions">
+    <button type="button" class="pg-btn alt" id="record-btn">Print study record</button>
+    <button type="button" class="pg-btn alt" id="dash-reset">Reset all progress</button>
+  </div>
+
+  <div class="record" id="record">
+    <h3 class="record-h">SCL Field Manual — personal study record</h3>
+    <p class="record-name">
+      <label for="record-who">Name for the record (optional, stays in this browser):</label>
+      <input type="text" id="record-who" placeholder="Your name" autocomplete="name">
+    </p>
+    <div id="record-body"></div>
+    <p class="record-fine">This is a self-issued study record generated from progress stored in the learner’s own browser. It records self-directed study of this manual. It is not a qualification, is not verified by anyone, and is not issued, accredited or endorsed by Siemens AG or any other organisation.</p>
+  </div>
+</section>
 <!-- ================================================================ -->
 <section class="ch" id="lab">
   <div class="chnum">The Lab</div>
@@ -1065,6 +1218,28 @@ BEGIN
       <div class="opts"><button>The timer gets its own separate DB</button><button data-ok>The timer's data lives inside the parent FB's instance DB</button><button>The timer resets every scan</button></div>
       <div class="why">One device FB, one DB — the parent's instance DB contains all embedded instances. This is what keeps a 40-motor project at 40 DBs instead of 200.</div>
     </div>
+  </div>
+
+  <div class="quiz checkpoint" id="cp1" data-cp="1" data-pass="3">
+    <div class="qhead">Checkpoint I · Foundations</div>
+    <p class="cp-blurb">Four questions on Chapters 1–3. Three correct to pass.</p>
+    <div class="q"><p>You must average sixty analog samples every second and record which zone was hottest. Ladder or SCL?</p>
+      <div class="opts"><button data-ok>SCL — loops over arrays are exactly what text handles and ladder does not</button><button>Ladder — maintenance can troubleshoot it live</button><button>Either; the effort is the same</button></div>
+      <div class="why">This is the canonical SCL case. Keep ladder for the interlock chains electricians trace at 3 a.m.</div>
+    </div>
+    <div class="q"><p>A block must remember which of three operating modes it was last in. FB or FC?</p>
+      <div class="opts"><button>FC with the mode passed in and back out</button><button data-ok>FB — remembered state needs instance data</button><button>Either, but FC is faster</button></div>
+      <div class="why">State means an FB. Passing 'memory' in and out of an FC to fake persistence is the smell that you needed an FB.</div>
+    </div>
+    <div class="q"><p>What exactly does an instance DB contain?</p>
+      <div class="opts"><button>A copy of the FB's code</button><button data-ok>The Input, Output and Static data for one specific call of that FB</button><button>All instances of that FB in the project</button></div>
+      <div class="why">Code exists once; data exists once per instance. Ten motors calling one FB means ten instance DBs (or one parent DB holding ten multi-instances).</div>
+    </div>
+    <div class="q"><p>Which call is impossible?</p>
+      <div class="opts"><button>An FC called from an FB</button><button>An FB declared as a multi-instance inside another FB</button><button data-ok>An FB called without any instance data</button></div>
+      <div class="why">An FB call must name where its data lives — its own instance DB, or a multi-instance in the caller's Static section.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
   </div>
 </section>
 
@@ -1383,6 +1558,28 @@ END_VAR
       <div class="opts"><button>Until CLK drops</button><button data-ok>Exactly one scan cycle</button><button>100 ms</button></div>
       <div class="why">One cycle — that's the whole point: it turns a level into a single event.</div>
     </div>
+  </div>
+
+  <div class="quiz checkpoint" id="cp2" data-cp="2" data-pass="3">
+    <div class="qhead">Checkpoint II · The Language</div>
+    <p class="cp-blurb">Four questions on Chapters 4–8. Three correct to pass.</p>
+    <div class="q"><p><code>#count : Int := 30000;</code> then <code>#count := #count * 2;</code> — what happens?</p>
+      <div class="opts"><button>#count becomes 60000</button><button data-ok>It overflows: Int holds −32768..32767, so the result is wrong</button><button>The compiler refuses to build it</button></div>
+      <div class="why">Int tops out at 32767. The compiler cannot know the runtime value, so it builds happily and the number wraps. DInt would have been the right type.</div>
+    </div>
+    <div class="q"><p>A value must survive a power cut. Where does it go?</p>
+      <div class="opts"><button>Temp</button><button data-ok>Static, marked RETAIN</button><button>Constant</button></div>
+      <div class="why">Static gives it life across scans; RETAIN gives it life across power cycles. Use it deliberately — a machine that remembers it was mid-sequence can be a hazard.</div>
+    </div>
+    <div class="q"><p>A TON with <code>PT := T#5s</code> is called every scan. IN is TRUE for 3 s, FALSE for a single scan, then TRUE for 3 s. Does Q ever come on?</p>
+      <div class="opts"><button>Yes, after a total of 5 s of TRUE time</button><button data-ok>No — the one-scan drop resets ET to zero</button><button>Yes, immediately after the gap</button></div>
+      <div class="why">TON is not accumulating; any FALSE on IN clears ET. TONR is the one that accumulates.</div>
+    </div>
+    <div class="q"><p><code>FOR #i := 1 TO 0 DO ... END_FOR;</code> executes the body how many times?</p>
+      <div class="opts"><button>Once</button><button data-ok>Never — the start already exceeds the limit</button><button>Endlessly</button></div>
+      <div class="why">The loop tests before each pass. Zero iterations, no error — which is exactly why an empty array or a zero count can make logic silently do nothing.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
   </div>
 </section>
 
@@ -1742,6 +1939,28 @@ END_FUNCTION_BLOCK</pre>
       <div class="why">Fail-safe by structure: safety comes from the shape of the logic, not from remembering to write the off-command in each of five places.</div>
     </div>
   </div>
+
+  <div class="quiz checkpoint" id="cp3" data-cp="3" data-pass="3">
+    <div class="qhead">Checkpoint III · Data &amp; Patterns</div>
+    <p class="cp-blurb">Four questions on Chapters 9–12. Three correct to pass.</p>
+    <div class="q"><p>Thirty identical valves. How is this modelled?</p>
+      <div class="opts"><button>Thirty FBs, one per valve</button><button data-ok>One UDT for a valve, an Array of it, and one FB that works on one element</button><button>One FB with thirty inputs</button></div>
+      <div class="why">Model the thing once; loop or call per instance. This is the difference between a project that grows and one that gets rewritten.</div>
+    </div>
+    <div class="q"><p>Why is a UDT passed to a device FB through InOut rather than Input?</p>
+      <div class="opts"><button>InOut is faster to type</button><button data-ok>It passes a reference, so no copying and the block acts on the caller's actual data</button><button>Input cannot hold structures</button></div>
+      <div class="why">Reference semantics. It is also required for structured types on FCs.</div>
+    </div>
+    <div class="q"><p>An output must be TRUE during steps 20 and 40 of a sequence. Best implementation?</p>
+      <div class="opts"><button>Set it TRUE in step 20 and step 40, FALSE in the others</button><button data-ok><code>#out := (#step = 20) OR (#step = 40);</code> after the CASE</button><button>A latch set in 20 and reset after 40</button></div>
+      <div class="why">Derived outputs cannot go stale and cannot be written from two places. The latch version breaks the first time someone inserts a step.</div>
+    </div>
+    <div class="q"><p>A device FB reads the global tag <code>"Line3_EStop"</code> inside itself. The consequence?</p>
+      <div class="opts"><button>Nothing — globals are visible everywhere</button><button data-ok>It can no longer be reused on another line or tested in isolation</button><button>It will not compile</button></div>
+      <div class="why">It compiles fine and ruins the block. Everything through the interface is what makes a block library material.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -2052,6 +2271,28 @@ END_IF;</pre>
       <div class="opts"><button>M-memory is slower than DBs</button><button data-ok>M-flags are untyped, unstructured globals with no owner — DBs give names, types, and structure</button><button>M-memory is not retentive</button></div>
       <div class="why">It's an architecture argument, not a performance one: every M-flag is a hidden coupling that cross-reference archaeology has to dig up later.</div>
     </div>
+  </div>
+
+  <div class="quiz checkpoint" id="cp4" data-cp="4" data-pass="3">
+    <div class="qhead">Checkpoint IV · Systems</div>
+    <p class="cp-blurb">Four questions on Chapters 13–17. Three correct to pass.</p>
+    <div class="q"><p>A PI loop written for a 100 ms OB is moved to a 500 ms OB and <code>Ts_s</code> is left at 0.1. What is wrong?</p>
+      <div class="opts"><button>Nothing, the loop self-corrects</button><button data-ok>Integral action is now five times weaker than the tuning assumes</button><button>The output saturates immediately</button></div>
+      <div class="why">The integral term scales with the sample time. Wrong Ts means the tuning you commissioned is not the tuning that runs.</div>
+    </div>
+    <div class="q"><p>OB1 writes three related setpoints that OB30 reads. What can go wrong, and what fixes it?</p>
+      <div class="opts"><button>Nothing — writes are atomic</button><button data-ok>OB30 can preempt mid-update and read a mixed set; write a valid flag last and have the reader clear it</button><button>OB30 will crash; move the code to OB1</button></div>
+      <div class="why">Higher-priority OBs interrupt between statements. The flag-written-last handshake makes the handover atomic in practice.</div>
+    </div>
+    <div class="q"><p>Where should the actual machine logic live?</p>
+      <div class="opts"><button>In OB1, so it is easy to find</button><button data-ok>In area and device FBs, with OB1 only calling them in order</button><button>Split across OB1 and OB30 by preference</button></div>
+      <div class="why">OB1 as a table of contents. A stranger should see what the machine is in ten seconds and find any output's owner in one jump.</div>
+    </div>
+    <div class="q"><p>Why do the Siemens guidelines steer you away from M (bit memory)?</p>
+      <div class="opts"><button>It is slower than DB access</button><button data-ok>It is untyped, unstructured global state with no owner — DBs give names, types and structure</button><button>It is not retentive</button></div>
+      <div class="why">An architecture argument, not a performance one: every M-flag is a hidden coupling for someone to excavate later.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
   </div>
 </section>
 
@@ -2407,6 +2648,28 @@ END_FUNCTION_BLOCK</pre>
       <div class="why">Pause is three decisions: transitions, timers, outputs. Gate all three, deliberately, per output.</div>
     </div>
   </div>
+
+  <div class="quiz checkpoint" id="cp5" data-cp="5" data-pass="3">
+    <div class="qhead">Checkpoint V · Cookbook</div>
+    <p class="cp-blurb">Four questions on Chapters 18–19. Three correct to pass.</p>
+    <div class="q"><p>The valve block supervises “not at the commanded end position for too long”. Besides a stuck valve, what else does that catch?</p>
+      <div class="opts"><button>Nothing else</button><button data-ok>A valve that drifts off its end switch during service</button><button>A failed output card</button></div>
+      <div class="why">One well-chosen condition covers opening, closing and drifting — the sign that the supervision was designed rather than bolted on.</div>
+    </div>
+    <div class="q"><p>Why does the analog channel block include a simulation mode?</p>
+      <div class="opts"><button>To fake good readings for the customer</button><button data-ok>So logic can be commissioned and tested before the instrument exists or while it is faulty</button><button>To reduce scan time</button></div>
+      <div class="why">Commissioning reality: cabinets are powered long before every transmitter is fitted and calibrated.</div>
+    </div>
+    <div class="q"><p>An alarm was acknowledged and its cause then cleared. Later the same cause returns. What should the manager do?</p>
+      <div class="opts"><button>Nothing — it was already acknowledged once</button><button data-ok>Treat it as a new occurrence: latch it again, unacknowledged, horn on</button><button>Latch it silently without the horn</button></div>
+      <div class="why">Each occurrence is its own event. Carrying an old acknowledgement forward hides a recurring fault.</div>
+    </div>
+    <div class="q"><p>What makes a standby pump's failure invisible until you need it?</p>
+      <div class="opts"><button>Standby pumps rarely fail</button><button data-ok>Feedback supervision only runs while the unit is commanded, so an idle unit is never tested</button><button>The feedback contact is wired differently</button></div>
+      <div class="why">Which is the second reason to alternate duty: every other start is a live test of the backup.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -2740,6 +3003,28 @@ END_FUNCTION_BLOCK</pre>
     <li>Cross-reference audit: every <code>%Q</code> written exactly once (Ctrl+Shift+R).</li>
   </ol>
   <div class="note"><b>The Build, completed honestly</b>If you built WASH-3 yourself from Chapter 20's spec before reading the code — compare now, and keep whichever choices of yours are <em>better</em>; the pass-as-data trick is a suggestion, not scripture. If you read first: fair enough, but the machine isn't yours until you've rebuilt it in PLCSIM from the spec alone, sabotage runs included. That rebuild is the real final exam; Chapter 26 is just the paperwork.</div>
+
+  <div class="quiz checkpoint" id="cp6" data-cp="6" data-pass="3">
+    <div class="qhead">Checkpoint VI · The Build</div>
+    <p class="cp-blurb">Four questions on Chapters 20–22. Three correct to pass.</p>
+    <div class="q"><p>Five of WASH-3's seven blocks came unchanged from the library. What does that say about the next project?</p>
+      <div class="opts"><button>It was a uniquely simple machine</button><button data-ok>Most of a “new” project is a sequence, a device or two, and wiring — the library is the leverage</button><button>The library will need rewriting each time</button></div>
+      <div class="why">That leverage is the entire argument for Chapters 12, 17 and 18.</div>
+    </div>
+    <div class="q"><p>Why does WASH-3 refuse to resume the wash automatically after an e-stop reset?</p>
+      <div class="opts"><button>The retained data is unreliable</button><button data-ok>Unexpected machine motion after a reset is an injury risk; a half-washed train is only an inconvenience</button><button>The sequence cannot be restarted mid-pass</button></div>
+      <div class="why">Rank the failure modes and let the machine fail toward the cheap one.</div>
+    </div>
+    <div class="q"><p>The pass transition uses an R_TRIG edge rather than testing the level of the done-condition because…</p>
+      <div class="opts"><button>Edges execute faster</button><button data-ok>A repeated step must not accept a condition that is already TRUE when it begins</button><button>Level tests are not allowed inside CASE</button></div>
+      <div class="why">And with the edge, an impossible recipe hangs into the travel-timeout alarm instead of silently skipping passes.</div>
+    </div>
+    <div class="q"><p>First thing on the machine, before running the sequence:</p>
+      <div class="opts"><button>A full auto cycle at production speed</button><button data-ok>An I/O check with drives isolated: force each output, wiggle each input</button><button>Tune the loops</button></div>
+      <div class="why">Half of the “software bugs” on site are wiring, and they all die in that hour.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
+  </div>
 </section>
 
 <!-- ================================================================ -->
@@ -3169,6 +3454,28 @@ END_IF;</pre>
   <div class="note"><b>The one habit</b>Every concept in this manual was learned by every good PLC programmer the same way: a small block, a watch table, and twenty minutes of "why is it doing <em>that</em>?" Budget for the twenty minutes. That's the course fee, and it's non-negotiable.</div>
 
   <footer>SCL Field Manual · Structured Control Language for Siemens TIA Portal · S7-1200/1500, TIA Portal V17+. Verify instruction availability against your CPU firmware; syntax shown compiles on S7-1500. Quiz answers and chapter progress are stored only in this browser. Not affiliated with Siemens AG.</footer>
+
+  <div class="quiz checkpoint" id="cp7" data-cp="7" data-pass="3">
+    <div class="qhead">Checkpoint VII · Mastery</div>
+    <p class="cp-blurb">Four questions on Chapters 23–27. Three correct to pass.</p>
+    <div class="q"><p>A fault appears for one scan, roughly once an hour. Which tool?</p>
+      <div class="opts"><button>A watch table left running</button><button data-ok>Trace — it records tags at scan resolution and triggers on a condition</button><button>Single-stepping with a breakpoint</button></div>
+      <div class="why">Watch tables sample far too slowly, and you do not halt a running machine on a breakpoint.</div>
+    </div>
+    <div class="q"><p>An output behaves as though something else is fighting it. First move?</p>
+      <div class="opts"><button>Rewrite the block</button><button data-ok>Cross-reference the tag to find every place it is written</button><button>Force it and see what happens</button></div>
+      <div class="why">Double-writes are the classic cause, and cross-reference answers it in seconds.</div>
+    </div>
+    <div class="q"><p>After a calculation, <code>#x = 10.0</code> never becomes TRUE although the value looks right. Why?</p>
+      <div class="opts"><button data-ok>Real comparison needs a tolerance — floating point rarely lands exactly</button><button>Reals cannot be compared</button><button>The value must be converted to Int first</button></div>
+      <div class="why"><code>ABS(#x - 10.0) &lt; 0.001</code>. This one bites everybody exactly once.</div>
+    </div>
+    <div class="q"><p>Before code meets hardware, the habit that separates professionals:</p>
+      <div class="opts"><button>Compiling without warnings</button><button data-ok>Exercising it in PLCSIM and provoking every alarm on the list at least once</button><button>Writing more comments</button></div>
+      <div class="why">An alarm you have never seen fire is an alarm you do not have.</div>
+    </div>
+    <div class="cp-foot"><span class="cp-result"></span><button type="button" class="pg-btn alt cp-retake">Retake</button></div>
+  </div>
 </section>
 </main>
 
@@ -4648,7 +4955,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
   }
   var prog = loadProg();
   var sections = document.querySelectorAll("section.ch");
-  var progSections = Array.prototype.filter.call(sections, function (s) { return s.id !== "lab"; });
+  // Only numbered chapters count toward progress — not the dashboard or the lab.
+  var progSections = Array.prototype.filter.call(sections, function (s) { return /^ch\d+$/.test(s.id); });
   var railLinks = {};
   document.querySelectorAll("nav.rail a[href^='#']").forEach(function (a) {
     railLinks[a.getAttribute("href").slice(1)] = a;
@@ -4794,6 +5102,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
       }
       return out;
     }
+    window.SCLFM_DRILL = { total: CARDS.length, due: dueList };
     function updateCount() {
       var due = dueList().length;
       var seen = 0;
@@ -4859,6 +5168,242 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
       updateCount();
     });
     updateCount();
+  })();
+
+  // ---------- academy dashboard ----------
+  (function () {
+    var host = document.getElementById("modules");
+    if (!host) return;
+
+    var PARTS = [
+      { n: "I",   title: "Foundations",      chs: [1, 2, 3],              hours: 3,  cp: 1,
+        blurb: "Why SCL exists, your first working FB, and the block model." },
+      { n: "II",  title: "The Language",     chs: [4, 5, 6, 7, 8],        hours: 8,  cp: 2,
+        blurb: "Types, interfaces, operators, control flow, timers and edges." },
+      { n: "III", title: "Data & Patterns",  chs: [9, 10, 11, 12],        hours: 10, cp: 3,
+        blurb: "Arrays and UDTs, strings, state machines, reusable device blocks." },
+      { n: "IV",  title: "Systems",          chs: [13, 14, 15, 16, 17],   hours: 10, cp: 4,
+        blurb: "Closed-loop control, communications, interrupts, indirection, architecture." },
+      { n: "V",   title: "Cookbook",         chs: [18, 19],               hours: 6,  cp: 5,
+        blurb: "Career-grade patterns: valve, analog channel, alarms, duty/standby, pause, logging." },
+      { n: "VI",  title: "The Build",        chs: [20, 21, 22],           hours: 8,  cp: 6,
+        blurb: "One complete plant from spec and architecture to commissioning." },
+      { n: "VII", title: "Mastery",          chs: [23, 24, 25, 26, 27],   hours: 6,  cp: 7,
+        blurb: "Pitfalls, quick reference and drill, exercises, the final exam, where to go next." }
+    ];
+    var TOTAL_CH = 27, TOTAL_CP = 7, TOTAL_LAB = 6;
+
+    function get(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : {}; } catch (e) { return {}; } }
+    function getRaw(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+    var CPKEY = "sclfm-checkpoints";
+
+    function chapterTitle(n) {
+      var sec = document.getElementById("ch" + n);
+      var h = sec && sec.querySelector("h2");
+      return h ? h.textContent.trim() : "Chapter " + n;
+    }
+
+    function state() {
+      var prog = get("sclfm-progress"), cps = get(CPKEY), labs = get("sclfm-labs");
+      var chDone = 0;
+      for (var i = 1; i <= TOTAL_CH; i++) if (prog["ch" + i]) chDone++;
+      var cpDone = 0;
+      for (var c = 1; c <= TOTAL_CP; c++) if (cps[c] && cps[c].passed) cpDone++;
+      var labDone = 0;
+      for (var k in labs) if (labs[k]) labDone++;
+      var best = parseInt(getRaw("sclfm-exambest") || "0", 10);
+      return { prog: prog, cps: cps, labs: labs, chDone: chDone, cpDone: cpDone,
+               labDone: labDone, best: best };
+    }
+
+    function drillDue() {
+      if (window.SCLFM_DRILL && typeof window.SCLFM_DRILL.due === "function") {
+        try { return window.SCLFM_DRILL.due().length; } catch (e) {}
+      }
+      return null;
+    }
+
+    function render() {
+      var s = state();
+      var examUnit = s.best >= 23 ? 1 : 0;
+      var done = s.chDone + s.cpDone + s.labDone + examUnit;
+      var total = TOTAL_CH + TOTAL_CP + TOTAL_LAB + 1;
+      var pct = Math.round(done / total * 100);
+
+      var ring = document.getElementById("ring-fg");
+      var C = 2 * Math.PI * 52;
+      ring.style.strokeDasharray = C.toFixed(1);
+      ring.style.strokeDashoffset = (C * (1 - pct / 100)).toFixed(1);
+      document.getElementById("ring-pct").textContent = pct + "%";
+
+      document.getElementById("stat-ch").textContent = s.chDone + " / " + TOTAL_CH;
+      document.getElementById("stat-cp").textContent = s.cpDone + " / " + TOTAL_CP;
+      document.getElementById("stat-lab").textContent = s.labDone + " / " + TOTAL_LAB;
+      document.getElementById("stat-exam").textContent = s.best ? s.best + " / 26" : "not taken";
+      var due = drillDue();
+      document.getElementById("stat-drill").textContent = due === null ? "—" : String(due);
+
+      // modules
+      host.innerHTML = "";
+      var firstIncomplete = null;
+      PARTS.forEach(function (p) {
+        var doneCh = p.chs.filter(function (n) { return s.prog["ch" + n]; }).length;
+        var cp = s.cps[p.cp];
+        var complete = doneCh === p.chs.length && cp && cp.passed;
+        var started = doneCh > 0 || (cp && cp.taken);
+        if (!complete && !firstIncomplete) {
+          var nextCh = p.chs.filter(function (n) { return !s.prog["ch" + n]; })[0];
+          firstIncomplete = { part: p, ch: nextCh || null };
+        }
+        var card = document.createElement("div");
+        card.className = "module" + (complete ? " done" : (started ? " active" : ""));
+        var pctCh = Math.round(doneCh / p.chs.length * 100);
+        var status = complete ? "Complete" : (started ? "In progress" : "Not started");
+        card.innerHTML =
+          '<div class="mod-head">' +
+            '<span class="mod-n">Part ' + p.n + '</span>' +
+            '<span class="mod-status">' + status + '</span>' +
+          "</div>" +
+          '<h3 class="mod-title"><a href="#ch' + p.chs[0] + '">' + p.title + "</a></h3>" +
+          '<p class="mod-blurb">' + p.blurb + "</p>" +
+          '<div class="mod-bar"><i style="width:' + pctCh + '%"></i></div>' +
+          '<div class="mod-meta">' +
+            "<span>" + doneCh + " / " + p.chs.length + " chapters</span>" +
+            "<span>~" + p.hours + " h</span>" +
+            '<span class="' + (cp && cp.passed ? "cp-ok" : "cp-no") + '">' +
+              '<a href="#cp' + p.cp + '">Checkpoint ' +
+              (cp && cp.passed ? "passed" : (cp && cp.taken ? cp.score + "/" + cp.total : "not taken")) +
+              "</a></span>" +
+          "</div>";
+        host.appendChild(card);
+      });
+
+      // resume
+      var r = document.getElementById("dash-resume");
+      if (!firstIncomplete) {
+        r.innerHTML = '<span class="res-l">Programme complete.</span> ' +
+          '<a class="pg-btn alt" href="#ch25">Rebuild WASH-3 from the spec →</a>';
+      } else if (firstIncomplete.ch) {
+        r.innerHTML = '<span class="res-l">Next up</span>' +
+          '<a class="pg-btn" href="#ch' + firstIncomplete.ch + '">Ch. ' + firstIncomplete.ch +
+          " · " + chapterTitle(firstIncomplete.ch) + " →</a>";
+      } else {
+        r.innerHTML = '<span class="res-l">Next up</span>' +
+          '<a class="pg-btn" href="#cp' + firstIncomplete.part.cp + '">' +
+          "Checkpoint " + firstIncomplete.part.n + " →</a>";
+      }
+      renderRecord(s, pct);
+    }
+
+    function renderRecord(s, pct) {
+      var body = document.getElementById("record-body");
+      if (!body) return;
+      var who = getRaw("sclfm-who") || "";
+      var whoIn = document.getElementById("record-who");
+      if (whoIn && whoIn.value !== who) whoIn.value = who;
+      var rows = PARTS.map(function (p) {
+        var doneCh = p.chs.filter(function (n) { return s.prog["ch" + n]; }).length;
+        var cp = s.cps[p.cp];
+        return "<tr><td>Part " + p.n + " · " + p.title + "</td>" +
+          '<td class="num">' + doneCh + " / " + p.chs.length + "</td>" +
+          "<td>" + (cp && cp.passed ? "passed " + cp.score + "/" + cp.total : "—") + "</td></tr>";
+      }).join("");
+      var d = new Date();
+      var stamp = d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0");
+      body.innerHTML =
+        (who ? "<p class=\"record-who\">" + who.replace(/[<>&]/g, "") + "</p>" : "") +
+        '<p class="record-sum">Self-directed study of the SCL Field Manual (Structured Control Language for Siemens TIA Portal, S7-1200/1500) — <b>' +
+        pct + "% of 41 milestones</b> as of " + stamp + ".</p>" +
+        '<div class="tablewrap"><table><tr><th>Module</th><th class="num">Chapters</th><th>Checkpoint</th></tr>' +
+        rows +
+        "<tr><td>Graded machine labs</td><td class=\"num\">" + s.labDone + " / " + TOTAL_LAB + "</td><td>—</td></tr>" +
+        "<tr><td>Final exam</td><td class=\"num\">" + (s.best ? s.best + " / 26" : "—") + "</td><td>" +
+        (s.best >= 23 ? "passed" : "—") + "</td></tr></table></div>";
+    }
+
+    var whoIn = document.getElementById("record-who");
+    if (whoIn) whoIn.addEventListener("input", function () {
+      try { localStorage.setItem("sclfm-who", whoIn.value); } catch (e) {}
+      render();
+    });
+
+    var recBtn = document.getElementById("record-btn");
+    if (recBtn) recBtn.addEventListener("click", function () {
+      render();
+      document.documentElement.classList.add("print-record");
+      window.print();
+    });
+    window.addEventListener("afterprint", function () {
+      document.documentElement.classList.remove("print-record");
+    });
+
+    var resetBtn = document.getElementById("dash-reset");
+    if (resetBtn) resetBtn.addEventListener("click", function () {
+      if (!window.confirm("Clear all progress in this browser — chapters, checkpoints, labs, exam and drill schedule?")) return;
+      ["sclfm-progress", "sclfm-checkpoints", "sclfm-labs", "sclfm-exambest",
+       "sclfm-drill", "sclfm-who"].forEach(function (k) {
+        try { localStorage.removeItem(k); } catch (e) {}
+      });
+      window.location.reload();
+    });
+
+    // ---- checkpoint scoring ----
+    function scoreCheckpoint(box) {
+      var id = box.getAttribute("data-cp");
+      var qs = box.querySelectorAll(".q");
+      var answered = 0, correct = 0;
+      qs.forEach(function (q) {
+        if (q.classList.contains("answered")) {
+          answered++;
+          if (q.dataset.gotIt === "1") correct++;
+        }
+      });
+      var need = +(box.getAttribute("data-pass") || 3);
+      var cps = get(CPKEY);
+      if (answered === qs.length) {
+        var prev = cps[id] || {};
+        var best = Math.max(correct, prev.score || 0);
+        cps[id] = { taken: true, score: best, total: qs.length, passed: best >= need };
+        set(CPKEY, cps);
+      }
+      var out = box.querySelector(".cp-result");
+      if (out) {
+        if (answered < qs.length) {
+          out.textContent = answered + " of " + qs.length + " answered";
+          out.className = "cp-result";
+        } else {
+          var ok = correct >= need;
+          out.textContent = correct + " / " + qs.length + (ok ? " — checkpoint passed" : " — " + need + " needed to pass");
+          out.className = "cp-result " + (ok ? "ok" : "no");
+        }
+      }
+      render();
+    }
+
+    document.querySelectorAll(".quiz.checkpoint").forEach(function (box) {
+      box.querySelectorAll(".opts button").forEach(function (b) {
+        b.addEventListener("click", function () { scoreCheckpoint(box); });
+      });
+      var retake = box.querySelector(".cp-retake");
+      if (retake) retake.addEventListener("click", function () {
+        box.querySelectorAll(".q").forEach(function (q) {
+          q.classList.remove("answered");
+          delete q.dataset.gotIt;
+          q.querySelectorAll(".opts button").forEach(function (b) {
+            b.classList.remove("right", "wrong");
+          });
+        });
+        var out = box.querySelector(".cp-result");
+        if (out) { out.textContent = ""; out.className = "cp-result"; }
+      });
+      scoreCheckpoint(box);
+    });
+
+    render();
   })();
 
   // ---------- theme toggle ----------

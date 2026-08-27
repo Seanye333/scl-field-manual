@@ -12,12 +12,18 @@ testable modules:
 ## Tests
 
 ```sh
-node engine/vm.test.js      # language semantics
-node engine/labs.test.js    # scenes + grading, incl. deliberately-wrong solutions
-node engine/wash.test.js    # verifies the Chapter 21 WASH-3 logic and its claims
+node engine/vm.test.js       # language semantics
+node engine/labs.test.js     # scenes + grading, incl. deliberately-wrong solutions
+node engine/wash.test.js     # verifies the Chapter 21 WASH-3 logic and its claims
+node engine/consistency.js   # chapter numbering, module map, link targets, counts
+node engine/smoke.js         # renders index.html in headless Chrome and checks it
 ```
 
-All three must pass before publishing. `wash.test.js` is the reason Chapter 21
+All of these must pass before publishing. `consistency.js` guards the counts the
+dashboard hardcodes (chapters, checkpoints, labs) against what the page actually
+contains; `smoke.js` catches what static analysis cannot — a JavaScript exception
+on load, or two counters disagreeing (the sidebar once read "11 / 28 chapters"
+while the dashboard read 11 / 27). `wash.test.js` is the reason Chapter 21
 teaches an edge-triggered pass transition rather than a level test: the level
 version silently collapses three passes into one scan when consecutive passes
 share a direction, and neither a `stepOld` nor a `passOld` comparison can fix it
