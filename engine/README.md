@@ -32,10 +32,14 @@ from inside the CASE.
 ## Relationship to index.html
 
 `index.html` is self-contained — it carries an inlined copy of `vm.js`,
-`scenes.js` and `labs.js` in `<script>` blocks, in that order. These files are
-the maintained source. After changing one, re-inline it and confirm the page
-still parses:
+`scenes.js` and `labs.js` in `<script>` blocks. These files are the maintained
+source. After changing one:
 
 ```sh
-node engine/check.js        # reports any drift between engine/ and index.html
+node engine/inline.js       # copy engine/*.js into index.html
+node engine/check.js        # confirm no drift remains
 ```
+
+The browser-only UI code — playground widgets, drill deck, dashboard — lives in
+`index.html` only. It is DOM-coupled with no standalone module, so `smoke.js` is
+what covers it.

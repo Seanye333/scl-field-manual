@@ -1057,7 +1057,7 @@
       </div>
     </div>
   </div>
-  <div class="note"><b>What it can't do (yet)</b>Arrays, strings, UDTs and PID are beyond the playground — for those, use PLCSIM with the <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">companion source files</a>. The simulator's point is the scan cycle: watch how timers, edges and state machines behave <em>over time</em>, which is the part of PLC programming a printed page can't show.</div>
+  <div class="note"><b>What it can't do (yet)</b>Arrays, strings, UDTs and PID are beyond the playground (named step constants, though, work fine — the Ch. 11 mixer runs here unchanged) — for those, use PLCSIM with the <a href="https://github.com/Seanye333/scl-field-manual/tree/main/src">companion source files</a>. The simulator's point is the scan cycle: watch how timers, edges and state machines behave <em>over time</em>, which is the part of PLC programming a printed page can't show.</div>
 </section>
 
 <!-- ================================================================ -->
@@ -3775,11 +3775,34 @@ function parse(src) {
   }
 
   /* ---- statements ---- */
+  function intConst(name) {
+    var d = declNames[name.toLowerCase()];
+    return (d && d.kind === "constant" && d.tag === "I" && d.init && d.init.tag === "I") ? d : null;
+  }
   function looksLikeCaseLabel() {
     var t = peek();
     if (t.t === "num") return true;
     if (t.t === "p" && t.v === "-" && peek(1).t === "num") return true;
+    // Named steps: CASE #step OF #IDLE: ... — the style Ch. 11 teaches.
+    // A label may be followed by ':' , '..' (range) or ',' (list); a statement
+    // beginning with an identifier is always followed by ':=' or '(' instead.
+    if (t.t === "id" && peek(1).t === "p" &&
+        (peek(1).v === ":" || peek(1).v === ".." || peek(1).v === ",")) {
+      return !!intConst(t.v);
+    }
     return false;
+  }
+  function readCaseLabelValue() {
+    var neg = false;
+    if (isP("-")) { neg = true; next(); }
+    var t = peek();
+    if (t.t === "num" && !t.real) { next(); return neg ? -t.v : t.v; }
+    if (t.t === "id") {
+      var d = intConst(t.v);
+      if (d) { next(); return neg ? -d.init.v : d.init.v; }
+      err("'" + t.v + "' is not an integer constant — a CASE label must be an integer literal or a VAR CONSTANT integer", t);
+    }
+    err("CASE labels must be integer literals or integer constants", t);
   }
   function parseStatements(stopPred) {
     var list = [];
@@ -3856,18 +3879,10 @@ function parse(src) {
     while (!isKw("ELSE") && !isKw("END_CASE")) {
       var labels = [];
       for (;;) {
-        var neg = false;
-        if (isP("-")) { neg = true; next(); }
-        var numTok = next();
-        if (numTok.t !== "num" || numTok.real) err("CASE labels must be integer literals", numTok);
-        var lo = neg ? -numTok.v : numTok.v, hi = lo;
+        var lo = readCaseLabelValue(), hi = lo;
         if (isP("..")) {
           next();
-          var neg2 = false;
-          if (isP("-")) { neg2 = true; next(); }
-          var hiTok = next();
-          if (hiTok.t !== "num" || hiTok.real) err("CASE range needs an integer", hiTok);
-          hi = neg2 ? -hiTok.v : hiTok.v;
+          hi = readCaseLabelValue();
         }
         labels.push([lo, hi]);
         if (isP(",")) { next(); continue; }
@@ -5565,6 +5580,8 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
 "VAR_INPUT\n    photoEye  : Bool;   // toggle on/off to simulate parts\n    reset     : Bool;\n    batchSize : Int := 5;\nEND_VAR\nVAR_OUTPUT\n    batchDone : Bool;\n    pieces    : Int;\nEND_VAR\nVAR\n    trig      : R_TRIG;\n    counter   : CTU;\nEND_VAR\n\nBEGIN\n// Each OFF->ON of the eye is one part. The edge detector\n// turns the level into a single-scan event.\ntrig(CLK := photoEye);\ncounter(CU := trig.Q, R := reset, PV := batchSize,\n        Q => batchDone, CV => pieces);\n" },
       { name: "Star-delta starter — state machine (Ch. 11)", code:
 "VAR_INPUT\n    start   : Bool;\n    stop    : Bool;\nEND_VAR\nVAR_OUTPUT\n    ctorMain  : Bool;\n    ctorStar  : Bool;\n    ctorDelta : Bool;\n    stepNo    : Int;\nEND_VAR\nVAR\n    step    : Int;\n    stepOld : Int;\n    tStep   : TON;\nEND_VAR\n\nBEGIN\nIF stop THEN\n    step := 0;\nEND_IF;\n\nCASE step OF\n    0:  IF start THEN step := 10; END_IF;\n    10: IF tStep.Q THEN step := 20; END_IF;  // 6 s in star\n    20: IF tStep.Q THEN step := 30; END_IF;  // 100 ms gap\n    30: ;                                    // run in delta\n    ELSE step := 0;\nEND_CASE;\n\n// The (step = stepOld) term restarts the shared timer on\n// every step change. Delete it and watch step 20 vanish!\ntStep(IN := (step = stepOld) AND ((step = 10) OR (step = 20)),\n      PT := SEL(G := step = 10, IN0 := T#100ms, IN1 := T#6s));\nstepOld := step;\n\nctorMain  := step >= 10;\nctorStar  := step = 10;\nctorDelta := step = 30;\nstepNo    := step;\n" },
+      { name: "Mixer sequence — named steps (Ch. 11)", code:
+"VAR_INPUT\n    start       : Bool;\n    stop        : Bool;   // graceful stop at end of MIX\n    abort       : Bool;   // immediate stop\n    levelHigh   : Bool;\n    tempReached : Bool;\nEND_VAR\nVAR_OUTPUT\n    valveFill  : Bool;\n    heater     : Bool;\n    agitator   : Bool;\n    valveDrain : Bool;\n    stepNo     : Int;\nEND_VAR\nVAR\n    step      : Int;\n    stepOld   : Int;\n    tStep     : TON;\n    trigStart : R_TRIG;\nEND_VAR\nVAR CONSTANT\n    IDLE  : Int := 0;   FILL  : Int := 10;\n    HEAT  : Int := 20;  MIX   : Int := 30;\n    DRAIN : Int := 40;  DONE  : Int := 50;\nEND_VAR\n\nBEGIN\n// Named steps read like the spec. Times are shortened so the\n// sequence is watchable: MIX 8 s, DRAIN 4 s.\ntrigStart(CLK := start);\n\nIF abort THEN\n    step := IDLE;\nEND_IF;\n\nCASE step OF\n    IDLE:  IF trigStart.Q THEN step := FILL; END_IF;\n    FILL:  IF levelHigh THEN step := HEAT; END_IF;\n    HEAT:  IF tempReached THEN step := MIX; END_IF;\n    MIX:   IF tStep.Q THEN\n               IF stop THEN step := IDLE; ELSE step := DRAIN; END_IF;\n           END_IF;\n    DRAIN: IF NOT levelHigh AND tStep.Q THEN step := DONE; END_IF;\n    DONE:  step := IDLE;\n    ELSE   step := IDLE;\nEND_CASE;\n\n// stepOld drops IN for one scan on every step change, so MIX and\n// DRAIN each start from ET = 0 (the Ch. 11 shared-timer trap).\ntStep(IN := (step = stepOld) AND ((step = MIX) OR (step = DRAIN)),\n      PT := SEL(G := step = MIX, IN0 := T#4s, IN1 := T#8s));\nstepOld := step;\n\nvalveFill  := step = FILL;\nheater     := step = HEAT;\nagitator   := (step = HEAT) OR (step = MIX);\nvalveDrain := step = DRAIN;\nstepNo     := step;\n" },
       { name: "Pump cooldown lockout — TOF (Exercise 1)", code:
 "VAR_INPUT\n    cmdRun : Bool;\nEND_VAR\nVAR_OUTPUT\n    pumpOn : Bool;\nEND_VAR\nVAR\n    tCool  : TOF;\nEND_VAR\n\nBEGIN\n// After the pump stops, tCool.Q stays TRUE for 10 s -\n// that window blocks restarting, never running.\ntCool(IN := pumpOn, PT := T#10s);\npumpOn := cmdRun AND (pumpOn OR NOT tCool.Q);\n" },
       { name: "Integer division gotcha (Ch. 6)", code:

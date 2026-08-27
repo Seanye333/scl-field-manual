@@ -272,5 +272,109 @@ T("FB wrapper syntax and # prefixes accepted", () => {
   assert(v(rt, "q") === true, "wrapper + #");
 });
 
+
+T("CASE labels accept named integer constants (the Ch. 11 style)", () => {
+  const rt = mk(`
+    VAR_OUTPUT stepNo : Int; hits : Int; END_VAR
+    VAR step : Int; END_VAR
+    VAR CONSTANT
+        IDLE : Int := 0;  FILL : Int := 10;
+        HEAT : Int := 20; DONE : Int := 30;
+    END_VAR
+    BEGIN
+    CASE step OF
+        IDLE:       step := FILL;
+        FILL, HEAT: step := DONE;
+        DONE:       hits := hits + 1;
+        ELSE        step := IDLE;
+    END_CASE;
+    stepNo := step;
+  `);
+  rt.scan(50); assert(v(rt, "stepNo") === 10, "IDLE -> FILL, got " + v(rt, "stepNo"));
+  rt.scan(50); assert(v(rt, "stepNo") === 30, "FILL -> DONE, got " + v(rt, "stepNo"));
+  rt.scan(50); assert(v(rt, "hits") === 1, "DONE branch should run");
+});
+
+T("CASE ranges accept constants at both ends", () => {
+  const rt = mk(`
+    VAR_INPUT n : Int; END_VAR
+    VAR_OUTPUT band : Int; END_VAR
+    VAR CONSTANT LO : Int := 10; HI : Int := 19; END_VAR
+    BEGIN
+    CASE n OF
+        LO..HI: band := 1;
+        ELSE    band := 0;
+    END_CASE;
+  `);
+  rt.setInput("n", 15); rt.scan(50);
+  assert(v(rt, "band") === 1, "15 should fall in LO..HI");
+  rt.setInput("n", 25); rt.scan(50);
+  assert(v(rt, "band") === 0, "25 should fall to ELSE");
+});
+
+T("a non-constant identifier as a CASE label gives a clear error", () => {
+  let msg = "";
+  try {
+    VM.compile(`VAR_OUTPUT x : Int; END_VAR
+VAR step : Int; other : Int; END_VAR
+BEGIN
+CASE step OF
+    other: x := 1;
+END_CASE;`);
+  } catch (e) { msg = e.message; }
+  assert(/not an integer constant/.test(msg), "unhelpful error: " + msg);
+});
+
+T("the manual's FB_MixerSeq compiles and sequences", () => {
+  const rt = mk(`FUNCTION_BLOCK "FB_MixerSeq"
+VAR_INPUT
+    start : Bool; stop : Bool; abort : Bool;
+    levelHigh : Bool; tempReached : Bool;
+END_VAR
+VAR_OUTPUT
+    valveFill : Bool; heater : Bool; agitator : Bool;
+    valveDrain : Bool; stepNo : Int;
+END_VAR
+VAR
+    step : Int; stepOld : Int; tStep : TON; trigStart : R_TRIG;
+END_VAR
+VAR CONSTANT
+    IDLE : Int := 0;   FILL : Int := 10;
+    HEAT : Int := 20;  MIX : Int := 30;
+    DRAIN : Int := 40; DONE : Int := 50;
+END_VAR
+BEGIN
+    #trigStart(CLK := #start);
+    IF #abort THEN #step := #IDLE; END_IF;
+    CASE #step OF
+        #IDLE:  IF #trigStart.Q THEN #step := #FILL; END_IF;
+        #FILL:  IF #levelHigh THEN #step := #HEAT; END_IF;
+        #HEAT:  IF #tempReached THEN #step := #MIX; END_IF;
+        #MIX:   IF #tStep.Q THEN
+                    IF #stop THEN #step := #IDLE; ELSE #step := #DRAIN; END_IF;
+                END_IF;
+        #DRAIN: IF NOT #levelHigh AND #tStep.Q THEN #step := #DONE; END_IF;
+        #DONE:  #step := #IDLE;
+        ELSE    #step := #IDLE;
+    END_CASE;
+    #tStep(IN := (#step = #stepOld) AND ((#step = #MIX) OR (#step = #DRAIN)),
+           PT := SEL(G := #step = #MIX, IN0 := T#30s, IN1 := T#5m));
+    #stepOld := #step;
+    #valveFill  := #step = #FILL;
+    #heater     := #step = #HEAT;
+    #agitator   := (#step = #HEAT) OR (#step = #MIX);
+    #valveDrain := #step = #DRAIN;
+    #stepNo     := #step;
+END_FUNCTION_BLOCK`);
+  rt.setInput("start", true); rt.scan(50);
+  assert(v(rt, "stepNo") === 10 && v(rt, "valveFill"), "should be filling, got " + v(rt, "stepNo"));
+  rt.setInput("start", false); rt.setInput("levelHigh", true); rt.scan(50);
+  assert(v(rt, "stepNo") === 20 && v(rt, "heater"), "should be heating, got " + v(rt, "stepNo"));
+  rt.setInput("tempReached", true); rt.scan(50);
+  assert(v(rt, "stepNo") === 30 && v(rt, "agitator"), "should be mixing, got " + v(rt, "stepNo"));
+  rt.setInput("abort", true); rt.scan(50);
+  assert(v(rt, "stepNo") === 0 && !v(rt, "agitator"), "abort should idle everything");
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -287,11 +287,34 @@ function parse(src) {
   }
 
   /* ---- statements ---- */
+  function intConst(name) {
+    var d = declNames[name.toLowerCase()];
+    return (d && d.kind === "constant" && d.tag === "I" && d.init && d.init.tag === "I") ? d : null;
+  }
   function looksLikeCaseLabel() {
     var t = peek();
     if (t.t === "num") return true;
     if (t.t === "p" && t.v === "-" && peek(1).t === "num") return true;
+    // Named steps: CASE #step OF #IDLE: ... — the style Ch. 11 teaches.
+    // A label may be followed by ':' , '..' (range) or ',' (list); a statement
+    // beginning with an identifier is always followed by ':=' or '(' instead.
+    if (t.t === "id" && peek(1).t === "p" &&
+        (peek(1).v === ":" || peek(1).v === ".." || peek(1).v === ",")) {
+      return !!intConst(t.v);
+    }
     return false;
+  }
+  function readCaseLabelValue() {
+    var neg = false;
+    if (isP("-")) { neg = true; next(); }
+    var t = peek();
+    if (t.t === "num" && !t.real) { next(); return neg ? -t.v : t.v; }
+    if (t.t === "id") {
+      var d = intConst(t.v);
+      if (d) { next(); return neg ? -d.init.v : d.init.v; }
+      err("'" + t.v + "' is not an integer constant — a CASE label must be an integer literal or a VAR CONSTANT integer", t);
+    }
+    err("CASE labels must be integer literals or integer constants", t);
   }
   function parseStatements(stopPred) {
     var list = [];
@@ -368,18 +391,10 @@ function parse(src) {
     while (!isKw("ELSE") && !isKw("END_CASE")) {
       var labels = [];
       for (;;) {
-        var neg = false;
-        if (isP("-")) { neg = true; next(); }
-        var numTok = next();
-        if (numTok.t !== "num" || numTok.real) err("CASE labels must be integer literals", numTok);
-        var lo = neg ? -numTok.v : numTok.v, hi = lo;
+        var lo = readCaseLabelValue(), hi = lo;
         if (isP("..")) {
           next();
-          var neg2 = false;
-          if (isP("-")) { neg2 = true; next(); }
-          var hiTok = next();
-          if (hiTok.t !== "num" || hiTok.real) err("CASE range needs an integer", hiTok);
-          hi = neg2 ? -hiTok.v : hiTok.v;
+          hi = readCaseLabelValue();
         }
         labels.push([lo, hi]);
         if (isP(",")) { next(); continue; }
