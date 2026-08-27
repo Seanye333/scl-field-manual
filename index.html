@@ -34,6 +34,9 @@
     --code-str: #A8D48A;
     --code-num: #DCA8DC;
     --sidebar-w: 272px;
+    --sh-1: 0 1px 2px rgba(23, 38, 44, .06);
+    --sh-2: 0 2px 4px rgba(23, 38, 44, .07), 0 8px 20px rgba(23, 38, 44, .05);
+    --rail-tint: linear-gradient(180deg, var(--accent-soft) 0%, transparent 100%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -51,6 +54,8 @@
       --bad: #E06B5D;
       --code-bg: #0A1114;
       --code-line: #1B2A30;
+    --sh-1: 0 1px 2px rgba(0, 0, 0, .3);
+    --sh-2: 0 2px 6px rgba(0, 0, 0, .38), 0 10px 24px rgba(0, 0, 0, .3);
     }
   }
   :root[data-theme="dark"] {
@@ -68,9 +73,19 @@
     --bad: #E06B5D;
     --code-bg: #0A1114;
     --code-line: #1B2A30;
+    --sh-1: 0 1px 2px rgba(0, 0, 0, .3);
+    --sh-2: 0 2px 6px rgba(0, 0, 0, .38), 0 10px 24px rgba(0, 0, 0, .3);
   }
 
   * { box-sizing: border-box; }
+  * { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line); border-radius: 6px;
+    border: 3px solid var(--bg); background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--faint); background-clip: padding-box; }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
@@ -93,9 +108,10 @@
     padding: 1.5rem 0 2rem;
   }
   .rail .brand {
-    padding: 0 1.25rem 1.1rem;
+    padding: 1.1rem 1.25rem 1.1rem;
+    margin: -1.5rem 0 .9rem;
     border-bottom: 1px solid var(--line);
-    margin-bottom: .9rem;
+    background: var(--rail-tint);
   }
   .rail .brand .t {
     font-family: "Saira", "Arial Narrow", sans-serif;
@@ -118,6 +134,7 @@
   }
   .rail .brand .prog b { color: var(--good); font-weight: 500; }
   .rail a {
+    position: relative;
     display: flex;
     gap: .65rem;
     align-items: baseline;
@@ -125,7 +142,21 @@
     color: var(--muted);
     text-decoration: none;
     font-size: .89rem;
-    border-left: 3px solid transparent;
+    transition: color .14s ease, background-color .14s ease;
+  }
+  .rail a::before {
+    content: "";
+    position: absolute; left: 0; top: 3px; bottom: 3px;
+    width: 3px; border-radius: 0 2px 2px 0;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform .16s ease;
+  }
+  .rail a:hover::before { transform: scaleY(.55); }
+  .rail a.active::before { transform: scaleY(1); }
+  @media (prefers-reduced-motion: reduce) {
+    .rail a, .rail a::before { transition: none; }
   }
   .rail a .n {
     font-family: "Saira", sans-serif;
@@ -138,8 +169,8 @@
   .rail a:hover { color: var(--ink); background: var(--accent-soft); }
   .rail a.active {
     color: var(--accent);
-    border-left-color: var(--accent);
     font-weight: 600;
+    background: var(--accent-soft);
   }
   .rail a.active .n { color: var(--accent); }
   .rail a.done::after {
@@ -205,8 +236,8 @@
   .hero h1 {
     font-family: "Saira", "Arial Narrow", sans-serif;
     font-weight: 700;
-    font-size: clamp(2.4rem, 6vw, 3.8rem);
-    line-height: 1.04;
+    font-size: clamp(2.1rem, 4.6vw, 3.35rem);
+    line-height: 1.05;
     letter-spacing: .01em;
     text-transform: uppercase;
     margin: 0 0 1rem;
@@ -229,16 +260,104 @@
   }
   .hero .specs b { color: var(--ink); font-weight: 500; }
 
+  /* ---------- hero layout & scan-cycle dial ---------- */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(1.5rem, 5vw, 4rem);
+    align-items: center;
+  }
+  @media (max-width: 980px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .scandial { justify-self: start; max-width: 240px; }
+  }
+  .scandial { margin: 0; }
+  .scandial svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .scandial figcaption {
+    margin-top: .7rem;
+    font-size: .78rem;
+    line-height: 1.4;
+    color: var(--muted);
+    text-align: center;
+    text-wrap: balance;
+  }
+  .dial-track { fill: none; stroke: var(--line); stroke-width: 9; }
+  .arc {
+    fill: none;
+    stroke-width: 9;
+    stroke-linecap: butt;
+    /* r = 86 → circumference ≈ 540.35; each phase 168, gap 12 */
+    stroke-dasharray: 158 382;
+    transform-origin: 110px 110px;
+    opacity: .3;
+  }
+  .arc-1 { stroke: var(--accent); transform: rotate(-90deg); }
+  .arc-2 { stroke: var(--accent); transform: rotate(30deg); }
+  .arc-3 { stroke: var(--accent); transform: rotate(150deg); }
+  .dial-hand { transform-origin: 110px 110px; }
+  .hand-dot { fill: var(--accent); }
+  .dial-k {
+    fill: var(--faint);
+    font-family: "Saira", sans-serif; font-weight: 600;
+    font-size: 11px; letter-spacing: .22em;
+  }
+  .ph {
+    fill: var(--ink);
+    font-family: "Saira", sans-serif; font-weight: 700;
+    font-size: 17px; letter-spacing: .04em;
+    opacity: 0;
+  }
+  .dial-sub {
+    fill: var(--faint);
+    font-family: "IBM Plex Mono", monospace; font-size: 9px;
+  }
+  @keyframes dial-spin { to { transform: rotate(360deg); } }
+  @keyframes dial-lit  { 0%, 27% { opacity: 1; } 34%, 100% { opacity: .22; } }
+  @keyframes dial-word { 0%, 27% { opacity: 1; } 34%, 100% { opacity: 0; } }
+  .dial-hand { animation: dial-spin 5.4s linear infinite; }
+  .arc-1 { animation: dial-lit 5.4s linear infinite; }
+  .arc-2 { animation: dial-lit 5.4s linear infinite -3.6s; }
+  .arc-3 { animation: dial-lit 5.4s linear infinite -1.8s; }
+  .ph-1  { animation: dial-word 5.4s linear infinite; }
+  .ph-2  { animation: dial-word 5.4s linear infinite -3.6s; }
+  .ph-3  { animation: dial-word 5.4s linear infinite -1.8s; }
+  @media (prefers-reduced-motion: reduce) {
+    .dial-hand, .arc, .ph { animation: none; }
+    .arc { opacity: .55; }
+    .ph-1 { opacity: 1; }
+  }
+
+  /* richer LED cluster — a real panel strip, not three loose dots */
+  .leds {
+    display: inline-flex; gap: 1.05rem;
+    margin: 0 0 1.5rem;
+    padding: .42rem .8rem;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    box-shadow: var(--sh-1);
+  }
+  .leds i { box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); }
+  .leds .run i { box-shadow: 0 0 7px var(--good), inset 0 0 0 1px rgba(0,0,0,.14); }
+
   /* ---------- chapters ---------- */
   section.ch { padding-top: 2.5rem; }
   section.ch + section.ch { border-top: 1px solid var(--line); margin-top: 3rem; }
   .chnum {
+    display: flex; align-items: center; gap: .55rem;
     font-family: "Saira", sans-serif;
     font-weight: 600;
     font-size: .82rem;
     letter-spacing: .16em;
     color: var(--accent);
     text-transform: uppercase;
+  }
+  .chnum::before {
+    content: "";
+    width: 9px; height: 9px; border-radius: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    flex-shrink: 0;
   }
   h2 {
     font-family: "Saira", "Arial Narrow", sans-serif;
@@ -261,7 +380,19 @@
   ul, ol { padding-left: 1.4rem; }
   li { margin: .3rem 0; }
   li::marker { color: var(--accent); }
+  main p a, main li a, .note a, .warn a {
+    color: var(--accent);
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 1px;
+    transition: background-size .18s ease;
+    padding-bottom: 1px;
+  }
+  main p a:hover, main li a:hover, .note a:hover, .warn a:hover { background-size: 100% 2px; }
   a { color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { main p a { transition: none; } }
   strong { font-weight: 600; }
   code {
     font-family: "IBM Plex Mono", ui-monospace, monospace;
@@ -275,10 +406,11 @@
   /* ---------- code panels ---------- */
   figure.code {
     margin: 1.4rem 0;
-    border-radius: 8px;
+    border-radius: 9px;
     overflow: hidden;
     border: 1px solid var(--code-line);
     max-width: 54rem;
+    box-shadow: var(--sh-2);
   }
   figure.code figcaption {
     background: var(--code-line);
@@ -368,6 +500,7 @@
     padding: .45rem .75rem;
     vertical-align: top;
   }
+  tbody tr:hover td, table tr:hover td { background: var(--accent-soft); }
   td code { white-space: nowrap; }
   td.num, th.num { font-variant-numeric: tabular-nums; }
 
@@ -443,6 +576,7 @@
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--surface);
+      box-shadow: var(--sh-1);
   }
   details.sol summary {
     cursor: pointer;
@@ -481,13 +615,17 @@
 
   /* ---------- rail groups & tools ---------- */
   .rail .grp {
+    display: flex; align-items: center; gap: .6rem;
     font-family: "Saira", sans-serif;
     font-size: .68rem;
     font-weight: 600;
     letter-spacing: .18em;
     text-transform: uppercase;
     color: var(--faint);
-    padding: 1rem 1.25rem .25rem;
+    padding: 1.15rem 1.25rem .3rem;
+  }
+  .rail .grp::after {
+    content: ""; flex: 1; height: 1px; background: var(--line);
   }
   .rail .tools { padding: .4rem 1.25rem .2rem; display: flex; flex-direction: column; gap: .5rem; }
   .rail .tools input[type="search"] {
@@ -537,7 +675,6 @@
   }
 
   /* ---------- hero LEDs ---------- */
-  .leds { display: flex; gap: 1.1rem; margin: 0 0 1.4rem; }
   .leds .ledbox { display: flex; align-items: center; gap: .45rem; font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .1em; color: var(--faint); }
   .leds i {
     width: 11px; height: 11px; border-radius: 2px; display: inline-block;
@@ -625,6 +762,7 @@
     border-radius: 8px;
     background: var(--surface);
     padding: .7rem .9rem .8rem;
+      box-shadow: var(--sh-1);
   }
   .pg-panel h4 {
     margin: 0 0 .5rem;
@@ -675,6 +813,7 @@
     background: var(--surface);
     padding: .6rem .8rem;
     margin: 1rem 0;
+      box-shadow: var(--sh-1);
   }
   .scene-wrap svg { display: block; width: 100%; height: auto; }
   .lab-results {
@@ -685,6 +824,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface);
+      box-shadow: var(--sh-1);
   }
   .lab-results li { padding: .3rem 1rem; font-size: .92rem; display: flex; gap: .6rem; align-items: baseline; }
   .lab-results li.head {
@@ -760,7 +900,13 @@
     border: 1px solid var(--line); border-top: 3px solid var(--line);
     border-radius: 8px; background: var(--surface); padding: .8rem .95rem 1rem;
     display: flex; flex-direction: column;
+      box-shadow: var(--sh-1);
   }
+  .module {
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .module:hover { transform: translateY(-2px); box-shadow: var(--sh-2); }
+  @media (prefers-reduced-motion: reduce) { .module { transition: none; } .module:hover { transform: none; } }
   .module.active { border-top-color: var(--accent); }
   .module.done { border-top-color: var(--good); }
   .mod-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
@@ -822,6 +968,7 @@
     padding: .7rem .9rem;
     border: 1px solid var(--line); border-radius: 8px;
     background: var(--surface);
+      box-shadow: var(--sh-1);
   }
   .drill-count {
     font-family: "IBM Plex Mono", monospace; font-size: .8rem;
@@ -831,6 +978,7 @@
     margin-top: .8rem; padding: 1.3rem 1.2rem;
     border: 1px solid var(--line); border-left: 4px solid var(--accent);
     border-radius: 8px; background: var(--surface);
+      box-shadow: var(--sh-1);
   }
   .drill-tag {
     font-family: "Saira", sans-serif; font-size: .7rem; font-weight: 600;
@@ -858,6 +1006,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface);
+      box-shadow: var(--sh-1);
   }
   .exam-bar .score {
     font-family: "Saira", sans-serif; font-weight: 700; font-size: 1.05rem;
@@ -955,6 +1104,8 @@
 </details>
 
 <header class="hero">
+ <div class="hero-grid">
+  <div class="hero-text">
   <div class="leds" aria-hidden="true">
     <span class="ledbox run"><i></i>RUN</span>
     <span class="ledbox"><i></i>ERROR</span>
@@ -969,6 +1120,24 @@
     <span>STANDARD <b>IEC 61131-3 ST</b></span>
     <span>PRACTICE <b>PLCSIM + THE LAB ↓</b></span>
   </div>
+  </div>
+
+  <figure class="scandial">
+    <svg viewBox="0 0 220 220" role="img" aria-label="The PLC scan cycle: read inputs, execute the program, write outputs, repeat">
+      <circle class="dial-track" cx="110" cy="110" r="86"></circle>
+      <circle class="arc arc-1" cx="110" cy="110" r="86"></circle>
+      <circle class="arc arc-2" cx="110" cy="110" r="86"></circle>
+      <circle class="arc arc-3" cx="110" cy="110" r="86"></circle>
+      <g class="dial-hand"><circle class="hand-dot" cx="110" cy="24" r="6"></circle></g>
+      <text class="dial-k" x="110" y="96" text-anchor="middle">SCAN CYCLE</text>
+      <text class="ph ph-1" x="110" y="120" text-anchor="middle">READ INPUTS</text>
+      <text class="ph ph-2" x="110" y="120" text-anchor="middle">EXECUTE</text>
+      <text class="ph ph-3" x="110" y="120" text-anchor="middle">WRITE OUTPUTS</text>
+      <text class="dial-sub" x="110" y="142" text-anchor="middle">every few ms, forever</text>
+    </svg>
+    <figcaption>The loop every line you write lives inside.</figcaption>
+  </figure>
+ </div>
 </header>
 
 <!-- ================================================================ -->
