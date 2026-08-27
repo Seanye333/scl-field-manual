@@ -1,0 +1,54 @@
+FUNCTION_BLOCK "FB_GantryDrive"
+{ S7_Optimized_Access := 'TRUE' }
+// WASH-3 gantry: the valve pattern applied to a traversing axis.
+// Two directions, two end switches, travel supervision, impossible-
+// state detection, and a direction interlock that holds by structure.
+VAR_INPUT
+    cmdFwd     : Bool;         // toward Far
+    cmdRev     : Bool;         // toward Home
+    cmdReset   : Bool;
+    fbHome     : Bool;
+    fbFar      : Bool;
+    tTravelMax : Time := T#90s;
+END_VAR
+VAR_OUTPUT
+    outFwd    : Bool;
+    outRev    : Bool;
+    atHome    : Bool;
+    atFar     : Bool;
+    fault     : Bool;
+    faultCode : Int;           // 0 none, 1 travel timeout, 2 both switches
+END_VAR
+VAR
+    tTravel   : TON;
+    trigReset : R_TRIG;
+END_VAR
+
+BEGIN
+    #trigReset(CLK := #cmdReset);
+
+    IF #fbHome AND #fbFar THEN
+        #fault := TRUE;
+        #faultCode := 2;
+    END_IF;
+
+    // Supervise only while a direction is commanded
+    #tTravel(IN := (#cmdFwd AND NOT #fbFar)
+                 OR (#cmdRev AND NOT #fbHome),
+             PT := #tTravelMax);
+    IF #tTravel.Q THEN
+        #fault := TRUE;
+        #faultCode := 1;
+    END_IF;
+
+    IF #trigReset.Q AND NOT (#fbHome AND #fbFar) THEN
+        #fault := FALSE;
+        #faultCode := 0;
+    END_IF;
+
+    // Direction interlock by structure: never both
+    #outFwd := #cmdFwd AND NOT #cmdRev AND NOT #fault;
+    #outRev := #cmdRev AND NOT #cmdFwd AND NOT #fault;
+    #atHome := #fbHome;
+    #atFar  := #fbFar;
+END_FUNCTION_BLOCK

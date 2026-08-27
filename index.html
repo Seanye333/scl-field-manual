@@ -713,6 +713,40 @@
     color: var(--faint); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3rem;
   }
 
+  /* ---------- drill deck ---------- */
+  .drill { max-width: 54rem; margin: 1.2rem 0 2rem; }
+  .drill-bar {
+    display: flex; flex-wrap: wrap; gap: .7rem; align-items: center;
+    padding: .7rem .9rem;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--surface);
+  }
+  .drill-count {
+    font-family: "IBM Plex Mono", monospace; font-size: .8rem;
+    color: var(--muted); font-variant-numeric: tabular-nums; flex: 1;
+  }
+  .drill-card {
+    margin-top: .8rem; padding: 1.3rem 1.2rem;
+    border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 8px; background: var(--surface);
+  }
+  .drill-tag {
+    font-family: "Saira", sans-serif; font-size: .7rem; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: .5rem;
+  }
+  .drill-q { font-size: 1.1rem; font-weight: 600; text-wrap: balance; }
+  .drill-a {
+    margin-top: .9rem; padding-top: .9rem;
+    border-top: 1px dashed var(--line);
+    font-size: 1rem; color: var(--ink);
+  }
+  .drill-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.1rem; }
+  .drill-actions .rate-again { border-color: var(--bad); color: var(--bad); }
+  .drill-actions .rate-good { border-color: var(--accent); color: var(--accent); }
+  .drill-actions .rate-easy { border-color: var(--good); color: var(--good); }
+  .drill-done { max-width: 54rem; margin-top: .9rem; color: var(--muted); font-size: .95rem; }
+
   /* ---------- exam ---------- */
   .exam-bar {
     max-width: 54rem;
@@ -740,7 +774,7 @@
     pre.scl .com { color: #667; } pre.scl .str { color: #2b6018; } pre.scl .num { color: #7a2f7a; }
     a { color: #000; text-decoration: none; }
   }
-  html.print-quickref main > section.ch:not(#ch21),
+  html.print-quickref main > section.ch:not(#ch24),
   html.print-quickref header.hero,
   html.print-quickref #mobile-toc { display: none !important; }
 </style>
@@ -783,12 +817,16 @@
   <div class="grp">V · Cookbook</div>
   <a href="#ch18"><span class="n">18</span>Device patterns</a>
   <a href="#ch19"><span class="n">19</span>Coordination patterns</a>
-  <div class="grp">VI · Mastery</div>
-  <a href="#ch20"><span class="n">20</span>Pitfalls &amp; debugging</a>
-  <a href="#ch21"><span class="n">21</span>Quick reference</a>
-  <a href="#ch22"><span class="n">22</span>Exercises</a>
-  <a href="#ch23"><span class="n">23</span>Final exam</a>
-  <a href="#ch24"><span class="n">24</span>Roadmap &amp; resources</a>
+  <div class="grp">VI · The Build</div>
+  <a href="#ch20"><span class="n">20</span>Spec &amp; architecture</a>
+  <a href="#ch21"><span class="n">21</span>Implementation</a>
+  <a href="#ch22"><span class="n">22</span>Commissioning</a>
+  <div class="grp">VII · Mastery</div>
+  <a href="#ch23"><span class="n">23</span>Pitfalls &amp; debugging</a>
+  <a href="#ch24"><span class="n">24</span>Quick reference</a>
+  <a href="#ch25"><span class="n">25</span>Exercises</a>
+  <a href="#ch26"><span class="n">26</span>Final exam</a>
+  <a href="#ch27"><span class="n">27</span>Roadmap &amp; resources</a>
 </nav>
 
 <main>
@@ -810,7 +848,7 @@
   </div>
   <div class="eyebrow">Structured Control Language · IEC 61131-3</div>
   <h1>SCL Field<br>Manual <span class="thin">/ TIA Portal</span></h1>
-  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Run real SCL in the built-in playground, check yourself with quizzes and a final exam, and import the companion source files straight into TIA Portal. Progress is remembered in this browser.</p>
+  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Run real SCL in the built-in playground against animated machines, work a complete plant from spec to commissioning, drill the syntax until it sticks, and import the companion source files straight into TIA Portal. Progress is remembered in this browser.</p>
   <div class="specs">
     <span>TARGET <b>S7-1200 / S7-1500</b></span>
     <span>IDE <b>TIA Portal V17+</b></span>
@@ -1766,7 +1804,7 @@ END_FUNCTION_BLOCK</pre>
   <ul>
     <li><strong>Filter noisy inputs</strong> before the controller, not after: <code>#pvFilt := #pvFilt + 0.2 * (#pvRaw - #pvFilt);</code> is a one-line low-pass.</li>
     <li><strong>Bumpless start:</strong> when switching to automatic, preset <code>iTerm</code> so the output doesn't jump (PID_Compact handles this for you).</li>
-    <li><strong>Use Trace</strong> (Ch. 20) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
+    <li><strong>Use Trace</strong> (Ch. 23) on setpoint, PV and output together — tuning by watch table alone is guesswork.</li>
   </ul>
 
   <div class="quiz"><div class="qhead">Check yourself</div>
@@ -1883,7 +1921,7 @@ BEGIN
   <p>A cyclic interrupt <strong>preempts OB1 mid-statement-sequence</strong>. If OB1 is halfway through updating a multi-field setpoint struct when OB30 reads it, OB30 sees a half-written mix — a bug that appears once a week and never in simulation. Rules that keep you safe:</p>
   <ul>
     <li>Keep interrupt OBs <strong>short</strong> — call the control FB, nothing else. Every ms spent there is jitter added to OB1.</li>
-    <li>Hand data between OB1 and interrupt OBs through <strong>dedicated DB areas</strong>, written on one side only (one owner per direction — the Ch. 20 rule, applied across priorities).</li>
+    <li>Hand data between OB1 and interrupt OBs through <strong>dedicated DB areas</strong>, written on one side only (one owner per direction — the Ch. 23 rule, applied across priorities).</li>
     <li>For multi-value handovers, use a <strong>valid flag written last</strong>: fill the fields, then set <code>newDataValid := TRUE;</code> — the reader checks the flag, consumes, clears it.</li>
     <li>On S7-1500, <code>UMOVE_BLK</code> copies a block <em>uninterruptibly</em> when you truly need atomicity.</li>
   </ul>
@@ -1998,7 +2036,7 @@ END_IF;</pre>
     <li><strong>Data flows down as parameters, up as status.</strong> An area FB calls device FBs through their interfaces; devices never reach up or sideways. Cross-area needs go through the coordination layer.</li>
     <li><strong>No M-memory (bit memory).</strong> Everything lives in DBs with names. M-flags are the untyped global variables of the PLC world — the Siemens guidelines say the same.</li>
     <li><strong>One global DB per concern:</strong> <code>DB_HMI</code> (curated operator interface), <code>DB_Recipe</code>, <code>DB_Comm</code>. Not one giant "DB_Global" that everything writes.</li>
-    <li><strong>Naming as documentation:</strong> <code>FB_</code>/<code>FC_</code>/<code>DB_</code>/<code>UDT_</code> prefixes, devices named by plant code (<code>M301_Conveyor</code>), verbs for commands (<code>cmdStart</code>), states as adjectives (<code>running</code>, <code>fault</code>). Pick the convention on day one; the styleguide in Ch. 24 is a ready-made one.</li>
+    <li><strong>Naming as documentation:</strong> <code>FB_</code>/<code>FC_</code>/<code>DB_</code>/<code>UDT_</code> prefixes, devices named by plant code (<code>M301_Conveyor</code>), verbs for commands (<code>cmdStart</code>), states as adjectives (<code>running</code>, <code>fault</code>). Pick the convention on day one; the styleguide in Ch. 27 is a ready-made one.</li>
     <li><strong>Libraries, not copy-paste.</strong> Put released device FBs and UDTs into a TIA <em>project library</em> / global library as versioned types. Fixing a bug then means "update instances," not "find all 14 copies."</li>
     <li><strong>Version control:</strong> export blocks as external sources (or use TIA's workspace/VCI features) and keep them in git. Text SCL diffs — use that superpower; it's half the reason to write SCL at all.</li>
   </ul>
@@ -2374,6 +2412,339 @@ END_FUNCTION_BLOCK</pre>
 <!-- ================================================================ -->
 <section class="ch" id="ch20">
   <div class="chnum">Chapter 20</div>
+  <h2>The Build I — Spec &amp; architecture</h2>
+  <p>Everything so far taught blocks and patterns. These three chapters build a <em>machine</em> — the same journey you'll make on every real project: understand → structure → implement → commission. The machine is <strong>WASH-3</strong>, a single-bay train wash plant: the train parks, a gantry carrying spray bars, brushes and a blower traverses along it four times, the train leaves clean. Small enough to hold in your head, real enough to need everything in this manual.</p>
+
+  <h3>Start with the boring documents</h3>
+  <p>Professionals write four short documents before the first block. They feel bureaucratic; they are the project:</p>
+  <ul>
+    <li><strong>Sequence description</strong> — the machine's story in numbered prose. "1. Operator confirms the train is parked and isolated. 2. Gantry travels Home→Far spraying pre-rinse…" If you can't write it, you can't program it.</li>
+    <li><strong>I/O list</strong> — every wire, with tag names decided <em>now</em>, using the Ch. 17 conventions.</li>
+    <li><strong>Alarm list</strong> — every way it fails and what the operator should read.</li>
+    <li><strong>Block list</strong> — which FBs exist, what layer they live in, what they're named.</li>
+  </ul>
+
+  <h3>WASH-3 sequence description</h3>
+  <ol>
+    <li>IDLE: bay red light on. Operator drives the train in, isolates it, presses <em>Start</em> on the HMI.</li>
+    <li>Checks: light curtain clear, e-stop healthy, water pressure OK, gantry parked Home. Any failure → refuse with a message, stay in IDLE.</li>
+    <li>Pass 1 — gantry Home→Far, <em>pre-rinse</em> pump on.</li>
+    <li>Pass 2 — gantry Far→Home, <em>detergent</em> pump + brush motor on.</li>
+    <li>Pass 3 — gantry Home→Far, <em>rinse</em> pump on.</li>
+    <li>Pass 4 — gantry Far→Home, <em>blower</em> on. Gantry ends parked Home.</li>
+    <li>DONE: green light 10 s, then back to IDLE.</li>
+    <li>Any time: e-stop or light-curtain breach → everything off immediately, gantry stops where it is, alarm raised. After reset, the operator homes the gantry in manual mode; the wash is <em>not</em> resumed automatically (a half-washed train is an inconvenience; an unexpected gantry start is an injury).</li>
+  </ol>
+
+  <h3>I/O list (excerpt)</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Tag</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>diGantryHome</code></td><td>DI</td><td>Gantry at Home end switch</td></tr>
+    <tr><td><code>diGantryFar</code></td><td>DI</td><td>Gantry at Far end switch</td></tr>
+    <tr><td><code>diCurtainClear</code></td><td>DI</td><td>Bay light curtain unbroken</td></tr>
+    <tr><td><code>diEStopOK</code></td><td>DI</td><td>E-stop circuit healthy (from safety relay)</td></tr>
+    <tr><td><code>diPressureOK</code></td><td>DI</td><td>Wash water pressure switch</td></tr>
+    <tr><td><code>diBrushRunFb</code>, <code>diBlowerRunFb</code>, …</td><td>DI</td><td>Contactor feedbacks, one per drive</td></tr>
+    <tr><td><code>doGantryFwd</code> / <code>doGantryRev</code></td><td>DO</td><td>Gantry travel contactors</td></tr>
+    <tr><td><code>doPreRinse</code>, <code>doDetergent</code>, <code>doRinse</code></td><td>DO</td><td>Media pump contactors</td></tr>
+    <tr><td><code>doBrush</code>, <code>doBlower</code></td><td>DO</td><td>Brush / blower contactors</td></tr>
+    <tr><td><code>doLampRed</code> / <code>doLampGreen</code></td><td>DO</td><td>Bay signals</td></tr>
+  </table></div>
+
+  <h3>Alarm list</h3>
+  <div class="tablewrap"><table>
+    <tr><th class="num">#</th><th>Alarm</th><th>Condition</th></tr>
+    <tr><td class="num">1</td><td>Gantry travel timeout</td><td>Moving pass active, target end switch not reached in 90 s</td></tr>
+    <tr><td class="num">2</td><td>Gantry end switches implausible</td><td>Home and Far both TRUE (Ch. 18's impossible-state trick)</td></tr>
+    <tr><td class="num">3</td><td>Water pressure lost</td><td><code>NOT diPressureOK</code> during a wet pass, 3 s delay</td></tr>
+    <tr><td class="num">4</td><td>Light curtain breached in auto</td><td>Curtain broken while sequence past IDLE</td></tr>
+    <tr><td class="num">5</td><td>Drive feedback missing</td><td>Any drive commanded, no contactor feedback in 3 s (Ch. 12)</td></tr>
+    <tr><td class="num">6</td><td>E-stop</td><td>Safety circuit dropped</td></tr>
+  </table></div>
+
+  <h3>Architecture: the block list</h3>
+  <p>Straight from the Ch. 17 layers — coordination on top, one area FB (this machine has one area), devices below, reused from the library you already have:</p>
+  <div class="tablewrap"><table>
+    <tr><th>Layer</th><th>Block</th><th>Origin</th></tr>
+    <tr><td>Coordination</td><td>OB1 "Main", OB100 "Startup"</td><td>this project</td></tr>
+    <tr><td>Area</td><td><code>FB_WashSeq</code> — the sequence, modes, pass logic</td><td>Ch. 21, new</td></tr>
+    <tr><td>Device</td><td><code>FB_GantryDrive</code> — travel + supervision</td><td>Ch. 21, new (valve-pattern twin)</td></tr>
+    <tr><td>Device</td><td><code>FB_MotorCtrl</code> ×5 (pumps, brush, blower)</td><td>Ch. 12 library, unchanged</td></tr>
+    <tr><td>Plant-wide</td><td><code>FB_AlarmMgr</code> + <code>alarms : Array[1..6] of "UDT_Alarm"</code></td><td>Ch. 18 library, unchanged</td></tr>
+    <tr><td>Data</td><td><code>DB_Wash</code> (plant data), <code>DB_HMI</code> (curated operator interface)</td><td>this project</td></tr>
+  </table></div>
+  <div class="note"><b>The point of this chapter</b>Notice what just happened: by the time the documents exist, five of the seven blocks are already written and tested — they came from your library. The "new project" is one sequence FB, one small device FB, and wiring. That is what Chapters 12, 17 and 18 were <em>for</em>. Before reading Chapter 21, try it: the spec above is complete enough to implement — build WASH-3 yourself in PLCSIM, then compare.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch21">
+  <div class="chnum">Chapter 21</div>
+  <h2>The Build II — Implementation</h2>
+
+  <h3>The gantry: a valve that carries brushes</h3>
+  <p>Squint at the gantry and it's Ch. 18's valve: two directions, two end switches, travel supervision, impossible-state check. That recognition — <em>"this device is that pattern"</em> — is the skill this whole Part exists to train:</p>
+  <figure class="code"><figcaption><span>FB_GantryDrive</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_GantryDrive"
+VAR_INPUT
+    cmdFwd     : Bool;         // toward Far
+    cmdRev     : Bool;         // toward Home
+    cmdReset   : Bool;
+    fbHome     : Bool;
+    fbFar      : Bool;
+    tTravelMax : Time := T#90s;
+END_VAR
+VAR_OUTPUT
+    outFwd  : Bool;
+    outRev  : Bool;
+    atHome  : Bool;
+    atFar   : Bool;
+    fault   : Bool;
+    faultCode : Int;   // 0 none, 1 travel timeout, 2 both switches
+END_VAR
+VAR
+    tTravel   : TON;
+    trigReset : R_TRIG;
+END_VAR
+
+BEGIN
+#trigReset(CLK := #cmdReset);
+
+IF #fbHome AND #fbFar THEN
+    #fault := TRUE;  #faultCode := 2;
+END_IF;
+
+// Supervise only while a direction is commanded
+#tTravel(IN := (#cmdFwd AND NOT #fbFar)
+             OR (#cmdRev AND NOT #fbHome),
+         PT := #tTravelMax);
+IF #tTravel.Q THEN
+    #fault := TRUE;  #faultCode := 1;
+END_IF;
+
+IF #trigReset.Q AND NOT (#fbHome AND #fbFar) THEN
+    #fault := FALSE;  #faultCode := 0;
+END_IF;
+
+// Direction interlock by structure: never both
+#outFwd := #cmdFwd AND NOT #cmdRev AND NOT #fault;
+#outRev := #cmdRev AND NOT #cmdFwd AND NOT #fault;
+#atHome := #fbHome;
+#atFar  := #fbFar;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+
+  <h3>The sequence — the one genuinely new block</h3>
+  <p>Four passes, alternating direction, different media each pass. Written naively that's eight near-identical steps; written with the pass number as <em>data</em>, it's three steps and a table. This is the chapter's big idea: <strong>when steps repeat with variations, the variation belongs in data, not in more steps</strong>:</p>
+  <figure class="code"><figcaption><span>FB_WashSeq — passes as data</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">FUNCTION_BLOCK "FB_WashSeq"
+VAR_INPUT
+    start        : Bool;      // HMI
+    reset        : Bool;
+    interlocksOK : Bool;      // curtain AND estop, from OB1
+    pressureOK   : Bool;
+    gantryHome   : Bool;      // from FB_GantryDrive
+    gantryFar    : Bool;
+    gantryFault  : Bool;
+END_VAR
+VAR_OUTPUT
+    gantryFwd  : Bool;
+    gantryRev  : Bool;
+    preRinse   : Bool;
+    detergent  : Bool;
+    brush      : Bool;
+    rinse      : Bool;
+    blower     : Bool;
+    lampGreen  : Bool;
+    lampRed    : Bool;
+    stepNo     : Int;
+    passNo     : Int;
+    almPressure : Bool;       // raise-bits for the alarm array
+    almCurtain  : Bool;
+END_VAR
+VAR
+    step      : Int;
+    stepOld   : Int;
+    pass      : Int;          // 1..4 — the data that replaces 8 steps
+    trigStart : R_TRIG;
+    trigDone  : R_TRIG;       // edge on "this pass is finished"
+    tDone     : TON;
+    tPress    : TON;
+END_VAR
+VAR_TEMP
+    fwdPass   : Bool;         // odd passes travel Home->Far
+    wetPass   : Bool;
+    passDone  : Bool;
+END_VAR
+VAR CONSTANT
+    IDLE : Int := 0;   RUN : Int := 10;
+    DONE : Int := 20;  FAULTED : Int := 90;
+END_VAR
+
+BEGIN
+#trigStart(CLK := #start);
+
+// Derived facts about the current pass -------------------------
+#fwdPass  := (#pass MOD 2) = 1;              // 1,3 forward; 2,4 reverse
+#wetPass  := #pass &lt;= 3;                     // 4 = dry
+#passDone := SEL(G := #fwdPass, IN0 := #gantryHome, IN1 := #gantryFar);
+#trigDone(CLK := #passDone);                 // EDGE, not level — see below
+
+// Supervision ---------------------------------------------------
+#tPress(IN := (#step = #RUN) AND #wetPass AND NOT #pressureOK,
+        PT := T#3s);
+#almPressure := #tPress.Q;
+#almCurtain  := (#step &lt;&gt; #IDLE) AND NOT #interlocksOK;
+
+IF #almPressure OR #almCurtain OR #gantryFault THEN
+    #step := #FAULTED;
+END_IF;
+
+// Sequence ------------------------------------------------------
+CASE #step OF
+    #IDLE:
+        #pass := 0;
+        IF #trigStart.Q AND #interlocksOK AND #pressureOK
+           AND #gantryHome THEN
+            #pass := 1;
+            #step := #RUN;
+        END_IF;
+
+    #RUN:
+        IF #trigDone.Q THEN
+            IF #pass &gt;= 4 THEN
+                #step := #DONE;
+            ELSE
+                #pass := #pass + 1;                // same step, next pass
+            END_IF;
+        END_IF;
+
+    #DONE:
+        IF #tDone.Q THEN  #step := #IDLE;  END_IF;
+
+    #FAULTED:              // operator resets, homes gantry in manual
+        IF #reset AND NOT #almPressure AND NOT #almCurtain
+           AND NOT #gantryFault THEN
+            #step := #IDLE;
+        END_IF;
+
+    ELSE
+        #step := #IDLE;
+END_CASE;
+
+#tDone(IN := (#step = #stepOld) AND (#step = #DONE), PT := T#10s);
+#stepOld := #step;
+
+// #pass may have changed inside the CASE, so refresh anything the
+// outputs derive from it — a temp computed before the CASE is stale.
+#fwdPass := (#pass MOD 2) = 1;
+
+// Outputs from state + pass data, one place each ---------------
+#gantryFwd := (#step = #RUN) AND #fwdPass;
+#gantryRev := (#step = #RUN) AND NOT #fwdPass;
+#preRinse  := (#step = #RUN) AND (#pass = 1);
+#detergent := (#step = #RUN) AND (#pass = 2);
+#brush     := (#step = #RUN) AND (#pass = 2);
+#rinse     := (#step = #RUN) AND (#pass = 3);
+#blower    := (#step = #RUN) AND (#pass = 4);
+#lampGreen := #step = #DONE;
+#lampRed   := #step &lt;&gt; #DONE;
+#stepNo    := #step;
+#passNo    := #pass;
+END_FUNCTION_BLOCK</pre>
+  </figure>
+  <p>Three details worth a second read, and the last two are the kind of thing that only shows up when you actually run the machine.</p>
+  <ul>
+    <li><strong><code>#passDone</code> answers "which end switch means finished" with data.</strong> <code>SEL</code> picks the Far switch for an odd (forward) pass and the Home switch for an even one — no branching, no duplicated steps.</li>
+    <li><strong>The transition triggers on an <em>edge</em>, not a level.</strong> <code>#trigDone.Q</code> instead of <code>#passDone</code>. Here is why it matters: with alternating passes a level test would happen to work, because a forward pass starts at Home and watches the <em>Far</em> switch — the switch it is standing on is never the one it waits for. Change the recipe so two consecutive passes travel the same way and the second pass begins already sitting on its own done-switch: with a level test, passes 2, 3 and 4 all complete in the same scan and the train leaves unwashed. The edge makes that impossible — and better still, the impossible recipe then <em>hangs</em>, which the gantry's 90 s travel supervision reports as an alarm. Silent wrong behavior became a loud stop.</li>
+    <li><strong>Derived temps are recomputed after the CASE.</strong> <code>#fwdPass</code> is calculated before the transitions run, so on the scan a pass increments it still describes the <em>previous</em> pass — the gantry would be driven the old direction for one scan while the HMI already showed the new pass number. Recomputing it before the output block costs one line and removes a whole class of "the display and the machine disagree" confusion.</li>
+  </ul>
+  <div class="warn"><b>The transferable rule</b>Ch. 11's <code>stepOld</code> trick works because the comparison sits <em>after</em> the CASE and <em>before</em> the update, so it sees exactly one scan of disagreement. Copy that trick into a transition test <em>inside</em> the CASE and it does nothing at all: by then the "old" copy was already refreshed at the end of the previous scan. When a transition must ignore a condition that is already true when its state begins, reach for an edge detector — that is what edges are for.</div>
+
+  <h3>OB1: wiring, not logic</h3>
+  <figure class="code"><figcaption><span>Main [OB1] — the machine at a glance</span><span class="lang">SCL</span></figcaption>
+<pre class="scl">// Devices --------------------------------------------------------
+"FB_Gantry_DB"(cmdFwd  := "FB_WashSeq_DB".gantryFwd,
+               cmdRev  := "FB_WashSeq_DB".gantryRev,
+               cmdReset:= "DB_HMI".cmdReset,
+               fbHome  := "diGantryHome",
+               fbFar   := "diGantryFar");
+
+"FB_Brush_DB"(cmdRun := "FB_WashSeq_DB".brush,
+              cmdReset := "DB_HMI".cmdReset,
+              interlockOK := "diEStopOK",
+              fbRunning := "diBrushRunFb",
+              fbTripped := FALSE);
+// ...four more FB_MotorCtrl calls: preRinse, detergent, rinse, blower
+
+// Sequence -------------------------------------------------------
+"FB_WashSeq_DB"(start := "DB_HMI".cmdStart,
+                reset := "DB_HMI".cmdReset,
+                interlocksOK := "diCurtainClear" AND "diEStopOK",
+                pressureOK   := "diPressureOK",
+                gantryHome := "FB_Gantry_DB".atHome,
+                gantryFar  := "FB_Gantry_DB".atFar,
+                gantryFault:= "FB_Gantry_DB".fault);
+
+// Alarms ---------------------------------------------------------
+"DB_Wash".alarms[1].raise := "FB_Gantry_DB".faultCode = 1;
+"DB_Wash".alarms[2].raise := "FB_Gantry_DB".faultCode = 2;
+"DB_Wash".alarms[3].raise := "FB_WashSeq_DB".almPressure;
+"DB_Wash".alarms[4].raise := "FB_WashSeq_DB".almCurtain;
+"DB_Wash".alarms[5].raise := "FB_Brush_DB".fault;  // OR the others in
+"DB_Wash".alarms[6].raise := NOT "diEStopOK";
+"FB_AlarmMgr_DB"(alarms := "DB_Wash".alarms,
+                 ackAll := "DB_HMI".cmdAck);
+
+// Physical outputs: the ONLY writes to %Q ------------------------
+"doGantryFwd" := "FB_Gantry_DB".outFwd;
+"doGantryRev" := "FB_Gantry_DB".outRev;
+"doBrush"     := "FB_Brush_DB".contactor;
+"doLampGreen" := "FB_WashSeq_DB".lampGreen;
+"doLampRed"   := "FB_WashSeq_DB".lampRed;
+// ...</pre>
+  </figure>
+  <div class="note"><b>Read OB1 like an inspector</b>Every physical output is written exactly once, at the bottom, from a block output — the Ch. 18 one-owner rule made auditable. A stranger can trace any wire's behavior in under a minute: find the <code>%Q</code> write, jump into the one block that feeds it. That property is worth more than any clever logic.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch22">
+  <div class="chnum">Chapter 22</div>
+  <h2>The Build III — Commissioning</h2>
+  <p>Code that compiles is a third of the job. Commissioning is a discipline of its own, and it's where SCL's tooling — watch tables, forcing, trace — earns its keep. The professional order:</p>
+
+  <h3>1 · Simulate everything first</h3>
+  <ul>
+    <li>Load WASH-3 into PLCSIM. Build one watch table per concern: <em>WT_Sequence</em> (stepNo, passNo, the transition conditions), <em>WT_Gantry</em> (commands, feedbacks, travel timer ET), <em>WT_Alarms</em>.</li>
+    <li>Play operator <em>and</em> machine: set <code>diGantryHome</code>, press start from the HMI DB, then hand-walk the gantry — clear Home, set Far, watch pass 2 begin in the other direction.</li>
+    <li>Now play saboteur, one fault per run: drop <code>diPressureOK</code> mid-pass (alarm 3 in 3 s, everything off?), break the curtain (immediate stop?), set both end switches (gantry fault 2?), never set the target switch (travel timeout at 90 s?). <strong>Every line on the Ch. 20 alarm list gets provoked once</strong> — an alarm you never saw fire is an alarm you don't have.</li>
+  </ul>
+
+  <h3>2 · Dry runs on the real machine</h3>
+  <ul>
+    <li><strong>I/O check first, logic later:</strong> with drives' motor protection switches off, force each output on and have someone confirm the right contactor clicks; wiggle each sensor and watch the input. Half of all "software bugs" on site die in this hour.</li>
+    <li>Run the sequence with water valves manually closed and the gantry at crawl (commission override on the VFD if fitted). Watch <em>WT_Sequence</em> live — the step number tells you everything.</li>
+    <li>Only then: first wet run. Someone at the e-stop, always.</li>
+  </ul>
+
+  <h3>3 · When something's wrong: trace, not guesswork</h3>
+  <p>The classic WASH-3 commissioning bug: pass transitions fire twice, skipping a pass, but only sometimes. A watch table refreshes too slowly to catch it — this is a job for <strong>Trace</strong> (Ch. 23): record <code>stepNo</code>, <code>passNo</code>, both end switches at scan resolution, trigger on <code>passNo</code> changing, and read the truth: the end switch bounces for two scans as the heavy gantry lands on it. The fix is a 200 ms debounce TON on each end switch: the edge detector faithfully reported two rising edges because the switch really did produce two. Software edges are only ever as clean as the contact underneath them — machines are made of physics.</p>
+
+  <h3>4 · The FAT checklist</h3>
+  <p>Before anyone signs anything, walk it — every line demonstrated, not asserted:</p>
+  <ol>
+    <li>Full auto cycle completes; gantry parked Home; green lamp 10 s.</li>
+    <li>Each of the six alarms provoked once: correct text on the HMI, correct machine reaction, horn silences on ack, indication clears only when the cause is gone.</li>
+    <li>E-stop during each pass: all outputs drop within one scan; recovery requires reset + manual re-home; no automatic resume.</li>
+    <li>Start refused (with a reason on the HMI) when: gantry not Home, curtain broken, pressure low.</li>
+    <li>Power cycle mid-wash: machine wakes in IDLE with an alarm, never mid-sequence (OB100, Ch. 15).</li>
+    <li>Cross-reference audit: every <code>%Q</code> written exactly once (Ctrl+Shift+R).</li>
+  </ol>
+  <div class="note"><b>The Build, completed honestly</b>If you built WASH-3 yourself from Chapter 20's spec before reading the code — compare now, and keep whichever choices of yours are <em>better</em>; the pass-as-data trick is a suggestion, not scripture. If you read first: fair enough, but the machine isn't yours until you've rebuilt it in PLCSIM from the spec alone, sabotage runs included. That rebuild is the real final exam; Chapter 26 is just the paperwork.</div>
+</section>
+
+<!-- ================================================================ -->
+<section class="ch" id="ch23">
+  <div class="chnum">Chapter 23</div>
   <h2>Pitfalls &amp; debugging</h2>
 
   <h3>The greatest hits</h3>
@@ -2402,10 +2773,33 @@ END_FUNCTION_BLOCK</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch21">
-  <div class="chnum">Chapter 21</div>
+<section class="ch" id="ch24">
+  <div class="chnum">Chapter 24</div>
   <h2>Quick reference</h2>
   <p style="margin-top:-.4rem"><button type="button" class="pg-btn alt" id="printcard">Print this card</button></p>
+  <h3>Drill deck</h3>
+  <p>Recall practice for the things you should never have to look up: instruction names, syntax shapes, and the traps. Rate each card honestly — <em>Again</em> brings it back this session, <em>Good</em> and <em>Easy</em> push it days into the future. Schedule and history live in this browser only.</p>
+  <div class="drill" id="drill">
+    <div class="drill-bar">
+      <span class="drill-count" id="drill-count">—</span>
+      <button type="button" class="pg-btn alt" id="drill-start">Start drilling</button>
+      <button type="button" class="pg-btn alt" id="drill-reset">Reset schedule</button>
+    </div>
+    <div class="drill-card" id="drill-card" hidden>
+      <div class="drill-tag" id="drill-tag"></div>
+      <div class="drill-q" id="drill-q"></div>
+      <div class="drill-a" id="drill-a" hidden></div>
+      <div class="drill-actions" id="drill-show-wrap">
+        <button type="button" class="pg-btn" id="drill-show">Show answer</button>
+      </div>
+      <div class="drill-actions" id="drill-rate" hidden>
+        <button type="button" class="pg-btn alt rate-again" data-q="0">Again</button>
+        <button type="button" class="pg-btn alt rate-good" data-q="1">Good</button>
+        <button type="button" class="pg-btn alt rate-easy" data-q="2">Easy</button>
+      </div>
+    </div>
+    <p class="drill-done" id="drill-done" hidden>Deck clear. Come back tomorrow — the cards you rated <em>Good</em> and <em>Easy</em> are scheduled forward.</p>
+  </div>
   <p>The whole language on one screen — for the moment on site when you know exactly what you want and just need the spelling.</p>
 
   <figure class="code"><figcaption><span>Skeletons</span><span class="lang">SCL</span></figcaption>
@@ -2461,8 +2855,8 @@ INT#42  REAL#1.0  WORD#16#00FF       // typed when ambiguous</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch22">
-  <div class="chnum">Chapter 22</div>
+<section class="ch" id="ch25">
+  <div class="chnum">Chapter 25</div>
   <h2>Exercises</h2>
   <p>Do these in order, in PLCSIM. Write the block, wire a small test OB, watch it run. Solutions fold out — but struggle first; the struggle is the course.</p>
 
@@ -2624,13 +3018,13 @@ END_IF;</pre>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch23">
-  <div class="chnum">Chapter 23</div>
+<section class="ch" id="ch26">
+  <div class="chnum">Chapter 26</div>
   <h2>Final exam</h2>
-  <p>Twenty questions across the whole manual. Answer them all; your score appears below and your best run is remembered in this browser. No time limit — but no peeking either. Aim for 18+ before calling yourself fluent.</p>
+  <p>Twenty-six questions across the whole manual — the last six cover the cookbook and the build. Answer them all; your score appears below and your best run is remembered in this browser. No time limit — but no peeking either. Aim for 23+ before calling yourself fluent.</p>
 
   <div class="exam-bar">
-    <span class="score" id="exam-score">0 / 20</span>
+    <span class="score" id="exam-score">0 / 26</span>
     <span class="best" id="exam-best"></span>
     <button type="button" class="pg-btn alt" id="exam-reset">Reset exam</button>
   </div>
@@ -2716,12 +3110,36 @@ END_IF;</pre>
       <div class="opts"><button>Running the first scan of OB1 faster</button><button data-ok>Forcing a known, safe state on STOP → RUN instead of resuming blind</button><button>Loading firmware updates</button></div>
       <div class="why">Deliberate reset or deliberate resume — never "wherever the retained RAM happened to be."</div>
     </div>
+    <div class="q"><p>21 · A valve is commanded closed and its closed switch has been dark for 10 s. The supervision condition that catches this <em>and</em> a valve drifting off position later is…</p>
+      <div class="opts"><button data-ok>A timer on "not at the commanded end position"</button><button>A timer on the coil output</button><button>A counter of open/close cycles</button></div>
+      <div class="why">One condition — "the valve is not where the command wants it" — covers opening, closing and drifting off an end switch in service.</div>
+    </div>
+    <div class="q"><p>22 · An analog channel's high/low alarms should be suppressed when…</p>
+      <div class="opts"><button>The value is filtered</button><button data-ok>A wire break is detected — the scaled value is meaningless</button><button>The operator is logged in</button></div>
+      <div class="why">A broken wire scales to nonsense; without the gate one fault raises two alarms, and alarm floods train operators to ignore alarms.</div>
+    </div>
+    <div class="q"><p>23 · In annunciator semantics, an alarm's indication clears when…</p>
+      <div class="opts"><button>The operator acknowledges it</button><button data-ok>It has been acknowledged <em>and</em> the condition is gone</button><button>The horn stops</button></div>
+      <div class="why">Ack means "a human knows," not "it's fixed." Ack silences the horn; the lamp waits for reality.</div>
+    </div>
+    <div class="q"><p>24 · Why does a duty/standby scheme alternate rather than always run pump A?</p>
+      <div class="opts"><button>Lower power draw</button><button data-ok>Even wear, and every second start proves the standby actually works</button><button>It halves the fault rate</button></div>
+      <div class="why">A standby that never runs is unproven — its failure is invisible until the day you need it.</div>
+    </div>
+    <div class="q"><p>25 · A pause input that gates only the CASE transitions produces…</p>
+      <div class="opts"><button>A correctly paused machine</button><button data-ok>A frozen step number while timers keep timing and actuators keep running</button><button>A sequence reset</button></div>
+      <div class="why">Pause is three decisions: transitions, timers, and outputs — each gated deliberately, per output.</div>
+    </div>
+    <div class="q"><p>26 · A repeating sequence step must not accept a condition that is <em>already true</em> when the step begins. The right tool is…</p>
+      <div class="opts"><button>An <code>xOld</code> comparison inside the CASE</button><button data-ok>An edge detector (<code>R_TRIG</code>) on the condition</button><button>A one-scan delay timer</button></div>
+      <div class="why">An <code>xOld</code> copy updated at the end of each scan is equal again by the time the CASE runs — it only creates a one-scan gap when the comparison sits after the change and before the update (the Ch. 11 timer trick). For "don't accept what was already true," use an edge.</div>
+    </div>
   </div>
 </section>
 
 <!-- ================================================================ -->
-<section class="ch" id="ch24">
-  <div class="chnum">Chapter 24</div>
+<section class="ch" id="ch27">
+  <div class="chnum">Chapter 27</div>
   <h2>Roadmap &amp; resources</h2>
 
   <h3>A realistic mastery path</h3>
@@ -2732,7 +3150,8 @@ END_IF;</pre>
     <li><strong>Month 3 — Library thinking &amp; loops.</strong> Chapters 12–13; build your personal device library (motor, valve, analog channel, PI wrapper) and reuse it in the next project.</li>
     <li><strong>Month 4 — Systems.</strong> Chapters 14–17: comms, interrupt design, and program architecture. Then the capstone exercise — a complete small machine in PLCSIM, layered as Chapter 17 preaches.</li>
     <li><strong>Month 5 — The cookbook.</strong> Chapters 18–19: rebuild each pattern from memory on the trainer, then take Playground labs 5 and 6 — the level crossing and the pump failover are exactly these patterns, under grading.</li>
-    <li><strong>Checkpoint —</strong> the <a href="#ch23">final exam</a>, cold. 18+ out of 20 and the fundamentals are yours.</li>
+    <li><strong>Month 6 — The Build.</strong> Chapters 20–22: read the WASH-3 spec, implement it in PLCSIM <em>before</em> reading Chapter 21, then run the sabotage list and the FAT checklist. This is the closest thing here to being handed a machine.</li>
+    <li><strong>Checkpoint —</strong> the <a href="#ch26">final exam</a>, cold. 23+ out of 26 and the fundamentals are yours.</li>
     <li><strong>Ongoing —</strong> read other people's code (open-source S7 projects, Siemens application examples), and study the official <em>Programming Styleguide</em> — consistency is what separates a library from a pile of blocks.</li>
   </ul>
 
@@ -4185,7 +4604,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
     var el = document.getElementById("exam-best");
     if (!el) return;
     var best = safeGetItem(EXBEST);
-    el.textContent = best ? "Best run: " + best + " / 20" : "No completed run yet.";
+    el.textContent = best ? "Best run: " + best + " / " + (exam ? exam.querySelectorAll(".q").length : 26) : "No completed run yet.";
   }
   examBest();
 
@@ -4296,6 +4715,151 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
     }, { rootMargin: "-15% 0px -70% 0px" });
     sections.forEach(function (s) { obs.observe(s); });
   } catch (e) { /* no scroll-spy — nav still works */ }
+
+  // ---------- drill deck (spaced repetition) ----------
+  (function () {
+    var wrap = document.getElementById("drill");
+    if (!wrap) return;
+    var CARDS = [
+      ["Ch. 2", "Local variable prefix vs global tag?", "<code>#local</code> is this block's own variable; <code>\"Global\"</code> is a PLC tag, DB or block."],
+      ["Ch. 2", "Assign, compare, and read-an-output operators?", "<code>:=</code> assigns · <code>=</code> compares · <code>=&gt;</code> routes a block output out of a call."],
+      ["Ch. 3", "FB or FC for a block that needs no memory?", "FC — no instance DB, output depends only on this call's inputs."],
+      ["Ch. 3", "What is a multi-instance?", "An FB or timer declared in another FB's <b>Static</b> section — its data lives inside the parent's instance DB."],
+      ["Ch. 4", "<code>9 / 4</code> in SCL?", "<code>2</code> — integer operands mean integer division. <code>9.0 / 4.0</code> gives 2.25."],
+      ["Ch. 4", "Type for a totalizer that accumulates tiny increments for months?", "<code>LReal</code> — 64-bit, ~15 significant digits. A 32-bit <code>Real</code> loses small additions once the total grows."],
+      ["Ch. 4", "Write 2.5 seconds and 1.5 hours as literals.", "<code>T#2s_500ms</code> and <code>T#1h_30m</code>."],
+      ["Ch. 5", "Which interface section is uninitialized garbage each call?", "<b>Temp</b>. Write before you read, every call. Anything that must survive the scan goes in Static."],
+      ["Ch. 5", "Passing an ARRAY or STRUCT to an FC — which section and why?", "<b>InOut</b> — passed by reference (no copy), and FCs require it for structured types."],
+      ["Ch. 5", "Read bit 3 of a Word in an optimized block?", "Slice access: <code>#myWord.%X3</code> (also <code>.%B0</code>, <code>.%W1</code>)."],
+      ["Ch. 6", "Percentage from two Ints — the safe order?", "<code>#done * 100 / #total</code>. Dividing first truncates to 0."],
+      ["Ch. 6", "One-line hysteresis, no ELSE?", "<code>IF x &lt; lo THEN out := TRUE; END_IF;</code><br><code>IF x &gt; hi THEN out := FALSE; END_IF;</code>"],
+      ["Ch. 6", "Wrap an index over 0..49?", "<code>#i := (#i + 1) MOD 50;</code>"],
+      ["Ch. 7", "CASE label forms?", "Single <code>1:</code>, list <code>2, 3:</code>, range <code>10..19:</code> — plus always an <code>ELSE</code>."],
+      ["Ch. 7", "What happens if a WHILE condition can only change from an input?", "The scan stalls until the cycle watchdog stops the CPU — inputs don't refresh mid-scan."],
+      ["Ch. 8", "TON, TOF, TP — one line each.", "<b>TON</b> delays ON · <b>TOF</b> delays OFF (run-on) · <b>TP</b> fixed-length pulse."],
+      ["Ch. 8", "Why must timers be called unconditionally?", "A timer only advances when its call executes. Inside an IF it freezes with stale outputs — gate the <code>IN</code> parameter instead."],
+      ["Ch. 8", "How long is <code>R_TRIG.Q</code> true?", "Exactly one scan — it converts a level into a single event."],
+      ["Ch. 8", "Counter outputs to remember?", "<code>.Q</code> (reached PV) and <code>.CV</code> (current value); timers give <code>.Q</code> and <code>.ET</code>."],
+      ["Ch. 9", "Runtime bounds of an <code>Array[*]</code> InOut?", "<code>LOWER_BOUND(ARR := #a, DIM := 1)</code> / <code>UPPER_BOUND(...)</code>."],
+      ["Ch. 9", "Index from an HMI field — what first?", "Clamp it: <code>#i := LIMIT(MN := 1, IN := #i, MX := 16);</code> The compiler only checks constants."],
+      ["Ch. 10", "Wire-break check on a 4–20 mA input?", "Raw far below the 4 mA point (~5530): <code>#wireBreak := #raw &lt; 4000;</code>"],
+      ["Ch. 10", "Scale raw to engineering units with library blocks?", "<code>NORM_X</code> (raw → 0.0..1.0) then <code>SCALE_X</code> (→ units)."],
+      ["Ch. 11", "Where are a step machine's outputs written?", "After the CASE, derived from the step number — one place per output, never inside branches."],
+      ["Ch. 11", "Two consecutive timed steps share one TON. What breaks, and the fix?", "<code>ET</code> never resets (IN stays TRUE), so the second step is skipped. Fix: <code>IN := (#step = #stepOld) AND ...</code> and <code>#stepOld := #step;</code> after."],
+      ["Ch. 11", "Why number steps 10, 20, 30?", "So a step can be inserted later without renumbering everything."],
+      ["Ch. 12", "Why must a library FB never read a global tag?", "It welds the block to one project — no reuse, no isolated PLCSIM test."],
+      ["Ch. 12", "Fail-safe-by-structure output line?", "<code>#out := #cmd AND #interlockOK AND NOT #fault;</code> — every fault path drops it; no branch can forget."],
+      ["Ch. 13", "Where does closed-loop control run, and why?", "A cyclic interrupt OB (e.g. OB30). The math assumes a fixed sample time; OB1's cycle varies."],
+      ["Ch. 13", "Anti-windup in one line?", "Clamp the integral term to the output range: <code>#iTerm := LIMIT(MN := #outMin, IN := #iTerm, MX := #outMax);</code>"],
+      ["Ch. 14", "Values arrive 256× wrong at a PC. Cause?", "Byte order — S7 is big-endian, the PC read little-endian. Swap or define the telegram byte-exactly."],
+      ["Ch. 15", "What does adding an empty OB82 change?", "Diagnostic events stop halting the CPU — for several fault classes the reaction depends on whether the OB exists."],
+      ["Ch. 15", "Safe handover of several values to a higher-priority OB?", "Write all fields, then set a valid flag last; the reader checks it, consumes, clears it."],
+      ["Ch. 17", "Three program layers, top to bottom?", "Coordination (OB1) → Process/area FBs → Device FBs. Data down as parameters, status up; no sideways reads."],
+      ["Ch. 18", "Both limit switches TRUE at once — what does the block do?", "Declares a wiring/hardware fault. Impossible sensor states prove the feedback is lying."],
+      ["Ch. 18", "Why gate analog alarms with <code>NOT wireBreak</code>?", "A broken wire scales to a nonsense value and would raise a false low-alarm alongside the real fault — alarm floods teach operators to ignore alarms."],
+      ["Ch. 18", "Acknowledge with the cause still present — what happens?", "Horn silences, indication stays. It clears only when acked <b>and</b> the condition is gone."],
+      ["Ch. 19", "Why alternate duty/standby pumps instead of A-then-backup?", "Even wear, and every second start exercises the standby — an unproven backup isn't a backup."],
+      ["Ch. 19", "Pause is how many decisions?", "Three: transitions (gate with <code>advance</code>), timers (gate <code>IN</code>), outputs (gate per output — some may keep running)."],
+      ["Ch. 21", "Four near-identical sequence passes — better than eight steps?", "Keep one step and make the pass number data: derive direction and media from <code>#pass</code>."],
+      ["Ch. 21", "A repeating step must ignore a condition already TRUE when it begins. Tool?", "An edge detector on the condition (<code>R_TRIG</code>). An <code>xOld</code> copy re-equalises at scan end, so it cannot help inside a CASE."],
+      ["Ch. 23", "Best tool for a one-scan glitch?", "<b>Trace</b> — records tags at scan resolution. Watch tables refresh far too slowly."],
+      ["Ch. 23", "Comparing Reals for equality?", "Don't. Use a tolerance: <code>ABS(#x - 10.0) &lt; 0.001</code>."]
+    ];
+
+    var KEY = "sclfm-drill";
+    function load() { try { var v = localStorage.getItem(KEY); return v ? JSON.parse(v) : {}; } catch (e) { return {}; } }
+    function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+    var sched = load();
+    var DAY = 86400000;
+
+    var countEl = document.getElementById("drill-count"),
+        startBtn = document.getElementById("drill-start"),
+        resetBtn = document.getElementById("drill-reset"),
+        cardEl = document.getElementById("drill-card"),
+        tagEl = document.getElementById("drill-tag"),
+        qEl = document.getElementById("drill-q"),
+        aEl = document.getElementById("drill-a"),
+        showWrap = document.getElementById("drill-show-wrap"),
+        showBtn = document.getElementById("drill-show"),
+        rateWrap = document.getElementById("drill-rate"),
+        doneEl = document.getElementById("drill-done");
+
+    var queue = [], cur = -1;
+
+    function dueList() {
+      var now = Date.now(), out = [];
+      for (var i = 0; i < CARDS.length; i++) {
+        var s = sched[i];
+        if (!s || !s.due || s.due <= now) out.push(i);
+      }
+      return out;
+    }
+    function updateCount() {
+      var due = dueList().length;
+      var seen = 0;
+      for (var k in sched) if (sched[k] && sched[k].due) seen++;
+      countEl.textContent = due + " of " + CARDS.length + " card" + (due === 1 ? "" : "s") + " due" +
+        (seen ? " · " + seen + " scheduled" : "");
+    }
+    function showCard() {
+      if (!queue.length) {
+        cardEl.hidden = true;
+        doneEl.hidden = false;
+        updateCount();
+        return;
+      }
+      cur = queue[0];
+      tagEl.textContent = CARDS[cur][0];
+      qEl.innerHTML = CARDS[cur][1];
+      aEl.innerHTML = CARDS[cur][2];
+      aEl.hidden = true;
+      rateWrap.hidden = true;
+      showWrap.hidden = false;
+      cardEl.hidden = false;
+      doneEl.hidden = true;
+    }
+    startBtn.addEventListener("click", function () {
+      queue = dueList();
+      // shuffle so order never becomes the mnemonic
+      for (var i = queue.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1)), tmp = queue[i];
+        queue[i] = queue[j]; queue[j] = tmp;
+      }
+      showCard();
+    });
+    showBtn.addEventListener("click", function () {
+      aEl.hidden = false;
+      showWrap.hidden = true;
+      rateWrap.hidden = false;
+    });
+    rateWrap.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var q = +b.getAttribute("data-q");
+        var s = sched[cur] || { n: 0, iv: 0 };
+        queue.shift();
+        if (q === 0) {
+          s.n = 0; s.iv = 0;
+          s.due = Date.now();
+          queue.push(cur);                    // back around this session
+        } else {
+          s.n = (s.n || 0) + 1;
+          s.iv = s.iv ? Math.round(s.iv * (q === 2 ? 3.5 : 2.2)) : (q === 2 ? 4 : 1);
+          if (s.iv > 180) s.iv = 180;
+          s.due = Date.now() + s.iv * DAY;
+        }
+        sched[cur] = s;
+        save(sched);
+        updateCount();
+        showCard();
+      });
+    });
+    resetBtn.addEventListener("click", function () {
+      sched = {}; save(sched);
+      queue = []; cardEl.hidden = true; doneEl.hidden = true;
+      updateCount();
+    });
+    updateCount();
+  })();
 
   // ---------- theme toggle ----------
   (function () {

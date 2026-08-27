@@ -1,0 +1,123 @@
+FUNCTION_BLOCK "FB_WashSeq"
+{ S7_Optimized_Access := 'TRUE' }
+// WASH-3 sequence: four gantry passes with different media.
+// The pass number is DATA, not four more steps - direction and media
+// are derived from it, so the CASE stays at three working states.
+VAR_INPUT
+    start        : Bool;       // HMI
+    reset        : Bool;
+    interlocksOK : Bool;       // light curtain AND e-stop, wired in OB1
+    pressureOK   : Bool;
+    gantryHome   : Bool;       // from FB_GantryDrive
+    gantryFar    : Bool;
+    gantryFault  : Bool;
+END_VAR
+VAR_OUTPUT
+    gantryFwd   : Bool;
+    gantryRev   : Bool;
+    preRinse    : Bool;
+    detergent   : Bool;
+    brush       : Bool;
+    rinse       : Bool;
+    blower      : Bool;
+    lampGreen   : Bool;
+    lampRed     : Bool;
+    stepNo      : Int;
+    passNo      : Int;
+    almPressure : Bool;        // raise-bits for the alarm array
+    almCurtain  : Bool;
+END_VAR
+VAR
+    step      : Int;
+    stepOld   : Int;
+    pass      : Int;           // 1..4
+    trigStart : R_TRIG;
+    trigDone  : R_TRIG;        // edge on "this pass is finished"
+    tDone     : TON;
+    tPress    : TON;
+END_VAR
+VAR_TEMP
+    fwdPass  : Bool;           // odd passes travel Home->Far
+    wetPass  : Bool;
+    passDone : Bool;
+END_VAR
+VAR CONSTANT
+    IDLE    : Int := 0;
+    RUN     : Int := 10;
+    DONE    : Int := 20;
+    FAULTED : Int := 90;
+END_VAR
+
+BEGIN
+    #trigStart(CLK := #start);
+
+    // Derived facts about the current pass
+    #fwdPass  := (#pass MOD 2) = 1;
+    #wetPass  := #pass <= 3;
+    #passDone := SEL(G := #fwdPass, IN0 := #gantryHome, IN1 := #gantryFar);
+    #trigDone(CLK := #passDone);   // EDGE: never accept a switch that
+                                   // is already made when a pass starts
+
+    // Supervision
+    #tPress(IN := (#step = #RUN) AND #wetPass AND NOT #pressureOK,
+            PT := T#3s);
+    #almPressure := #tPress.Q;
+    #almCurtain  := (#step <> #IDLE) AND NOT #interlocksOK;
+
+    IF #almPressure OR #almCurtain OR #gantryFault THEN
+        #step := #FAULTED;
+    END_IF;
+
+    CASE #step OF
+        #IDLE:
+            #pass := 0;
+            IF #trigStart.Q AND #interlocksOK AND #pressureOK
+               AND #gantryHome THEN
+                #pass := 1;
+                #step := #RUN;
+            END_IF;
+
+        #RUN:
+            IF #trigDone.Q THEN
+                IF #pass >= 4 THEN
+                    #step := #DONE;
+                ELSE
+                    #pass := #pass + 1;
+                END_IF;
+            END_IF;
+
+        #DONE:
+            IF #tDone.Q THEN
+                #step := #IDLE;
+            END_IF;
+
+        #FAULTED:              // operator resets, then homes in manual
+            IF #reset AND NOT #almPressure AND NOT #almCurtain
+               AND NOT #gantryFault THEN
+                #step := #IDLE;
+            END_IF;
+
+        ELSE
+            #step := #IDLE;
+    END_CASE;
+
+    #tDone(IN := (#step = #stepOld) AND (#step = #DONE), PT := T#10s);
+    #stepOld := #step;
+
+    // #pass may have changed inside the CASE: refresh what the outputs
+    // derive from it, or the direction lags the pass by one scan.
+    #fwdPass := (#pass MOD 2) = 1;
+
+    // Outputs from state + pass data, one place each
+    #gantryFwd := (#step = #RUN) AND #fwdPass;
+    #gantryRev := (#step = #RUN) AND NOT #fwdPass;
+    #preRinse  := (#step = #RUN) AND (#pass = 1);
+    #detergent := (#step = #RUN) AND (#pass = 2);
+    #brush     := (#step = #RUN) AND (#pass = 2);
+    #rinse     := (#step = #RUN) AND (#pass = 3);
+    #blower    := (#step = #RUN) AND (#pass = 4);
+    #lampGreen := #step = #DONE;
+    #lampRed   := #step <> #DONE;
+    #stepNo    := #step;
+    #passNo    := #pass;
+END_FUNCTION_BLOCK
