@@ -26,7 +26,7 @@ if (!chrome) {
 }
 
 /* Seed: 11 chapters read, 2 checkpoints passed (one failed), 3 labs, exam 19.
-   Expected completion = (11 + 2 + 3 + 0) / 41 = 39%. */
+   Expected completion = (11 + 2 + 3 + 0) / 43 = 37%. */
 const SEED = `<script>
 try{
  localStorage.clear();
@@ -72,11 +72,11 @@ function text(id) {
 check("page rendered", rendered.length > 10000, "dom was " + rendered.length + " bytes");
 
 /* --- the dashboard actually computed --- */
-check("completion ring shows the expected percentage", text("ring-pct") === "39%",
-  "ring shows " + text("ring-pct") + ", expected 39%");
+check("completion ring shows the expected percentage", text("ring-pct") === "37%",
+  "ring shows " + text("ring-pct") + ", expected 37%");
 check("chapters read counted", text("stat-ch") === "11 / 27", "got " + text("stat-ch"));
 check("checkpoints counted (only passes)", text("stat-cp") === "2 / 7", "got " + text("stat-cp"));
-check("labs counted", text("stat-lab") === "3 / 6", "got " + text("stat-lab"));
+check("labs counted", text("stat-lab") === "3 / 8", "got " + text("stat-lab"));
 check("exam best shown", text("stat-exam") === "19 / 26", "got " + text("stat-exam"));
 
 const resume = (rendered.match(/class="pg-btn" href="#(ch\d+)"/) || [])[1];

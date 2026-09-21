@@ -110,7 +110,89 @@ function createTankScene() {
   };
 }
 
-var SCLScenes = { train: createTrainScene, tank: createTankScene, tank2: createDualTankScene };
+function createOvenScene() {
+  /* First-order thermal mass. 100 % heater puts 2.6 degC/s into the load; the
+     load bleeds K_LOSS of its overtemperature away every second. Holding 75 degC
+     therefore needs ~42 % power forever — a proportional-only loop parks about
+     5 degC low, which is the whole reason the integral term exists. At t = 200 s
+     the door opens and the loss climbs 40 %. */
+  var AMB = 20, SP = 75, K_HEAT = 2.6, K_LOSS = 0.020, LOSS_OPEN = 0.028, DOOR_AT = 200;
+  var st = { temp: AMB, t: 0, doorOpen: false, pwr: 0, cmd: 0, overRange: false,
+             SP: SP, AMB: AMB, DOOR_AT: DOOR_AT };
+  return {
+    id: "oven",
+    state: st,
+    sensors: function () {
+      return { temp: st.temp, sp: SP, doorOpen: st.doorOpen };
+    },
+    step: function (out, dt) {
+      st.t += dt;
+      if (st.t >= DOOR_AT) st.doorOpen = true;
+      var p = +out.pwr;
+      if (!isFinite(p)) p = 0;
+      st.cmd = p;
+      // The drive clamps whatever you send it — so an unlimited output looks
+      // harmless here. It is not harmless on a real analog card: remember it.
+      if (p < -0.01 || p > 100.01) st.overRange = true;
+      st.pwr = Math.min(100, Math.max(0, p));
+      var loss = st.doorOpen ? LOSS_OPEN : K_LOSS;
+      st.temp += (K_HEAT * st.pwr / 100 - loss * (st.temp - AMB)) * dt;
+    }
+  };
+}
+
+function createConveyorScene() {
+  /* Parts enter at 0 m and ride to 10 m at 0.6 m/s. Two photo-eyes, infeed at
+     1 m and outfeed at 9 m, each +/-0.3 m wide: a part that trips the infeed eye
+     trips the outfeed eye 13.3 s later. At t = 120 s the belt seizes — the
+     contactor stays energised and nothing moves, with no feedback signal to say
+     so. Only travel supervision sees it. Freed again at t = 160 s. */
+  var LEN = 10, SPEED = 0.6, EYE_IN = 1.0, EYE_OUT = 9.0, EYE_W = 0.3;
+  var SPAWN = 16, JAM_AT = 120, JAM_CLEAR = 160;
+  var st = { t: 0, parts: [], passed: 0, jammed: false, freed: false, moving: false, belt: false,
+             lastSpawn: -SPAWN, LEN: LEN, SPEED: SPEED, EYE_IN: EYE_IN,
+             EYE_OUT: EYE_OUT, EYE_W: EYE_W, JAM_AT: JAM_AT, JAM_CLEAR: JAM_CLEAR };
+  function anyAt(eye) {
+    for (var i = 0; i < st.parts.length; i++)
+      if (Math.abs(st.parts[i] - eye) <= EYE_W) return true;
+    return false;
+  }
+  return {
+    id: "conveyor",
+    state: st,
+    sensors: function () {
+      return { eyeIn: anyAt(EYE_IN), eyeOut: anyAt(EYE_OUT) };
+    },
+    step: function (out, dt) {
+      st.t += dt;
+      st.jammed = st.t >= JAM_AT && st.t < JAM_CLEAR;
+      st.belt = !!out.belt;
+      st.moving = st.belt && !st.jammed;
+      var wasOut = anyAt(EYE_OUT);
+      if (!st.freed && st.t >= JAM_CLEAR) {
+        // The mechanic frees the belt and hands the stuck part through the
+        // outfeed eye — which is what actually happens, and which is why an
+        // alarm must latch: the symptom disappears without anyone acking it.
+        st.freed = true;
+        var far = -1;
+        for (var j = 0; j < st.parts.length; j++) if (st.parts[j] > far) far = st.parts[j];
+        if (far >= 0 && far < EYE_OUT)
+          for (var k = 0; k < st.parts.length; k++) st.parts[k] += EYE_OUT - far;
+      }
+      if (st.moving) {
+        for (var i = 0; i < st.parts.length; i++) st.parts[i] += SPEED * dt;
+        st.parts = st.parts.filter(function (x) { return x <= LEN; });
+        if (st.t - st.lastSpawn >= SPAWN) { st.parts.push(0); st.lastSpawn = st.t; }
+      }
+      // The plant's own tally, taken on exactly the edge the PLC will see, so a
+      // correct edge count matches it to within the one scan of transport delay.
+      if (!wasOut && anyAt(EYE_OUT)) st.passed++;
+    }
+  };
+}
+
+var SCLScenes = { train: createTrainScene, tank: createTankScene, tank2: createDualTankScene,
+                  oven: createOvenScene, conveyor: createConveyorScene };
 global.SCLScenes = SCLScenes;
 if (typeof module !== "undefined" && module.exports) module.exports = SCLScenes;
 })(typeof window !== "undefined" ? window : globalThis);

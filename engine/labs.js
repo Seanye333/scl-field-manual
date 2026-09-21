@@ -294,6 +294,174 @@ var LABS = [
         } }
     ];
   }
+},
+
+{
+  id: "heater",
+  title: "Lab 7 \u00b7 Heater PI loop",
+  scene: "oven",
+  duration: 320,
+  brief: "<b>Task</b>: hold an oven at <b>75 \u00b0C</b> with a continuous 0\u2013100 % heater. " +
+    "Full power puts 2.6 \u00b0C/s into the load and the load bleeds off 2 % of its overtemperature per second, " +
+    "so holding setpoint needs about <b>42 % forever</b> \u2014 a proportional-only loop parks ~5 \u00b0C low no matter how you tune it. " +
+    "You need the integral term (Ch. 13), and you need it to stop integrating while the output is against a limit: " +
+    "the climb from ambient takes 25 s at 100 %, and an unguarded accumulator will overshoot by 15 \u00b0C. " +
+    "<b>At t = 200 s the door opens</b> and the heat loss jumps 40 % \u2014 recover without an excursion. " +
+    "The starter is a textbook PI that is missing exactly one guard.",
+  starter: "VAR_INPUT\n    temp : Real;   // measured oven temperature, degC\n    sp   : Real;   // setpoint, held at 75.0 degC\nEND_VAR\nVAR_OUTPUT\n    pwr  : Real;   // heater power command, 0.0 .. 100.0 %\nEND_VAR\nVAR\n    integ : Real;  // the integral accumulator - static, it must survive the scan\nEND_VAR\nVAR_TEMP\n    err : Real;\n    raw : Real;\nEND_VAR\nVAR CONSTANT\n    KP : Real := 8.0;    // % per degC\n    KI : Real := 0.35;   // % per degC per second\n    DT : Real := 0.05;   // this lab scans every 50 ms, like an OB30 at 50 ms\nEND_VAR\n\nBEGIN\nerr := sp - temp;\nraw := KP * err + integ;\n\n// TODO: this integrates unconditionally. During the 25 s climb from ambient\n// the output is already pinned at 100 % and the accumulator keeps growing -\n// it then has to be unwound before the heater backs off, and the oven sails\n// past setpoint. Integrate only when doing so can still change the output.\ninteg := integ + KI * err * DT;\n\npwr := LIMIT(MN := 0.0, IN := KP * err + integ, MX := 100.0);\n",
+  required: { inputs: [["temp","R"],["sp","R"]], outputs: [["pwr","R"]] },
+  events: [],
+  checks: function () {
+    var sMin = 999, sMax = -999, peak = -999, mMin = 999, mMax = -999;
+    var dMin = 999, lMin = 999, lMax = -999;
+    return [
+      { label: "Holds 75 \u00b1 2 \u00b0C from t = 120 s until the door opens",
+        onScan: function (t, io, scene) {
+          if (t >= 120 && t < 200) {
+            var T = scene.state.temp;
+            if (T < sMin) sMin = T;
+            if (T > sMax) sMax = T;
+          }
+        },
+        result: function () {
+          var ok = sMin > 73 && sMax < 77;
+          return { pass: ok, msg: ok ? "" : "Settled band was " + sMin.toFixed(1) + " \u2013 " + sMax.toFixed(1) +
+            " \u00b0C. A P-only loop lands near 70 \u00b0C \u2014 add the integral term." };
+        } },
+      { label: "No overshoot: the oven never exceeds 80 \u00b0C",
+        onScan: function (t, io, scene) { if (scene.state.temp > peak) peak = scene.state.temp; },
+        result: function () {
+          var ok = peak <= 80;
+          return { pass: ok, msg: ok ? "" : "Peaked at " + peak.toFixed(1) +
+            " \u00b0C. The accumulator wound up while the output was pinned at 100 % during the climb." };
+        } },
+      { label: "Commanded power never leaves 0 \u2013 100 %",
+        onScan: function () {},
+        result: function (scene) {
+          return { pass: !scene.state.overRange, msg: scene.state.overRange ?
+            "pwr went outside 0\u2013100 %. The drive clamps it here; a real analog card would not be so kind \u2014 use LIMIT." : "" };
+        } },
+      { label: "The heater modulates (25 \u2013 65 % while settled), it does not slam on and off",
+        onScan: function (t, io) {
+          if (t >= 150 && t < 199) {
+            if (io.pwr < mMin) mMin = io.pwr;
+            if (io.pwr > mMax) mMax = io.pwr;
+          }
+        },
+        result: function () {
+          var ok = mMin >= 25 && mMax <= 65;
+          return { pass: ok, msg: ok ? "" : "Commanded power swung " + mMin.toFixed(0) + " \u2013 " + mMax.toFixed(0) +
+            " % while settled. On/off control shortens the contactor's life \u2014 this is a modulating loop." };
+        } },
+      { label: "Rides out the open door: back to 75 \u00b1 2 \u00b0C by t = 280 s, never below 68 \u00b0C",
+        onScan: function (t, io, scene) {
+          var T = scene.state.temp;
+          if (t >= 200 && T < dMin) dMin = T;
+          if (t >= 280) {
+            if (T < lMin) lMin = T;
+            if (T > lMax) lMax = T;
+          }
+        },
+        result: function () {
+          var ok = dMin >= 68 && lMin > 73 && lMax < 77;
+          return { pass: ok, msg: ok ? "" : "After the door opened the temperature fell to " + dMin.toFixed(1) +
+            " \u00b0C and ended at " + lMin.toFixed(1) + " \u2013 " + lMax.toFixed(1) + " \u00b0C." };
+        } }
+    ];
+  }
+},
+
+{
+  id: "conveyor",
+  title: "Lab 8 \u00b7 Conveyor jam \u0026 part count",
+  scene: "conveyor",
+  duration: 215,
+  brief: "<b>Task</b>: run a 10 m belt at 0.6 m/s, count the parts leaving it, and catch it when it seizes. " +
+    "A part trips the infeed eye at 1 m and must trip the outfeed eye at 9 m <b>13.3 s later</b>; " +
+    "each beam stays broken for a full second, so twenty scans see the same part. " +
+    "<b>At t = 120 s the belt jams.</b> The contactor stays energised, nothing moves, and no feedback signal says so \u2014 " +
+    "only travel supervision (Ch. 12, Ch. 18) can tell. Stop the belt, raise <code>alarmJam</code>, and <b>latch it</b>: " +
+    "a fault that clears itself when the symptom goes away is a fault nobody ever fixes. " +
+    "At t = 160 s the mechanic frees the belt and hands the stuck part through the outfeed eye \u2014 " +
+    "the symptom vanishes with nobody having acknowledged anything. Only the reset at t = 165 s may clear your alarm.",
+  starter: "VAR_INPUT\n    cmdStart : Bool;\n    cmdReset : Bool;\n    eyeIn    : Bool;   // infeed photo-eye at 1 m\n    eyeOut   : Bool;   // outfeed photo-eye at 9 m\nEND_VAR\nVAR_OUTPUT\n    belt     : Bool;\n    alarmJam : Bool;\n    count    : Int;\nEND_VAR\nVAR\n    running  : Bool;\n    inFlight : Bool;   // a part has passed the infeed eye and has not arrived yet\n    trigIn   : R_TRIG;\n    trigOut  : R_TRIG;\n    trigRst  : R_TRIG;\n    tTravel  : TON;\nEND_VAR\n\nBEGIN\ntrigIn(CLK := eyeIn);\ntrigOut(CLK := eyeOut);\ntrigRst(CLK := cmdReset);\n\nIF cmdStart THEN running := TRUE; END_IF;\n\n// TODO 1: a part sits in the beam for a whole second - twenty scans. This\n//         counts every one of them. Count the edge, not the level.\nIF eyeOut THEN count := count + 1; END_IF;\n\n// TODO 2: travel supervision. Set inFlight on the infeed edge, clear it on\n//         the outfeed edge, and let the timer run only while it is set.\ntTravel(IN := inFlight, PT := T#18s);\n\n// TODO 3: latch the alarm when the timer expires, drop the belt, and clear\n//         it only on cmdReset - an alarm that clears itself tells nobody.\nalarmJam := FALSE;\nbelt := running;\n",
+  required: {
+    inputs: [["cmdStart","B"],["cmdReset","B"],["eyeIn","B"],["eyeOut","B"]],
+    outputs: [["belt","B"],["alarmJam","B"],["count","I"]]
+  },
+  controls: [{ name: "cmdStart", label: "Start (cmdStart)" }, { name: "cmdReset", label: "Reset (cmdReset)" }],
+  events: [
+    { t: 0.5,   name: "cmdStart", v: true },
+    { t: 0.9,   name: "cmdStart", v: false },
+    { t: 165.0, name: "cmdReset", v: true },
+    { t: 165.4, name: "cmdReset", v: false }
+  ],
+  checks: function () {
+    var ahead = false, aheadBy = 0, endCount = 0, endPassed = 0, at115 = 0;
+    var detectT = -1, beltAfter = false, alarmAt164 = false;
+    var runAgain = false, alarmClear = false, countAtReset = -1;
+    return [
+      { label: "Every part is counted once \u2014 the tally matches the plant's",
+        onScan: function (t, io, scene) {
+          var c = io.count, p = scene.state.passed;
+          if (c > p) { ahead = true; if (c - p > aheadBy) aheadBy = c - p; }
+          endCount = c; endPassed = p;
+          if (t >= 115 && at115 === 0) at115 = c;
+        },
+        result: function () {
+          var ok = !ahead && (endCount === endPassed || endCount === endPassed - 1);
+          return { pass: ok, msg: ok ? "" : "You counted " + endCount + "; " + endPassed +
+            " parts actually left the belt" + (ahead ? " (over-counted by " + aheadBy +
+            " \u2014 you are counting the beam, not the part)" : "") + "." };
+        } },
+      { label: "Production runs: at least 6 parts through before the jam",
+        onScan: function () {},
+        result: function () {
+          return { pass: at115 >= 6, msg: at115 >= 6 ? "" : "Only " + at115 + " parts counted by t = 115 s \u2014 was the belt running?" };
+        } },
+      { label: "The jam is detected within 20 s and the belt is stopped",
+        onScan: function (t, io) { if (io.alarmJam && detectT < 0) detectT = t; },
+        result: function () {
+          if (detectT < 0) return { pass: false, msg: "alarmJam never came on. Supervise the transfer with a TON on inFlight." };
+          if (detectT <= 120) return { pass: false, msg: "alarmJam tripped at t = " + detectT.toFixed(1) +
+            " s, before the belt jammed \u2014 your supervision timer runs when no part is in transit." };
+          var ok = detectT <= 142;
+          return { pass: ok, msg: ok ? "" : "alarmJam came on at t = " + detectT.toFixed(1) + " s, over 20 s after the jam." };
+        } },
+      { label: "The alarm latches \u2014 the belt stays off until someone resets it",
+        onScan: function (t, io) {
+          if (detectT > 0 && t > detectT + 0.5 && t < 164.9 && io.belt) beltAfter = true;
+          if (t >= 164 && t < 164.1) alarmAt164 = io.alarmJam;
+        },
+        result: function () {
+          var ok = !beltAfter && alarmAt164;
+          return { pass: ok, msg: ok ? "" : (beltAfter ? "The belt restarted on its own before the reset."
+            : "alarmJam had already cleared itself by t = 164 s \u2014 latch it.") };
+        } },
+      { label: "Reset restarts production: alarm clears, belt runs, parts flow again",
+        onScan: function (t, io) {
+          if (t >= 165 && countAtReset < 0) countAtReset = io.count;
+          if (t > 167) {
+            if (io.belt) runAgain = true;
+            if (!io.alarmJam) alarmClear = true;
+          }
+          endCount = io.count;
+        },
+        result: function () {
+          var more = endCount - (countAtReset < 0 ? 0 : countAtReset);
+          var ok = runAgain && alarmClear && more >= 2;
+          return { pass: ok, msg: ok ? "" : (!alarmClear ? "alarmJam never cleared after cmdReset."
+            : (!runAgain ? "The belt never restarted after the reset."
+            : "Only " + more + " more part(s) counted after the reset.")) };
+        } },
+      { label: "No phantom alarm before the jam",
+        onScan: function () {},
+        result: function () {
+          return { pass: detectT < 0 || detectT > 120, msg: detectT >= 0 && detectT <= 120 ?
+            "alarmJam tripped at t = " + detectT.toFixed(1) + " s while the belt was running normally." : "" };
+        } }
+    ];
+  }
 }
 ];
 

@@ -4,7 +4,7 @@ A self-paced programme in Structured Control Language (SCL) for Siemens TIA Port
 
 **Live site:** https://seanye333.github.io/scl-field-manual/
 
-- **A dashboard** — seven modules, 41 milestones, unified progress across chapters, checkpoints, labs and the exam, with a resume-where-you-left-off action and a printable personal study record.
+- **A dashboard** — seven modules, 43 milestones, unified progress across chapters, checkpoints, labs and the exam, with a resume-where-you-left-off action and a printable personal study record.
 - **27 chapters** in seven parts — foundations, the language, data and patterns, systems, a two-part pattern cookbook, a complete worked plant (spec → architecture → implementation → commissioning), and mastery material.
 - **7 module checkpoints** (four questions each, three to pass) plus per-chapter quizzes and a scored **26-question final exam**.
 - **The Playground** — an in-browser SCL scan-cycle simulator with **6 graded labs** on animated machines: a train with doors, buffer stops and a level crossing, and single- and dual-pump tanks including a mid-run pump failure.

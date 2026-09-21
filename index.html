@@ -1117,7 +1117,7 @@
   </div>
   <div class="eyebrow">Structured Control Language · IEC 61131-3</div>
   <h1>SCL Field<br>Manual <span class="thin">/ TIA Portal</span></h1>
-  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Seven modules with checkpoints, six graded labs on animated machines, a complete plant walked from spec to commissioning, a drill deck for the syntax, and companion sources you import straight into TIA Portal. The <a href="#academy">dashboard</a> tracks where you are; everything is stored in this browser only.</p>
+  <p class="lede">A working engineer's course in Structured Control Language for Siemens S7-1200 and S7-1500 PLCs — from your first function block to state machines, closed-loop control, communications, and the pitfalls that only show up at 2 a.m. on site. Seven modules with checkpoints, eight graded labs on animated machines, a complete plant walked from spec to commissioning, a drill deck for the syntax, and companion sources you import straight into TIA Portal. The <a href="#academy">dashboard</a> tracks where you are; everything is stored in this browser only.</p>
   <div class="specs">
     <span>TARGET <b>S7-1200 / S7-1500</b></span>
     <span>IDE <b>TIA Portal V17+</b></span>
@@ -1167,7 +1167,7 @@
     </div>
   </div>
   <div class="modules" id="modules"></div>
-  <p class="dash-note">Progress is counted across 27 chapters, 7 checkpoints, 6 labs and the final exam — 41 milestones in all. Nothing is locked: the “next up” marker is a suggested route, not a gate, so you can always jump to whatever you need at the machine. Everything is stored in this browser only.</p>
+  <p class="dash-note">Progress is counted across 27 chapters, 7 checkpoints, 8 labs and the final exam — 43 milestones in all. Nothing is locked: the “next up” marker is a suggested route, not a gate, so you can always jump to whatever you need at the machine. Everything is stored in this browser only.</p>
   <div class="dash-actions">
     <button type="button" class="pg-btn alt" id="record-btn">Print study record</button>
     <button type="button" class="pg-btn alt" id="dash-reset">Reset all progress</button>
@@ -1187,7 +1187,7 @@
 <section class="ch" id="lab">
   <div class="chnum">The Lab</div>
   <h2>The Playground</h2>
-  <p>A live SCL scan-cycle simulator, right on this page. It compiles a teaching subset of the language — <code>Bool</code>/<code>Int</code>/<code>DInt</code>/<code>Real</code>/<code>Time</code>, all control structures, <code>TON</code>/<code>TOF</code>/<code>TP</code> timers, <code>R_TRIG</code>/<code>F_TRIG</code>, <code>CTU</code>/<code>CTD</code>, and functions like <code>LIMIT</code> and <code>SEL</code> — and executes it 20 times a second, exactly like a PLC scans. Variables you declare in <code>VAR_INPUT</code> become toggle switches and number fields; <code>VAR_OUTPUT</code> Bools become lamps. Pick an example, press Run, then break it and fix it. Below, the <a href="#lab">graded labs</a> connect your code to an animated machine — a train, a tank — and grade it against a spec.</p>
+  <p>A live SCL scan-cycle simulator, right on this page. It compiles a teaching subset of the language — <code>Bool</code>/<code>Int</code>/<code>DInt</code>/<code>Real</code>/<code>Time</code>, all control structures, <code>TON</code>/<code>TOF</code>/<code>TP</code> timers, <code>R_TRIG</code>/<code>F_TRIG</code>, <code>CTU</code>/<code>CTD</code>, and functions like <code>LIMIT</code> and <code>SEL</code> — and executes it 20 times a second, exactly like a PLC scans. Variables you declare in <code>VAR_INPUT</code> become toggle switches and number fields; <code>VAR_OUTPUT</code> Bools become lamps. Pick an example, press Run, then break it and fix it. Below, the <a href="#lab">graded labs</a> connect your code to an animated machine — a train, a tank, an oven, a conveyor — and grade it against a spec.</p>
   <div class="pg-toolbar">
     <select id="pg-example" aria-label="Load an example program"></select>
     <button type="button" class="pg-btn" id="pg-run">Compile &amp; Run</button>
@@ -2191,6 +2191,8 @@ END_FUNCTION_BLOCK</pre>
   </figure>
   <p>Read the anti-windup line twice: without clamping the integrator, a loop that sits saturated (heater at 100 %, still too cold) accumulates a huge <code>iTerm</code> and then massively overshoots. This single line is the difference between a controller and a lesson.</p>
 
+  <p><a href="#lab">Lab 7</a> makes you feel it rather than take my word for it: an oven that climbs 55 °C from cold with the output pinned at 100 % the whole way. The grader runs your loop for five simulated minutes, opens the door partway through to move the load on you, and fails the run at 80 °C — which is exactly where the same code without that one line lands.</p>
+
   <div class="warn"><b>Sample time discipline</b><code>Ts_s</code> must equal the real OB cycle time. Move the call from a 100 ms OB to OB1 and the integral action becomes wrong by an unknown, varying factor. This is the most common "the PID behaves differently on the real machine" cause.</div>
 
   <ul>
@@ -2525,6 +2527,8 @@ END_IF;
 END_FUNCTION_BLOCK</pre>
   </figure>
   <p>Note what the travel timer's <code>IN</code> expression really says: <em>"the valve is not where the command wants it."</em> That single condition covers opening, closing, <strong>and</strong> drifting off position mid-service — three failure modes, one timer. That's the sign of a well-chosen supervision condition.</p>
+
+  <p>The same idea, on a conveyor, is <a href="#lab">Lab 8</a>: a belt that seizes with the contactor still energised and no feedback signal anywhere that says so. The only evidence is a part that went past the infeed eye and never reached the outfeed eye — supervise the <em>transfer</em>, not the motor. The lab also insists the alarm latch, and it earns that: the mechanic frees the belt and hands the stuck part through, so an alarm wired straight to the live condition quietly drops and the line restarts with nobody having looked at it.</p>
 
   <h3>The analog input channel</h3>
   <p>The most underrated block in real projects. Raw analog values deserve a standard front door: scaling, wire-break detection, filtering, <em>delayed</em> alarms, and — the part people skip until commissioning week — a simulation mode so logic can be tested before instruments exist. One instance per signal, always, even when "it's just one temperature."</p>
@@ -4612,7 +4616,89 @@ function createTankScene() {
   };
 }
 
-var SCLScenes = { train: createTrainScene, tank: createTankScene, tank2: createDualTankScene };
+function createOvenScene() {
+  /* First-order thermal mass. 100 % heater puts 2.6 degC/s into the load; the
+     load bleeds K_LOSS of its overtemperature away every second. Holding 75 degC
+     therefore needs ~42 % power forever — a proportional-only loop parks about
+     5 degC low, which is the whole reason the integral term exists. At t = 200 s
+     the door opens and the loss climbs 40 %. */
+  var AMB = 20, SP = 75, K_HEAT = 2.6, K_LOSS = 0.020, LOSS_OPEN = 0.028, DOOR_AT = 200;
+  var st = { temp: AMB, t: 0, doorOpen: false, pwr: 0, cmd: 0, overRange: false,
+             SP: SP, AMB: AMB, DOOR_AT: DOOR_AT };
+  return {
+    id: "oven",
+    state: st,
+    sensors: function () {
+      return { temp: st.temp, sp: SP, doorOpen: st.doorOpen };
+    },
+    step: function (out, dt) {
+      st.t += dt;
+      if (st.t >= DOOR_AT) st.doorOpen = true;
+      var p = +out.pwr;
+      if (!isFinite(p)) p = 0;
+      st.cmd = p;
+      // The drive clamps whatever you send it — so an unlimited output looks
+      // harmless here. It is not harmless on a real analog card: remember it.
+      if (p < -0.01 || p > 100.01) st.overRange = true;
+      st.pwr = Math.min(100, Math.max(0, p));
+      var loss = st.doorOpen ? LOSS_OPEN : K_LOSS;
+      st.temp += (K_HEAT * st.pwr / 100 - loss * (st.temp - AMB)) * dt;
+    }
+  };
+}
+
+function createConveyorScene() {
+  /* Parts enter at 0 m and ride to 10 m at 0.6 m/s. Two photo-eyes, infeed at
+     1 m and outfeed at 9 m, each +/-0.3 m wide: a part that trips the infeed eye
+     trips the outfeed eye 13.3 s later. At t = 120 s the belt seizes — the
+     contactor stays energised and nothing moves, with no feedback signal to say
+     so. Only travel supervision sees it. Freed again at t = 160 s. */
+  var LEN = 10, SPEED = 0.6, EYE_IN = 1.0, EYE_OUT = 9.0, EYE_W = 0.3;
+  var SPAWN = 16, JAM_AT = 120, JAM_CLEAR = 160;
+  var st = { t: 0, parts: [], passed: 0, jammed: false, freed: false, moving: false, belt: false,
+             lastSpawn: -SPAWN, LEN: LEN, SPEED: SPEED, EYE_IN: EYE_IN,
+             EYE_OUT: EYE_OUT, EYE_W: EYE_W, JAM_AT: JAM_AT, JAM_CLEAR: JAM_CLEAR };
+  function anyAt(eye) {
+    for (var i = 0; i < st.parts.length; i++)
+      if (Math.abs(st.parts[i] - eye) <= EYE_W) return true;
+    return false;
+  }
+  return {
+    id: "conveyor",
+    state: st,
+    sensors: function () {
+      return { eyeIn: anyAt(EYE_IN), eyeOut: anyAt(EYE_OUT) };
+    },
+    step: function (out, dt) {
+      st.t += dt;
+      st.jammed = st.t >= JAM_AT && st.t < JAM_CLEAR;
+      st.belt = !!out.belt;
+      st.moving = st.belt && !st.jammed;
+      var wasOut = anyAt(EYE_OUT);
+      if (!st.freed && st.t >= JAM_CLEAR) {
+        // The mechanic frees the belt and hands the stuck part through the
+        // outfeed eye — which is what actually happens, and which is why an
+        // alarm must latch: the symptom disappears without anyone acking it.
+        st.freed = true;
+        var far = -1;
+        for (var j = 0; j < st.parts.length; j++) if (st.parts[j] > far) far = st.parts[j];
+        if (far >= 0 && far < EYE_OUT)
+          for (var k = 0; k < st.parts.length; k++) st.parts[k] += EYE_OUT - far;
+      }
+      if (st.moving) {
+        for (var i = 0; i < st.parts.length; i++) st.parts[i] += SPEED * dt;
+        st.parts = st.parts.filter(function (x) { return x <= LEN; });
+        if (st.t - st.lastSpawn >= SPAWN) { st.parts.push(0); st.lastSpawn = st.t; }
+      }
+      // The plant's own tally, taken on exactly the edge the PLC will see, so a
+      // correct edge count matches it to within the one scan of transport delay.
+      if (!wasOut && anyAt(EYE_OUT)) st.passed++;
+    }
+  };
+}
+
+var SCLScenes = { train: createTrainScene, tank: createTankScene, tank2: createDualTankScene,
+                  oven: createOvenScene, conveyor: createConveyorScene };
 global.SCLScenes = SCLScenes;
 if (typeof module !== "undefined" && module.exports) module.exports = SCLScenes;
 })(typeof window !== "undefined" ? window : globalThis);
@@ -4911,6 +4997,174 @@ var LABS = [
         result: function () {
           var ok = bRanAfter && minAfter > 0.25;
           return { pass: ok, msg: ok ? "" : (bRanAfter ? "Level fell to " + minAfter.toFixed(2) + " m after the fault." : "Pump B never ran after the fault.") };
+        } }
+    ];
+  }
+},
+
+{
+  id: "heater",
+  title: "Lab 7 \u00b7 Heater PI loop",
+  scene: "oven",
+  duration: 320,
+  brief: "<b>Task</b>: hold an oven at <b>75 \u00b0C</b> with a continuous 0\u2013100 % heater. " +
+    "Full power puts 2.6 \u00b0C/s into the load and the load bleeds off 2 % of its overtemperature per second, " +
+    "so holding setpoint needs about <b>42 % forever</b> \u2014 a proportional-only loop parks ~5 \u00b0C low no matter how you tune it. " +
+    "You need the integral term (Ch. 13), and you need it to stop integrating while the output is against a limit: " +
+    "the climb from ambient takes 25 s at 100 %, and an unguarded accumulator will overshoot by 15 \u00b0C. " +
+    "<b>At t = 200 s the door opens</b> and the heat loss jumps 40 % \u2014 recover without an excursion. " +
+    "The starter is a textbook PI that is missing exactly one guard.",
+  starter: "VAR_INPUT\n    temp : Real;   // measured oven temperature, degC\n    sp   : Real;   // setpoint, held at 75.0 degC\nEND_VAR\nVAR_OUTPUT\n    pwr  : Real;   // heater power command, 0.0 .. 100.0 %\nEND_VAR\nVAR\n    integ : Real;  // the integral accumulator - static, it must survive the scan\nEND_VAR\nVAR_TEMP\n    err : Real;\n    raw : Real;\nEND_VAR\nVAR CONSTANT\n    KP : Real := 8.0;    // % per degC\n    KI : Real := 0.35;   // % per degC per second\n    DT : Real := 0.05;   // this lab scans every 50 ms, like an OB30 at 50 ms\nEND_VAR\n\nBEGIN\nerr := sp - temp;\nraw := KP * err + integ;\n\n// TODO: this integrates unconditionally. During the 25 s climb from ambient\n// the output is already pinned at 100 % and the accumulator keeps growing -\n// it then has to be unwound before the heater backs off, and the oven sails\n// past setpoint. Integrate only when doing so can still change the output.\ninteg := integ + KI * err * DT;\n\npwr := LIMIT(MN := 0.0, IN := KP * err + integ, MX := 100.0);\n",
+  required: { inputs: [["temp","R"],["sp","R"]], outputs: [["pwr","R"]] },
+  events: [],
+  checks: function () {
+    var sMin = 999, sMax = -999, peak = -999, mMin = 999, mMax = -999;
+    var dMin = 999, lMin = 999, lMax = -999;
+    return [
+      { label: "Holds 75 \u00b1 2 \u00b0C from t = 120 s until the door opens",
+        onScan: function (t, io, scene) {
+          if (t >= 120 && t < 200) {
+            var T = scene.state.temp;
+            if (T < sMin) sMin = T;
+            if (T > sMax) sMax = T;
+          }
+        },
+        result: function () {
+          var ok = sMin > 73 && sMax < 77;
+          return { pass: ok, msg: ok ? "" : "Settled band was " + sMin.toFixed(1) + " \u2013 " + sMax.toFixed(1) +
+            " \u00b0C. A P-only loop lands near 70 \u00b0C \u2014 add the integral term." };
+        } },
+      { label: "No overshoot: the oven never exceeds 80 \u00b0C",
+        onScan: function (t, io, scene) { if (scene.state.temp > peak) peak = scene.state.temp; },
+        result: function () {
+          var ok = peak <= 80;
+          return { pass: ok, msg: ok ? "" : "Peaked at " + peak.toFixed(1) +
+            " \u00b0C. The accumulator wound up while the output was pinned at 100 % during the climb." };
+        } },
+      { label: "Commanded power never leaves 0 \u2013 100 %",
+        onScan: function () {},
+        result: function (scene) {
+          return { pass: !scene.state.overRange, msg: scene.state.overRange ?
+            "pwr went outside 0\u2013100 %. The drive clamps it here; a real analog card would not be so kind \u2014 use LIMIT." : "" };
+        } },
+      { label: "The heater modulates (25 \u2013 65 % while settled), it does not slam on and off",
+        onScan: function (t, io) {
+          if (t >= 150 && t < 199) {
+            if (io.pwr < mMin) mMin = io.pwr;
+            if (io.pwr > mMax) mMax = io.pwr;
+          }
+        },
+        result: function () {
+          var ok = mMin >= 25 && mMax <= 65;
+          return { pass: ok, msg: ok ? "" : "Commanded power swung " + mMin.toFixed(0) + " \u2013 " + mMax.toFixed(0) +
+            " % while settled. On/off control shortens the contactor's life \u2014 this is a modulating loop." };
+        } },
+      { label: "Rides out the open door: back to 75 \u00b1 2 \u00b0C by t = 280 s, never below 68 \u00b0C",
+        onScan: function (t, io, scene) {
+          var T = scene.state.temp;
+          if (t >= 200 && T < dMin) dMin = T;
+          if (t >= 280) {
+            if (T < lMin) lMin = T;
+            if (T > lMax) lMax = T;
+          }
+        },
+        result: function () {
+          var ok = dMin >= 68 && lMin > 73 && lMax < 77;
+          return { pass: ok, msg: ok ? "" : "After the door opened the temperature fell to " + dMin.toFixed(1) +
+            " \u00b0C and ended at " + lMin.toFixed(1) + " \u2013 " + lMax.toFixed(1) + " \u00b0C." };
+        } }
+    ];
+  }
+},
+
+{
+  id: "conveyor",
+  title: "Lab 8 \u00b7 Conveyor jam \u0026 part count",
+  scene: "conveyor",
+  duration: 215,
+  brief: "<b>Task</b>: run a 10 m belt at 0.6 m/s, count the parts leaving it, and catch it when it seizes. " +
+    "A part trips the infeed eye at 1 m and must trip the outfeed eye at 9 m <b>13.3 s later</b>; " +
+    "each beam stays broken for a full second, so twenty scans see the same part. " +
+    "<b>At t = 120 s the belt jams.</b> The contactor stays energised, nothing moves, and no feedback signal says so \u2014 " +
+    "only travel supervision (Ch. 12, Ch. 18) can tell. Stop the belt, raise <code>alarmJam</code>, and <b>latch it</b>: " +
+    "a fault that clears itself when the symptom goes away is a fault nobody ever fixes. " +
+    "At t = 160 s the mechanic frees the belt and hands the stuck part through the outfeed eye \u2014 " +
+    "the symptom vanishes with nobody having acknowledged anything. Only the reset at t = 165 s may clear your alarm.",
+  starter: "VAR_INPUT\n    cmdStart : Bool;\n    cmdReset : Bool;\n    eyeIn    : Bool;   // infeed photo-eye at 1 m\n    eyeOut   : Bool;   // outfeed photo-eye at 9 m\nEND_VAR\nVAR_OUTPUT\n    belt     : Bool;\n    alarmJam : Bool;\n    count    : Int;\nEND_VAR\nVAR\n    running  : Bool;\n    inFlight : Bool;   // a part has passed the infeed eye and has not arrived yet\n    trigIn   : R_TRIG;\n    trigOut  : R_TRIG;\n    trigRst  : R_TRIG;\n    tTravel  : TON;\nEND_VAR\n\nBEGIN\ntrigIn(CLK := eyeIn);\ntrigOut(CLK := eyeOut);\ntrigRst(CLK := cmdReset);\n\nIF cmdStart THEN running := TRUE; END_IF;\n\n// TODO 1: a part sits in the beam for a whole second - twenty scans. This\n//         counts every one of them. Count the edge, not the level.\nIF eyeOut THEN count := count + 1; END_IF;\n\n// TODO 2: travel supervision. Set inFlight on the infeed edge, clear it on\n//         the outfeed edge, and let the timer run only while it is set.\ntTravel(IN := inFlight, PT := T#18s);\n\n// TODO 3: latch the alarm when the timer expires, drop the belt, and clear\n//         it only on cmdReset - an alarm that clears itself tells nobody.\nalarmJam := FALSE;\nbelt := running;\n",
+  required: {
+    inputs: [["cmdStart","B"],["cmdReset","B"],["eyeIn","B"],["eyeOut","B"]],
+    outputs: [["belt","B"],["alarmJam","B"],["count","I"]]
+  },
+  controls: [{ name: "cmdStart", label: "Start (cmdStart)" }, { name: "cmdReset", label: "Reset (cmdReset)" }],
+  events: [
+    { t: 0.5,   name: "cmdStart", v: true },
+    { t: 0.9,   name: "cmdStart", v: false },
+    { t: 165.0, name: "cmdReset", v: true },
+    { t: 165.4, name: "cmdReset", v: false }
+  ],
+  checks: function () {
+    var ahead = false, aheadBy = 0, endCount = 0, endPassed = 0, at115 = 0;
+    var detectT = -1, beltAfter = false, alarmAt164 = false;
+    var runAgain = false, alarmClear = false, countAtReset = -1;
+    return [
+      { label: "Every part is counted once \u2014 the tally matches the plant's",
+        onScan: function (t, io, scene) {
+          var c = io.count, p = scene.state.passed;
+          if (c > p) { ahead = true; if (c - p > aheadBy) aheadBy = c - p; }
+          endCount = c; endPassed = p;
+          if (t >= 115 && at115 === 0) at115 = c;
+        },
+        result: function () {
+          var ok = !ahead && (endCount === endPassed || endCount === endPassed - 1);
+          return { pass: ok, msg: ok ? "" : "You counted " + endCount + "; " + endPassed +
+            " parts actually left the belt" + (ahead ? " (over-counted by " + aheadBy +
+            " \u2014 you are counting the beam, not the part)" : "") + "." };
+        } },
+      { label: "Production runs: at least 6 parts through before the jam",
+        onScan: function () {},
+        result: function () {
+          return { pass: at115 >= 6, msg: at115 >= 6 ? "" : "Only " + at115 + " parts counted by t = 115 s \u2014 was the belt running?" };
+        } },
+      { label: "The jam is detected within 20 s and the belt is stopped",
+        onScan: function (t, io) { if (io.alarmJam && detectT < 0) detectT = t; },
+        result: function () {
+          if (detectT < 0) return { pass: false, msg: "alarmJam never came on. Supervise the transfer with a TON on inFlight." };
+          if (detectT <= 120) return { pass: false, msg: "alarmJam tripped at t = " + detectT.toFixed(1) +
+            " s, before the belt jammed \u2014 your supervision timer runs when no part is in transit." };
+          var ok = detectT <= 142;
+          return { pass: ok, msg: ok ? "" : "alarmJam came on at t = " + detectT.toFixed(1) + " s, over 20 s after the jam." };
+        } },
+      { label: "The alarm latches \u2014 the belt stays off until someone resets it",
+        onScan: function (t, io) {
+          if (detectT > 0 && t > detectT + 0.5 && t < 164.9 && io.belt) beltAfter = true;
+          if (t >= 164 && t < 164.1) alarmAt164 = io.alarmJam;
+        },
+        result: function () {
+          var ok = !beltAfter && alarmAt164;
+          return { pass: ok, msg: ok ? "" : (beltAfter ? "The belt restarted on its own before the reset."
+            : "alarmJam had already cleared itself by t = 164 s \u2014 latch it.") };
+        } },
+      { label: "Reset restarts production: alarm clears, belt runs, parts flow again",
+        onScan: function (t, io) {
+          if (t >= 165 && countAtReset < 0) countAtReset = io.count;
+          if (t > 167) {
+            if (io.belt) runAgain = true;
+            if (!io.alarmJam) alarmClear = true;
+          }
+          endCount = io.count;
+        },
+        result: function () {
+          var more = endCount - (countAtReset < 0 ? 0 : countAtReset);
+          var ok = runAgain && alarmClear && more >= 2;
+          return { pass: ok, msg: ok ? "" : (!alarmClear ? "alarmJam never cleared after cmdReset."
+            : (!runAgain ? "The belt never restarted after the reset."
+            : "Only " + more + " more part(s) counted after the reset.")) };
+        } },
+      { label: "No phantom alarm before the jam",
+        onScan: function () {},
+        result: function () {
+          return { pass: detectT < 0 || detectT > 120, msg: detectT >= 0 && detectT <= 120 ?
+            "alarmJam tripped at t = " + detectT.toFixed(1) + " s while the belt was running normally." : "" };
         } }
     ];
   }
@@ -5379,7 +5633,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
       { n: "VII", title: "Mastery",          chs: [23, 24, 25, 26, 27],   hours: 6,  cp: 7,
         blurb: "Pitfalls, quick reference and drill, exercises, the final exam, where to go next." }
     ];
-    var TOTAL_CH = 27, TOTAL_CP = 7, TOTAL_LAB = 6;
+    var TOTAL_CH = 27, TOTAL_CP = 7, TOTAL_LAB = 8;
 
     function get(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : {}; } catch (e) { return {}; } }
     function getRaw(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -5505,7 +5759,7 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
       body.innerHTML =
         (who ? "<p class=\"record-who\">" + who.replace(/[<>&]/g, "") + "</p>" : "") +
         '<p class="record-sum">Self-directed study of the SCL Field Manual (Structured Control Language for Siemens TIA Portal, S7-1200/1500) — <b>' +
-        pct + "% of 41 milestones</b> as of " + stamp + ".</p>" +
+        pct + "% of 43 milestones</b> as of " + stamp + ".</p>" +
         '<div class="tablewrap"><table><tr><th>Module</th><th class="num">Chapters</th><th>Checkpoint</th></tr>' +
         rows +
         "<tr><td>Graded machine labs</td><td class=\"num\">" + s.labDone + " / " + TOTAL_LAB + "</td><td>—</td></tr>" +
@@ -5973,7 +6227,154 @@ if (typeof module !== "undefined" && module.exports) module.exports = SCLLabs;
         alarm.textContent = st.overflowed ? "OVERFLOW" : (st.ranDry ? "RAN DRY" : "");
       } };
     }
-    var RENDERERS = { train: trainRenderer, tank: tankRenderer, tank2: dualTankRenderer };
+    function ovenRenderer(scene) {
+      var st = scene.state;
+      var svg = E("svg", { viewBox: "0 0 960 190", role: "img", "aria-label": "Oven scene with temperature trend" });
+      var OX = 24, OY = 34, OW = 230, OH = 126;   // leaves the open door clear of the trend
+      // chamber
+      svg.appendChild(E("rect", { x: OX, y: OY, width: OW, height: OH, rx: 8 },
+                       { fill: "var(--code-bg)", stroke: "var(--muted)", strokeWidth: "3" }));
+      var glow = E("rect", { x: OX + 14, y: OY + OH - 26, width: OW - 28, height: 14, rx: 4 },
+                   { fill: "var(--bad)", opacity: "0" });
+      svg.appendChild(glow);
+      svg.appendChild(E("rect", { x: OX + 14, y: OY + OH - 26, width: OW - 28, height: 14, rx: 4 },
+                       { fill: "none", stroke: "var(--muted)", strokeWidth: "2" }));
+      var door = E("rect", { x: OX + OW - 10, y: OY + 8, width: 10, height: OH - 16, rx: 3 },
+                   { fill: "var(--muted)" });
+      svg.appendChild(door);
+      // --code-ink is the foreground that pairs with --code-bg in both themes;
+      // --ink here is the page foreground and vanishes against the chamber.
+      var tTxt = E("text", { x: OX + OW / 2 - 8, y: OY + 60, "text-anchor": "middle", "font-size": 30 },
+                   { fill: "var(--code-ink)", fontFamily: "IBM Plex Mono, monospace" });
+      svg.appendChild(tTxt);
+      var pTxt = E("text", { x: OX + OW / 2 - 8, y: OY + 84, "text-anchor": "middle", "font-size": 12 },
+                   { fill: "var(--code-com)", fontFamily: "IBM Plex Mono, monospace" });
+      svg.appendChild(pTxt);
+      // trend strip
+      var GX = 330, GY = 30, GW = 600, GH = 128, LO = 15, HI = 95;
+      function yOf(T) { return GY + GH - ((T - LO) / (HI - LO)) * GH; }
+      svg.appendChild(E("rect", { x: GX, y: GY, width: GW, height: GH, rx: 4 },
+                       { fill: "none", stroke: "var(--line)", strokeWidth: "1.5" }));
+      [25, 50, 75].forEach(function (T) {
+        var dash = T === st.SP ? "" : "3 4";
+        svg.appendChild(E("line", { x1: GX, y1: yOf(T), x2: GX + GW, y2: yOf(T), "stroke-dasharray": dash },
+                         { stroke: T === st.SP ? "var(--good)" : "var(--line)", strokeWidth: T === st.SP ? "1.6" : "1" }));
+        var l = E("text", { x: GX - 6, y: yOf(T) + 4, "text-anchor": "end", "font-size": 10 },
+                  { fill: "var(--faint)", fontFamily: "IBM Plex Mono, monospace" });
+        l.textContent = T;
+        svg.appendChild(l);
+      });
+      var spLbl = E("text", { x: GX + GW, y: yOf(st.SP) - 6, "text-anchor": "end", "font-size": 10 },
+                    { fill: "var(--good)", fontFamily: "Saira, sans-serif", letterSpacing: ".08em" });
+      spLbl.textContent = "SETPOINT " + st.SP + " °C";
+      svg.appendChild(spLbl);
+      var trace = E("polyline", { points: "", fill: "none" },
+                    { stroke: "var(--accent)", strokeWidth: "2", strokeLinejoin: "round" });
+      svg.appendChild(trace);
+      var doorMark = E("line", { x1: GX, y1: GY, x2: GX, y2: GY + GH, "stroke-dasharray": "2 3" },
+                       { stroke: "var(--bad)", strokeWidth: "1.5", opacity: "0" });
+      svg.appendChild(doorMark);
+      var alarm = E("text", { x: 940, y: 22, "text-anchor": "end", "font-size": 12 },
+                    { fill: "var(--bad)", fontFamily: "Saira, sans-serif", fontWeight: "700", letterSpacing: ".1em" });
+      svg.appendChild(alarm);
+      var hist = [], SPAN = 340, lastT = -1;   // seconds of history across the strip
+      return { el: svg, update: function () {
+        // Sample by simulated time, not by scan: dropping the oldest points
+        // instead would throw away the climb, which is the half that teaches.
+        if (st.t >= lastT + 0.25) { hist.push([st.t, st.temp]); lastT = st.t; }
+        var pts = "";
+        for (var i = 0; i < hist.length; i++) {
+          var x = GX + Math.min(1, hist[i][0] / SPAN) * GW;
+          pts += x.toFixed(1) + "," + Math.max(GY, Math.min(GY + GH, yOf(hist[i][1]))).toFixed(1) + " ";
+        }
+        trace.setAttribute("points", pts);
+        glow.style.opacity = (st.pwr / 100 * 0.75).toFixed(2);
+        door.setAttribute("transform", st.doorOpen ? "rotate(-35 " + (OX + OW) + " " + (OY + 8) + ")" : "");
+        if (st.doorOpen) {
+          doorMark.style.opacity = "1";
+          doorMark.setAttribute("x1", GX + (st.DOOR_AT / SPAN) * GW);
+          doorMark.setAttribute("x2", GX + (st.DOOR_AT / SPAN) * GW);
+        }
+        tTxt.textContent = st.temp.toFixed(1) + " °C";
+        pTxt.textContent = "heater " + st.pwr.toFixed(0) + " %  \u00b7  t = " + st.t.toFixed(0) + " s";
+        alarm.textContent = st.overRange ? "OUTPUT OUT OF RANGE"
+          : (st.doorOpen ? "DOOR OPEN — LOSS UP 40 %" : "");
+      } };
+    }
+
+    function conveyorRenderer(scene) {
+      var st = scene.state;
+      var svg = E("svg", { viewBox: "0 0 960 190", role: "img", "aria-label": "Conveyor scene" });
+      var BX = 74, BW = 840, BY = 108;
+      function mx(m) { return BX + (m / st.LEN) * BW; }
+      // drive end + belt
+      svg.appendChild(E("rect", { x: BX, y: BY, width: BW, height: 7, rx: 3 }, { fill: "var(--line)" }));
+      [BX, BX + BW].forEach(function (x) {
+        svg.appendChild(E("circle", { cx: x, cy: BY + 3, r: 13 },
+                         { fill: "var(--surface)", stroke: "var(--muted)", strokeWidth: "3" }));
+      });
+      var motor = E("circle", { cx: BX, cy: BY + 3, r: 7 }, { fill: "var(--line)" });
+      svg.appendChild(motor);
+      // moving belt hatching
+      var defs = E("defs", {});
+      var clip = E("clipPath", { id: "conv-belt-clip" });
+      clip.appendChild(E("rect", { x: BX, y: BY + 7, width: BW, height: 14 }));
+      defs.appendChild(clip);
+      svg.appendChild(defs);
+      var hatchClip = E("g", { "clip-path": "url(#conv-belt-clip)" });
+      var hatch = E("g", {});
+      for (var h = -1; h < 44; h++)
+        hatch.appendChild(E("line", { x1: BX + h * 20, y1: BY + 9, x2: BX + h * 20 - 7, y2: BY + 17 },
+                            { stroke: "var(--line)", strokeWidth: "2" }));
+      hatchClip.appendChild(hatch);
+      svg.appendChild(hatchClip);
+      // photo-eyes
+      var eyes = {};
+      [["INFEED", st.EYE_IN], ["OUTFEED", st.EYE_OUT]].forEach(function (e) {
+        var x = mx(e[1]);
+        svg.appendChild(E("line", { x1: x, y1: 52, x2: x, y2: BY - 2, "stroke-dasharray": "3 4" },
+                         { stroke: "var(--faint)", strokeWidth: "1.5" }));
+        var lamp = E("circle", { cx: x, cy: 46, r: 5 }, { fill: "var(--line)" });
+        svg.appendChild(lamp);
+        var l = E("text", { x: x, y: 32, "text-anchor": "middle", "font-size": 10 },
+                  { fill: "var(--faint)", fontFamily: "Saira, sans-serif", letterSpacing: ".08em" });
+        l.textContent = e[0];
+        svg.appendChild(l);
+        eyes[e[0]] = lamp;
+      });
+      var partsG = E("g", {});
+      svg.appendChild(partsG);
+      var info = E("text", { x: BX, y: 162, "font-size": 13 },
+                   { fill: "var(--muted)", fontFamily: "IBM Plex Mono, monospace" });
+      svg.appendChild(info);
+      // bottom-right: the top-right corner belongs to the OUTFEED eye label
+      var alarm = E("text", { x: BX + BW, y: 162, "text-anchor": "end", "font-size": 12 },
+                    { fill: "var(--bad)", fontFamily: "Saira, sans-serif", fontWeight: "700", letterSpacing: ".1em" });
+      svg.appendChild(alarm);
+      var lastCount = 0, lastAlarm = false, shift = 0;
+      return { el: svg, update: function (io) {
+        if (io) { lastCount = io.count || 0; lastAlarm = !!io.alarmJam; }
+        if (st.moving) shift = (shift + 1.6) % 20;
+        hatch.setAttribute("transform", "translate(" + shift.toFixed(1) + ",0)");
+        while (partsG.firstChild) partsG.removeChild(partsG.firstChild);
+        st.parts.forEach(function (x) {
+          partsG.appendChild(E("rect", { x: mx(x) - 10, y: BY - 20, width: 20, height: 20, rx: 3 },
+                               { fill: "var(--accent)", opacity: ".85" }));
+        });
+        var sen = scene.sensors();
+        eyes.INFEED.style.fill = sen.eyeIn ? "var(--good)" : "var(--line)";
+        eyes.OUTFEED.style.fill = sen.eyeOut ? "var(--good)" : "var(--line)";
+        // commanded but not turning = the failure this lab is about
+        motor.style.fill = st.moving ? "var(--good)" : (st.belt ? "var(--bad)" : "var(--line)");
+        info.textContent = "t = " + st.t.toFixed(0) + " s  \u00b7  counted = " + lastCount +
+          "  \u00b7  left the belt = " + st.passed + "  \u00b7  belt = " + (st.belt ? "ON" : "OFF");
+        alarm.textContent = lastAlarm ? "JAM ALARM — LATCHED"
+          : (st.jammed ? "BELT SEIZED (no feedback says so)" : "");
+      } };
+    }
+
+    var RENDERERS = { train: trainRenderer, tank: tankRenderer, tank2: dualTankRenderer,
+                      oven: ovenRenderer, conveyor: conveyorRenderer };
 
     /* ---------- lab management ---------- */
     var LKEY = "sclfm-labs";

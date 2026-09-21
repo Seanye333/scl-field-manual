@@ -310,5 +310,150 @@ T("Lab duty/standby: no supervision means the level collapses after the fault", 
   assert(!r.error && !r.passed, report(r));
 });
 
+/* ---------------- Lab 7: heater PI loop ---------------- */
+const HEATER_HEAD = `
+VAR_INPUT
+    temp : Real; sp : Real;
+END_VAR
+VAR_OUTPUT
+    pwr : Real;
+END_VAR
+VAR
+    integ : Real;
+END_VAR
+VAR_TEMP
+    err : Real; raw : Real;
+END_VAR
+VAR CONSTANT
+    KP : Real := 8.0; KI : Real := 0.35; DT : Real := 0.05;
+END_VAR
+BEGIN
+err := sp - temp;
+raw := KP * err + integ;
+`;
+const REF_HEATER = HEATER_HEAD + `
+IF NOT ((raw >= 100.0 AND err > 0.0) OR (raw <= 0.0 AND err < 0.0)) THEN
+    integ := integ + KI * err * DT;
+END_IF;
+pwr := LIMIT(MN := 0.0, IN := KP * err + integ, MX := 100.0);
+`;
+
+T("Lab heater: reference PI with anti-windup passes all checks", () => {
+  const r = grade("heater", REF_HEATER);
+  assert(!r.error && r.passed, report(r));
+});
+T("Lab heater: proportional-only parks below setpoint", () => {
+  const r = grade("heater", HEATER_HEAD + "pwr := LIMIT(MN := 0.0, IN := KP * err, MX := 100.0);");
+  assert(!r.error && !r.passed, report(r));
+  const band = r.results.find(x => /Holds 75/.test(x.label));
+  assert(band && !band.pass, "settled-band check should fail: " + report(r));
+});
+T("Lab heater: integrating while saturated overshoots (the starter's bug)", () => {
+  const r = grade("heater", HEATER_HEAD +
+    "integ := integ + KI * err * DT;\npwr := LIMIT(MN := 0.0, IN := KP * err + integ, MX := 100.0);");
+  assert(!r.error && !r.passed, report(r));
+  const over = r.results.filter(x => !x.pass);
+  assert(over.length === 1 && /overshoot/.test(over[0].label),
+    "windup should fail the overshoot check and nothing else: " + report(r));
+});
+T("Lab heater: on/off control holds temperature but fails the modulation check", () => {
+  const r = grade("heater", HEATER_HEAD + "IF temp < sp THEN pwr := 100.0; ELSE pwr := 0.0; END_IF;");
+  assert(!r.error && !r.passed, report(r));
+  const mod = r.results.find(x => /modulates/.test(x.label));
+  assert(mod && !mod.pass, "modulation check should fail: " + report(r));
+});
+T("Lab heater: an unclamped output is caught even though the drive clamps it", () => {
+  const r = grade("heater", REF_HEATER.replace(
+    "pwr := LIMIT(MN := 0.0, IN := KP * err + integ, MX := 100.0);", "pwr := KP * err + integ;"));
+  assert(!r.error && !r.passed, report(r));
+  const rng = r.results.find(x => /never leaves/.test(x.label));
+  assert(rng && !rng.pass, "range check should fail: " + report(r));
+});
+
+/* ---------------- Lab 8: conveyor jam & part count ---------------- */
+const CONV_HEAD = `
+VAR_INPUT
+    cmdStart : Bool; cmdReset : Bool; eyeIn : Bool; eyeOut : Bool;
+END_VAR
+VAR_OUTPUT
+    belt : Bool; alarmJam : Bool; count : Int;
+END_VAR
+VAR
+    running : Bool; inFlight : Bool;
+    trigIn : R_TRIG; trigOut : R_TRIG; trigRst : R_TRIG; tTravel : TON;
+END_VAR
+BEGIN
+trigIn(CLK := eyeIn);
+trigOut(CLK := eyeOut);
+trigRst(CLK := cmdReset);
+IF cmdStart THEN running := TRUE; END_IF;
+`;
+const REF_CONVEYOR = CONV_HEAD + `
+IF trigOut.Q THEN count := count + 1; END_IF;
+
+IF trigIn.Q  THEN inFlight := TRUE;  END_IF;
+IF trigOut.Q THEN inFlight := FALSE; END_IF;
+
+tTravel(IN := inFlight, PT := T#18s);
+IF tTravel.Q THEN alarmJam := TRUE; END_IF;
+
+IF trigRst.Q THEN
+    alarmJam := FALSE;
+    inFlight := FALSE;
+END_IF;
+
+belt := running AND NOT alarmJam;
+`;
+
+T("Lab conveyor: reference passes all checks", () => {
+  const r = grade("conveyor", REF_CONVEYOR);
+  assert(!r.error && r.passed, report(r));
+});
+T("Lab conveyor: counting the beam instead of the edge over-counts 20x", () => {
+  const r = grade("conveyor", REF_CONVEYOR
+    .replace("IF trigOut.Q THEN count := count + 1; END_IF;", "IF eyeOut THEN count := count + 1; END_IF;"));
+  assert(!r.error && !r.passed, report(r));
+  const fails = r.results.filter(x => !x.pass);
+  assert(fails.length === 1 && /counted once/.test(fails[0].label),
+    "only the tally check should fail: " + report(r));
+  assert(/over-counted by \d\d\d/.test(fails[0].msg), "message should quantify it: " + fails[0].msg);
+});
+T("Lab conveyor: an alarm that is not latched lets the belt restart by itself", () => {
+  /* The mechanic hands the stuck part through the outfeed eye at t = 160 s, so
+     the live condition clears on its own — only a latch survives it. */
+  const r = grade("conveyor", REF_CONVEYOR
+    .replace("IF tTravel.Q THEN alarmJam := TRUE; END_IF;", "alarmJam := tTravel.Q;")
+    .replace("    alarmJam := FALSE;\n", ""));
+  assert(!r.error && !r.passed, report(r));
+  const latch = r.results.find(x => /latches/.test(x.label));
+  assert(latch && !latch.pass, "latch check should fail: " + report(r));
+  assert(/restarted on its own/.test(latch.msg), "message should name the failure: " + latch.msg);
+});
+T("Lab conveyor: supervising the belt instead of the transfer trips a phantom alarm", () => {
+  const r = grade("conveyor", REF_CONVEYOR.replace("tTravel(IN := inFlight,", "tTravel(IN := running,"));
+  assert(!r.error && !r.passed, report(r));
+  const phantom = r.results.find(x => /phantom/.test(x.label));
+  assert(phantom && !phantom.pass, "phantom-alarm check should fail: " + report(r));
+});
+T("Lab conveyor: never clearing inFlight alarms on the first part", () => {
+  const r = grade("conveyor", REF_CONVEYOR.replace("IF trigOut.Q THEN inFlight := FALSE; END_IF;", ""));
+  assert(!r.error && !r.passed, report(r));
+  const det = r.results.find(x => /jam is detected/.test(x.label));
+  assert(det && !det.pass, "detection check should fail: " + report(r));
+});
+T("Lab conveyor: the shipped starter fails, and fails informatively", () => {
+  const r = grade("conveyor", Labs.labs.find(l => l.id === "conveyor").starter);
+  assert(!r.error, "starter must at least compile and run: " + report(r));
+  assert(!r.passed, "the starter must not pass: " + report(r));
+  assert(r.results.filter(x => !x.pass).every(x => x.msg), "every failure needs a message: " + report(r));
+});
+T("Lab heater: the shipped starter compiles, runs, and fails only on overshoot", () => {
+  const r = grade("heater", Labs.labs.find(l => l.id === "heater").starter);
+  assert(!r.error, "starter must at least compile and run: " + report(r));
+  const fails = r.results.filter(x => !x.pass);
+  assert(fails.length === 1 && /overshoot/.test(fails[0].label),
+    "the starter should teach exactly one lesson: " + report(r));
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
