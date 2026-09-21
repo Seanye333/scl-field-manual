@@ -465,7 +465,10 @@
   }
   .note { background: var(--accent-soft); border-left: 4px solid var(--accent); }
   .warn { background: var(--amber-soft); border-left: 4px solid var(--amber); }
-  .note b, .warn b {
+  /* Only the opening <b> is the note's label. A bold further in is emphasis
+     inside a sentence — block-styling that too turned every lab brief into a
+     column of shouted fragments. */
+  .note > b:first-child, .warn > b:first-child {
     font-family: "Saira", sans-serif;
     font-size: .78rem;
     letter-spacing: .12em;
@@ -473,8 +476,9 @@
     display: block;
     margin-bottom: .15rem;
   }
-  .note b { color: var(--accent); }
-  .warn b { color: var(--amber); }
+  .note b, .warn b { font-weight: 700; color: var(--ink); }
+  .note > b:first-child { color: var(--accent); }
+  .warn > b:first-child { color: var(--amber); }
 
   /* ---------- tables ---------- */
   .tablewrap { overflow-x: auto; max-width: 54rem; margin: 1.3rem 0; }
