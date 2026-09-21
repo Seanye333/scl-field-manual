@@ -1,0 +1,64 @@
+FUNCTION_BLOCK "FB_ConveyorJam"
+{ S7_Optimized_Access := 'TRUE' }
+// Lab 8: run a belt, count what leaves it, and detect a seizure that no
+// feedback contact reports.
+//
+// The belt has no "is it turning" signal — a stalled motor with a healthy
+// contactor looks identical to a running one. The evidence is a part that
+// passed the infeed eye and never reached the outfeed eye, so supervise the
+// TRANSFER, not the motor.
+VAR_INPUT
+    cmdStart  : Bool;
+    cmdStop   : Bool;
+    cmdReset  : Bool;                // operator acknowledge
+    eyeIn     : Bool;                // infeed photo-eye
+    eyeOut    : Bool;                // outfeed photo-eye
+    travelMax : Time := T#18s;       // generous margin over the real transit
+END_VAR
+VAR_OUTPUT
+    belt      : Bool;
+    alarmJam  : Bool;
+    count     : DInt;
+END_VAR
+VAR
+    running   : Bool;
+    inFlight  : Bool;                // a part is between the two eyes
+    trigIn    : R_TRIG;
+    trigOut   : R_TRIG;
+    trigRst   : R_TRIG;
+    tTravel   : TON;
+END_VAR
+
+BEGIN
+    #trigIn(CLK := #eyeIn);
+    #trigOut(CLK := #eyeOut);
+    #trigRst(CLK := #cmdReset);
+
+    IF #cmdStart THEN #running := TRUE;  END_IF;
+    IF #cmdStop  THEN #running := FALSE; END_IF;
+
+    // Count the edge. A part sits in the beam for a second — at a 50 ms scan
+    // that is twenty scans, and a level test counts every one of them.
+    IF #trigOut.Q THEN
+        #count := #count + 1;
+    END_IF;
+
+    // Travel supervision: the timer runs only while something is owed to us.
+    IF #trigIn.Q  THEN #inFlight := TRUE;  END_IF;
+    IF #trigOut.Q THEN #inFlight := FALSE; END_IF;
+    #tTravel(IN := #inFlight, PT := #travelMax);
+
+    // Latch. The mechanic clears a jam by pulling the part through, which makes
+    // the live condition disappear on its own — an alarm assigned straight from
+    // tTravel.Q would drop with it and the line would restart unacknowledged.
+    IF #tTravel.Q THEN
+        #alarmJam := TRUE;
+    END_IF;
+
+    IF #trigRst.Q THEN
+        #alarmJam := FALSE;
+        #inFlight := FALSE;          // forget the part that never arrived
+    END_IF;
+
+    #belt := #running AND NOT #alarmJam;
+END_FUNCTION_BLOCK

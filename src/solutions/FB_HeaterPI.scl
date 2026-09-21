@@ -1,0 +1,52 @@
+FUNCTION_BLOCK "FB_HeaterPI"
+{ S7_Optimized_Access := 'TRUE' }
+// Lab 7: a PI loop for a modulating heater, with the one guard that makes it
+// a controller instead of a lesson.
+//
+// Call this from a cyclic interrupt OB (OB30 et al.) and pass that OB's cycle
+// time as #dt. Calling it from OB1 works until the day OB1's load changes and
+// the integral gain silently changes with it.
+VAR_INPUT
+    pv       : Real;                 // measured value, engineering units
+    sp       : Real;                 // setpoint, same units
+    kp       : Real := 8.0;          // % per unit of error
+    ki       : Real := 0.35;         // % per unit of error per second
+    dt       : Real := 0.05;         // sample time, s — the OB's cycle
+    outMin   : Real := 0.0;
+    outMax   : Real := 100.0;
+    manual   : Bool;                 // TRUE = follow manVal, track the integrator
+    manVal   : Real;
+END_VAR
+VAR_OUTPUT
+    out      : Real;                 // clamped control output
+    saturated: Bool;                 // output is against a limit right now
+END_VAR
+VAR
+    iTerm    : Real;                 // the integral accumulator — Static, always
+END_VAR
+VAR_TEMP
+    err      : Real;
+    raw      : Real;
+END_VAR
+
+BEGIN
+    #err := #sp - #pv;
+    #raw := #kp * #err + #iTerm;
+    #saturated := (#raw >= #outMax) OR (#raw <= #outMin);
+
+    IF #manual THEN
+        // Bumpless return to auto: hold the accumulator at whatever value
+        // reproduces the operator's output, so nothing jumps on handover.
+        #out   := LIMIT(MN := #outMin, IN := #manVal, MX := #outMax);
+        #iTerm := #out - #kp * #err;
+    ELSE
+        // Anti-windup. Integrating while the output is already hard against a
+        // limit cannot move the plant — it only builds a charge that has to be
+        // unwound before the output comes off the stop. A long climb from cold
+        // is exactly that case, and the overshoot arrives minutes later.
+        IF NOT ((#raw >= #outMax AND #err > 0.0) OR (#raw <= #outMin AND #err < 0.0)) THEN
+            #iTerm := #iTerm + #ki * #err * #dt;
+        END_IF;
+        #out := LIMIT(MN := #outMin, IN := #kp * #err + #iTerm, MX := #outMax);
+    END_IF;
+END_FUNCTION_BLOCK
